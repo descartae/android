@@ -1,0 +1,23 @@
+query FacilityQuery {
+  centers {
+    _id
+    name
+      location {
+        municipality
+        state
+        zip
+      }
+    website
+    telephone
+    typesOfWaste {
+      _id
+      name
+      icon
+    }
+    openHours {
+      dayOfWeek
+      startTime
+      endTime
+    }
+  }
+}
