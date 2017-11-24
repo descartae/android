@@ -53,7 +53,8 @@ public class FacilityFragment extends Fragment {
         ApolloClient apolloClient = ApolloClient.builder()
             .serverUrl(NetworkingConstants.BASE_URL)
             .build();
-        apolloClient.query(FacilityQuery.builder().build()).enqueue(new ApolloCall.Callback<FacilityQuery.Data>() {
+        FacilityQuery facilityQuery = FacilityQuery.builder().build();
+        apolloClient.query(facilityQuery).enqueue(new ApolloCall.Callback<FacilityQuery.Data>() {
 
             @Override
             public void onResponse(@Nonnull final Response<FacilityQuery.Data> dataResponse) {
@@ -61,6 +62,7 @@ public class FacilityFragment extends Fragment {
                 getActivity().runOnUiThread(new Runnable() {
                     @Override public void run() {
                         facilityListAdapter.setCenters(dataResponse.data().centers());
+                        facilityListAdapter.notifyDataSetChanged();
                     }
                 });
             }
