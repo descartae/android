@@ -1,10 +1,15 @@
 package org.descartae.android.view.facility.adapter;
 
+import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import com.squareup.picasso.Picasso;
 
 import org.descartae.android.FacilityQuery;
 import org.descartae.android.R;
@@ -19,9 +24,11 @@ public class FacilityListAdapter extends RecyclerView.Adapter<FacilityListAdapte
 
     private List<FacilityQuery.Center> mCenters;
     private final FacilityFragment.OnListFacilitiesListener mListener;
+    private Context mContext;
 
-    public FacilityListAdapter(FacilityFragment.OnListFacilitiesListener listener) {
+    public FacilityListAdapter(Context context, FacilityFragment.OnListFacilitiesListener listener) {
         mListener = listener;
+        mContext = context;
     }
 
     @Override
@@ -34,8 +41,20 @@ public class FacilityListAdapter extends RecyclerView.Adapter<FacilityListAdapte
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.mItem = mCenters.get(position);
-        holder.mIdView.setText(mCenters.get(position)._id());
+        holder.mLocationView.setText(mCenters.get(position).location().municipality());
         holder.mNameView.setText(mCenters.get(position).name());
+
+        holder.mTypes.removeAllViews();
+
+
+        for (FacilityQuery.TypesOfWaste typesOfWaste: mCenters.get(position).typesOfWaste()) {
+            ImageView ii = new ImageView(mContext);
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+            lp.setMargins(20, 0, 20, 0);
+            ii.setLayoutParams(lp);
+            Picasso.with(mContext).load(typesOfWaste.icon()).resize(100, 100).centerInside().into(ii);
+            holder.mTypes.addView(ii);
+        }
 
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -59,11 +78,14 @@ public class FacilityListAdapter extends RecyclerView.Adapter<FacilityListAdapte
     public class ViewHolder extends RecyclerView.ViewHolder {
         public final View mView;
 
-        @BindView(R.id.id)
-        public TextView mIdView;
+        @BindView(R.id.location)
+        public TextView mLocationView;
 
         @BindView(R.id.name)
         public TextView mNameView;
+
+        @BindView(R.id.type_waste)
+        public LinearLayout mTypes;
 
         public FacilityQuery.Center mItem;
 

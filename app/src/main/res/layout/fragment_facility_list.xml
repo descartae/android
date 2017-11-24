@@ -6,8 +6,6 @@
     android:name="org.descartae.android.view.facility.FacilityFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_marginLeft="16dp"
-    android:layout_marginRight="16dp"
     app:layoutManager="LinearLayoutManager"
     tools:context="org.descartae.android.view.facility.FacilityFragment"
     tools:listitem="@layout/fragment_facility" />

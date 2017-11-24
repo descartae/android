@@ -20,6 +20,7 @@ import org.descartae.android.R;
 
 import org.descartae.android.view.facility.adapter.FacilityListAdapter;
 import org.descartae.android.view.networking.NetworkingConstants;
+import org.descartae.android.view.utils.SimpleDividerItemDecoration;
 
 import javax.annotation.Nonnull;
 
@@ -83,8 +84,9 @@ public class FacilityFragment extends Fragment {
         if (view instanceof RecyclerView) {
             Context context = view.getContext();
             RecyclerView recyclerView = (RecyclerView) view;
+            recyclerView.addItemDecoration(new SimpleDividerItemDecoration(getActivity()));
             recyclerView.setLayoutManager(new LinearLayoutManager(context));
-            facilityListAdapter = new FacilityListAdapter(mListener);
+            facilityListAdapter = new FacilityListAdapter(getActivity(), mListener);
             recyclerView.setAdapter(facilityListAdapter);
         }
         return view;
