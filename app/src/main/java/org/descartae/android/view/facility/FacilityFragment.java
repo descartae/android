@@ -2,6 +2,9 @@ package org.descartae.android.view.facility;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.design.widget.BottomSheetBehavior;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -24,10 +27,19 @@ import org.descartae.android.view.utils.SimpleDividerItemDecoration;
 
 import javax.annotation.Nonnull;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 public class FacilityFragment extends Fragment {
 
     private OnListFacilitiesListener mListener;
     private FacilityListAdapter facilityListAdapter;
+
+    @BindView(R.id.container)
+    public CoordinatorLayout coordinatorLayout;
+
+    @BindView(R.id.list)
+    public RecyclerView recyclerView;
 
     public FacilityFragment() {
     }
@@ -60,6 +72,9 @@ public class FacilityFragment extends Fragment {
             @Override
             public void onResponse(@Nonnull final Response<FacilityQuery.Data> dataResponse) {
 
+                if (dataResponse == null) return;
+                if (dataResponse.data() == null) return;
+
                 getActivity().runOnUiThread(new Runnable() {
                     @Override public void run() {
                         facilityListAdapter.setCenters(dataResponse.data().centers());
@@ -81,14 +96,36 @@ public class FacilityFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_facility_list, container, false);
 
-        if (view instanceof RecyclerView) {
-            Context context = view.getContext();
-            RecyclerView recyclerView = (RecyclerView) view;
-            recyclerView.addItemDecoration(new SimpleDividerItemDecoration(getActivity()));
-            recyclerView.setLayoutManager(new LinearLayoutManager(context));
-            facilityListAdapter = new FacilityListAdapter(getActivity(), mListener);
-            recyclerView.setAdapter(facilityListAdapter);
-        }
+        ButterKnife.bind(this, view);
+
+        Context context = view.getContext();
+        recyclerView.addItemDecoration(new SimpleDividerItemDecoration(getActivity()));
+        recyclerView.setLayoutManager(new LinearLayoutManager(context));
+        facilityListAdapter = new FacilityListAdapter(getActivity(), mListener);
+        recyclerView.setAdapter(facilityListAdapter);
+
+        View bottomSheet = coordinatorLayout.findViewById(R.id.bottom_sheet);
+        final BottomSheetBehavior behavior = BottomSheetBehavior.from(bottomSheet);
+        behavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
+            @Override
+            public void onStateChanged(@NonNull View bottomSheet, int newState) {
+
+                if (newState == BottomSheetBehavior.STATE_EXPANDED) {
+                    // @TODO on expanded
+                } else {
+
+                }
+            }
+
+            @Override
+            public void onSlide(@NonNull View bottomSheet, float slideOffset) {
+                // React to dragging events
+            }
+        });
+
+        behavior.setHideable(true);
+        behavior.setPeekHeight(getResources().getDimensionPixelOffset(R.dimen.facilities_peek_height));
+
         return view;
     }
 
