@@ -10,9 +10,11 @@
         android:id="@+id/name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:text="Nome"
+        android:textStyle="normal"
         android:layout_margin="@dimen/text_margin"
         android:textSize="@dimen/text_regular"
-        android:textAppearance="?attr/textAppearanceListItem" />
+        android:textColor="@color/title_gray" />
 
     <LinearLayout
         android:id="@+id/type_waste"
@@ -24,11 +26,32 @@
 
     </LinearLayout>
 
-    <TextView
-        android:id="@+id/location"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="@dimen/text_margin"
-        android:textSize="@dimen/text_small" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:orientation="horizontal"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/location"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="Local"
+            android:textStyle="normal"
+            android:layout_margin="@dimen/text_margin"
+            android:textColor="@color/title_light_gray"
+            android:textSize="@dimen/text_small" />
+
+        <TextView
+            android:id="@+id/distance"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0 Km"
+            android:textStyle="normal"
+            android:layout_margin="@dimen/text_margin"
+            android:textColor="@color/colorPrimary"
+            android:textSize="@dimen/text_small" />
+
+    </LinearLayout>
 
 </LinearLayout>

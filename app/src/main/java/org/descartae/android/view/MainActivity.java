@@ -13,9 +13,7 @@ import org.descartae.android.view.facility.FacilityFragment;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class MainActivity extends AppCompatActivity implements FacilityFragment.OnListFacilitiesListener, BottomNavigationView.OnNavigationItemSelectedListener {
-
-    @BindView(R.id.navigation) BottomNavigationView mNavigation;
+public class MainActivity extends AppCompatActivity implements FacilityFragment.OnListFacilitiesListener {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,19 +23,6 @@ public class MainActivity extends AppCompatActivity implements FacilityFragment.
         ButterKnife.bind(this);
 
         getSupportFragmentManager().beginTransaction().replace(R.id.content, FacilityFragment.newInstance()).commit();
-
-        //mNavigation.setOnNavigationItemSelectedListener(this);
-    }
-
-    @Override
-    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-
-        switch (item.getItemId()) {
-            case R.id.navigation_facilities:
-                getSupportFragmentManager().beginTransaction().replace(R.id.content, FacilityFragment.newInstance());
-                return true;
-        }
-        return false;
     }
 
     @Override
