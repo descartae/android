@@ -26,4 +26,5 @@
     <string name="permission_gps_message">É necessário permitir o uso da sua localização para podermos encontrar os pontos de coleta mais próximos de você</string>
     <string name="allow">Permitir</string>
     <string name="cancel">Cancelar</string>
+    <string name="action_continue">Continuar</string>
 </resources>

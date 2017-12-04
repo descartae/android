@@ -70,7 +70,7 @@ public class Intro extends AppCompatActivity implements RequestPermissionView {
 
     @Override
     public void onDeniedPermission() {
-        //ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION);
+
     }
 
     @Override

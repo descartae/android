@@ -127,7 +127,7 @@ public class IntroFragment extends Fragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
                 .setTitle(R.string.permission_gps_title)
                 .setMessage(R.string.permission_gps_message)
-                .setPositiveButton(R.string.allow, (DialogInterface dialogInterface, int i) -> {
+                .setPositiveButton(R.string.action_continue, (DialogInterface dialogInterface, int i) -> {
                     mListener.onAcceptPermission();
                     dialogInterface.dismiss();
                 })
