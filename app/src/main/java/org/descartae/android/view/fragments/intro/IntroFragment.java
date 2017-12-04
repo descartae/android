@@ -1,6 +1,8 @@
 package org.descartae.android.view.fragments.intro;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -11,11 +13,14 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.squareup.picasso.Picasso;
+
 import org.descartae.android.R;
 import org.descartae.android.interfaces.RequestPermissionView;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 public class IntroFragment extends Fragment {
 
@@ -63,31 +68,35 @@ public class IntroFragment extends Fragment {
         ButterKnife.bind(this, view);
 
         switch (page) {
-            case 1:
+            case 0:
 
                 mTitle.setText(R.string.onboard_title_1);
                 mSubTitle.setText(R.string.onboard_subtitle_1);
+                Picasso.with(getActivity()).load(R.drawable.onboarding_1).into(mImage);
+                mStart.setVisibility(View.GONE);
+
+                return view;
+            case 1:
+
+                mTitle.setText(R.string.onboard_title_2);
+                mSubTitle.setText(R.string.onboard_subtitle_2);
+                Picasso.with(getActivity()).load(R.drawable.onboarding_2).into(mImage);
                 mStart.setVisibility(View.GONE);
 
                 return view;
             case 2:
 
-                mTitle.setText(R.string.onboard_title_2);
-                mSubTitle.setText(R.string.onboard_subtitle_2);
+                mTitle.setText(R.string.onboard_title_3);
+                mSubTitle.setText(R.string.onboard_subtitle_3);
+                Picasso.with(getActivity()).load(R.drawable.onboarding_3).into(mImage);
                 mStart.setVisibility(View.GONE);
 
                 return view;
             case 3:
 
-                mTitle.setText(R.string.onboard_title_3);
-                mSubTitle.setText(R.string.onboard_subtitle_3);
-                mStart.setVisibility(View.GONE);
-
-                return view;
-            case 4:
-
                 mTitle.setText(R.string.onboard_title_4);
                 mSubTitle.setText(R.string.onboard_subtitle_4);
+                Picasso.with(getActivity()).load(R.drawable.onboarding_4).into(mImage);
                 mStart.setVisibility(View.VISIBLE);
 
                 return view;
@@ -110,5 +119,21 @@ public class IntroFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    @OnClick(R.id.action_start)
+    public void onActionStart() {
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
+                .setTitle(R.string.permission_gps_title)
+                .setMessage(R.string.permission_gps_message)
+                .setPositiveButton(R.string.action_continue, (DialogInterface dialogInterface, int i) -> {
+                    mListener.onAcceptPermission();
+                    dialogInterface.dismiss();
+                })
+                .setNegativeButton(R.string.cancel, (dialogInterface, i) -> {
+                    mListener.onDeniedPermission();
+                });
+        builder.create().show();
     }
 }
