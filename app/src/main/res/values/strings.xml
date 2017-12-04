@@ -27,4 +27,11 @@
     <string name="allow">Permitir</string>
     <string name="cancel">Cancelar</string>
     <string name="action_continue">Continuar</string>
+    <string name="menu_about">Sobre o projeto</string>
+    <string name="menu_feedback">Enviar feedback</string>
+    <string name="menu_rate">Avaliar o aplicativo</string>
+    <string name="menu_share">Compartilhar o Descartaê</string>
+    <string name="menu_blog">Conheça nosso blog</string>
+    <string name="action_info">Informação</string>
+    <string name="action_filter">Filtrar</string>
 </resources>
