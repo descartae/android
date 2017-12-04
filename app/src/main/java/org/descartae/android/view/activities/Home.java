@@ -12,7 +12,7 @@ import android.view.MenuItem;
 
 import org.descartae.android.FacilityQuery;
 import org.descartae.android.R;
-import org.descartae.android.view.facility.FacilityFragment;
+import org.descartae.android.view.fragments.facility.FacilityFragment;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;

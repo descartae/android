@@ -20,6 +20,10 @@ android {
             buildConfigField "String", "MOBILE_API_URL", project.MOBILE_API_RELEASE
         }
     }
+    compileOptions {
+        targetCompatibility 1.8
+        sourceCompatibility 1.8
+    }
 }
 
 dependencies {
@@ -33,6 +37,7 @@ dependencies {
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
 
     implementation 'com.squareup.picasso:picasso:2.5.2'
+    compile 'me.relex:circleindicator:1.2.2@aar'
 
     implementation 'com.apollographql.apollo:apollo-runtime:0.4.2'
 

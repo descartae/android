@@ -1,4 +1,4 @@
-package org.descartae.android.view.networking;
+package org.descartae.android.networking;
 
 import org.descartae.android.BuildConfig;
 
