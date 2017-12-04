@@ -1,4 +1,4 @@
-package org.descartae.android.view.facility.adapter;
+package org.descartae.android.adapters;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
@@ -13,7 +13,7 @@ import com.squareup.picasso.Picasso;
 
 import org.descartae.android.FacilityQuery;
 import org.descartae.android.R;
-import org.descartae.android.view.facility.FacilityFragment;
+import org.descartae.android.view.fragments.facility.FacilityFragment;
 
 import java.util.List;
 
