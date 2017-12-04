@@ -6,4 +6,7 @@
     <color name="dark_gray">#f9f9f9</color>
     <color name="title_gray">#4d4d4d</color>
     <color name="title_light_gray">#a8a8a8</color>
+    <color name="btn_green">#27b957</color>
+    <color name="bg_intro_dark">#0a6635</color>
+    <color name="bg_intro_light">#84d523</color>
 </resources>

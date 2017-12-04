@@ -1,4 +1,4 @@
-package org.descartae.android.view.facility;
+package org.descartae.android.view.fragments.facility;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -21,8 +21,8 @@ import com.apollographql.apollo.exception.ApolloException;
 import org.descartae.android.FacilityQuery;
 import org.descartae.android.R;
 
-import org.descartae.android.view.facility.adapter.FacilityListAdapter;
-import org.descartae.android.view.networking.NetworkingConstants;
+import org.descartae.android.adapters.FacilityListAdapter;
+import org.descartae.android.networking.NetworkingConstants;
 import org.descartae.android.view.utils.SimpleDividerItemDecoration;
 
 import javax.annotation.Nonnull;

@@ -43,7 +43,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:layoutManager="LinearLayoutManager"
-            tools:context="org.descartae.android.view.facility.FacilityFragment"
+            tools:context="org.descartae.android.view.fragments.facility.FacilityFragment"
             tools:listitem="@layout/fragment_facility" />
 
     </android.support.v4.widget.NestedScrollView>
