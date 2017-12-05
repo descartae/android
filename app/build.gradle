@@ -5,7 +5,7 @@ android {
     compileSdkVersion 27
     defaultConfig {
         applicationId "com.descartae"
-        minSdkVersion 19
+        minSdkVersion 22
         targetSdkVersion 27
         versionCode 1
         versionName "1.0"

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Android</string>
+    <string name="app_name">Descartaê</string>
     <string name="title_home">Home</string>
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
@@ -34,4 +34,6 @@
     <string name="menu_blog">Conheça nosso blog</string>
     <string name="action_info">Informação</string>
     <string name="action_filter">Filtrar</string>
+    <string name="share">Compartilhe o %1$s</string>
+    <string name="app_share">market://details?id=%1$s</string>
 </resources>
