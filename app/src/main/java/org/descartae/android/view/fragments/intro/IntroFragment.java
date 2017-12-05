@@ -132,7 +132,7 @@ public class IntroFragment extends Fragment {
                     dialogInterface.dismiss();
                 })
                 .setNegativeButton(R.string.cancel, (dialogInterface, i) -> {
-                    mListener.onDeniedPermission();
+                    dialogInterface.dismiss();
                 });
         builder.create().show();
     }

@@ -9,4 +9,5 @@
     <color name="btn_green">#27b957</color>
     <color name="bg_intro_dark">#0a6635</color>
     <color name="bg_intro_light">#84d523</color>
+    <color name="bg">#f9f9f9</color>
 </resources>
