@@ -36,4 +36,9 @@
     <string name="action_filter">Filtrar</string>
     <string name="share">Compartilhe o %1$s</string>
     <string name="app_share">market://details?id=%1$s</string>
+    <string name="enable_location">Habilitar localização</string>
+    <string name="enable_location_desc">É necessário permitir o uso da sua localização para podermos encontrar os pontos de coleta mais próximos de você</string>
+    <string name="offline">Offline</string>
+    <string name="offline_desc">Parece que você está sem conexão.  Clique no botão abaixo para atualizar.</string>
+    <string name="try_again">Tentar novamente</string>
 </resources>

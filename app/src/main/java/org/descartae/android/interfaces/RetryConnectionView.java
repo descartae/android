@@ -4,7 +4,7 @@ package org.descartae.android.interfaces;
  * Created by lucasmontano on 04/12/2017.
  */
 
-public interface RequestPermissionView {
+public interface RetryConnectionView {
 
-    void onAcceptPermission();
+    void onRetryConnection();
 }

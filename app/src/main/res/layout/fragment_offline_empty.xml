@@ -1,22 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="org.descartae.android.view.fragments.intro.IntroFragment">
+    android:background="@color/bg">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:paddingLeft="@dimen/activity_horizontal_margin"
         android:layout_centerVertical="true"
-        android:paddingRight="@dimen/activity_horizontal_margin">
+        android:layout_margin="@dimen/activity_horizontal_margin"
+        android:orientation="vertical">
 
         <ImageView
-            android:id="@+id/intro_image"
             android:layout_width="@dimen/intro_image"
             android:layout_height="@dimen/intro_image"
-            android:layout_gravity="center_horizontal"/>
+            android:src="@drawable/ic_offline_copy"
+            android:layout_gravity="center_horizontal" />
 
         <TextView
             android:id="@+id/intro_title"
@@ -24,7 +23,8 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/margin_top"
             android:gravity="center_horizontal"
-            android:textColor="@android:color/white"
+            android:text="@string/offline"
+            android:textColor="@color/title_gray"
             android:textSize="@dimen/text_large"
             android:textStyle="bold" />
 
@@ -35,21 +35,24 @@
             android:gravity="center_horizontal"
             android:lineSpacingExtra="2dp"
             android:padding="@dimen/activity_horizontal_margin"
-            android:textColor="@android:color/white"
+            android:text="@string/offline_desc"
+            android:textColor="@color/title_gray"
             android:textSize="@dimen/text_regular" />
 
         <Button
-            android:id="@+id/action_start"
-            android:layout_width="wrap_content"
+            android:id="@+id/action_try"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="@dimen/margin_btn_top"
             style="@style/Widget.AppCompat.Button.Colored"
             android:minWidth="125dp"
             android:padding="@dimen/activity_horizontal_margin"
-            android:text="@string/start"
-            android:textColor="@android:color/white"
-            android:visibility="gone" />
+            android:text="@string/try_again"
+            android:textColor="@android:color/white" />
 
     </LinearLayout>
+
 </RelativeLayout>

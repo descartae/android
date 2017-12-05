@@ -38,6 +38,7 @@ dependencies {
 
     implementation 'com.squareup.picasso:picasso:2.5.2'
     compile 'me.relex:circleindicator:1.2.2@aar'
+    compile 'com.facebook.network.connectionclass:connectionclass:1.0.1'
 
     implementation 'com.apollographql.apollo:apollo-runtime:0.4.2'
 

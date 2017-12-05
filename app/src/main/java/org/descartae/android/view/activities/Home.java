@@ -7,11 +7,8 @@ import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ShareCompat;
 import android.support.v4.view.GravityCompat;
-import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.ShareActionProvider;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -19,13 +16,16 @@ import android.view.MenuItem;
 import org.descartae.android.BuildConfig;
 import org.descartae.android.FacilityQuery;
 import org.descartae.android.R;
+import org.descartae.android.interfaces.RetryConnectionView;
+import org.descartae.android.view.fragments.empty.EmptyLocationPermissionFragment;
+import org.descartae.android.view.fragments.empty.EmptyOfflineFragment;
 import org.descartae.android.view.fragments.facility.FacilityFragment;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class Home extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, FacilityFragment.OnListFacilitiesListener {
+public class Home extends BaseActivity
+        implements NavigationView.OnNavigationItemSelectedListener, FacilityFragment.OnListFacilitiesListener, RetryConnectionView {
 
     @BindView(R.id.toolbar)
     Toolbar toolbar;
@@ -35,6 +35,16 @@ public class Home extends AppCompatActivity
 
     @BindView(R.id.nav_view)
     NavigationView navigationView;
+
+    @Override
+    void permissionNotGranted() {
+        getSupportFragmentManager().beginTransaction().replace(R.id.content, EmptyLocationPermissionFragment.newInstance()).commitAllowingStateLoss();
+    }
+
+    @Override
+    void permissionGranted() {
+        getSupportFragmentManager().beginTransaction().replace(R.id.content, FacilityFragment.newInstance()).commitAllowingStateLoss();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,7 +62,7 @@ public class Home extends AppCompatActivity
 
         navigationView.setNavigationItemSelectedListener(this);
 
-        getSupportFragmentManager().beginTransaction().replace(R.id.content, FacilityFragment.newInstance()).commit();
+        init();
     }
 
     @Override
@@ -121,5 +131,15 @@ public class Home extends AppCompatActivity
     @Override
     public void onListFacilityInteraction(FacilityQuery.Center center) {
 
+    }
+
+    @Override
+    public void onNoConnection() {
+        getSupportFragmentManager().beginTransaction().replace(R.id.content, EmptyOfflineFragment.newInstance()).commitAllowingStateLoss();
+    }
+
+    @Override
+    public void onRetryConnection() {
+        permissionGranted();
     }
 }

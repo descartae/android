@@ -1,11 +1,14 @@
 package org.descartae.android.view.fragments.facility;
 
+import android.Manifest;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -17,6 +20,9 @@ import com.apollographql.apollo.ApolloCall;
 import com.apollographql.apollo.ApolloClient;
 import com.apollographql.apollo.api.Response;
 import com.apollographql.apollo.exception.ApolloException;
+import com.facebook.network.connectionclass.ConnectionClassManager;
+import com.facebook.network.connectionclass.ConnectionQuality;
+import com.facebook.network.connectionclass.DeviceBandwidthSampler;
 
 import org.descartae.android.FacilityQuery;
 import org.descartae.android.R;
@@ -30,7 +36,7 @@ import javax.annotation.Nonnull;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class FacilityFragment extends Fragment {
+public class FacilityFragment extends Fragment implements ConnectionClassManager.ConnectionClassStateChangeListener {
 
     private OnListFacilitiesListener mListener;
     private FacilityListAdapter facilityListAdapter;
@@ -62,6 +68,18 @@ public class FacilityFragment extends Fragment {
 
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        ConnectionClassManager.getInstance().register(this);
+        DeviceBandwidthSampler.getInstance().startSampling();
+        query();
+        DeviceBandwidthSampler.getInstance().stopSampling();
+    }
+
+    private void query() {
+
+        int permissionCheck = ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION);
+        if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
 
         ApolloClient apolloClient = ApolloClient.builder()
             .serverUrl(NetworkingConstants.BASE_URL)
@@ -75,11 +93,9 @@ public class FacilityFragment extends Fragment {
                 if (dataResponse == null) return;
                 if (dataResponse.data() == null) return;
 
-                getActivity().runOnUiThread(new Runnable() {
-                    @Override public void run() {
-                        facilityListAdapter.setCenters(dataResponse.data().centers());
-                        facilityListAdapter.notifyDataSetChanged();
-                    }
+                getActivity().runOnUiThread(() -> {
+                    facilityListAdapter.setCenters(dataResponse.data().centers());
+                    facilityListAdapter.notifyDataSetChanged();
                 });
             }
 
@@ -88,6 +104,15 @@ public class FacilityFragment extends Fragment {
 
                 if (e != null && e.getMessage() != null)
                     Log.e("ApolloFacilityQuery", e.getMessage());
+                
+                if (getActivity() == null || getActivity().isDestroyed() || getActivity().isFinishing()) {
+                    return;
+                }
+
+                ConnectionQuality cq = ConnectionClassManager.getInstance().getCurrentBandwidthQuality();
+                if (cq.equals(ConnectionQuality.UNKNOWN)) {
+                    mListener.onNoConnection();
+                }
             }
         });
     }
@@ -145,7 +170,15 @@ public class FacilityFragment extends Fragment {
         mListener = null;
     }
 
+    @Override
+    public void onBandwidthStateChange(ConnectionQuality bandwidthState) {
+        if (bandwidthState.equals(ConnectionQuality.UNKNOWN)) {
+            mListener.onNoConnection();
+        }
+    }
+
     public interface OnListFacilitiesListener {
         void onListFacilityInteraction(FacilityQuery.Center center);
+        void onNoConnection();
     }
 }
