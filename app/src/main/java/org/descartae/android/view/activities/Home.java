@@ -1,15 +1,22 @@
 package org.descartae.android.view.activities;
 
+import android.content.ActivityNotFoundException;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.ShareCompat;
 import android.support.v4.view.GravityCompat;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.ShareActionProvider;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import org.descartae.android.BuildConfig;
 import org.descartae.android.FacilityQuery;
 import org.descartae.android.R;
 import org.descartae.android.view.fragments.facility.FacilityFragment;
@@ -50,7 +57,6 @@ public class Home extends AppCompatActivity
 
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
@@ -81,6 +87,34 @@ public class Home extends AppCompatActivity
         int id = item.getItemId();
 
         drawer.closeDrawer(GravityCompat.START);
+
+        String storeLink = "http://play.google.com/store/apps/details?id=" + BuildConfig.APPLICATION_ID;
+
+        if (id == R.id.nav_rate) {
+
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.app_share, BuildConfig.APPLICATION_ID)));
+            intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY |
+                    Intent.FLAG_ACTIVITY_NEW_DOCUMENT |
+                    Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
+
+            try {
+                startActivity(intent);
+            } catch (ActivityNotFoundException e) {
+                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(storeLink)));
+            }
+
+            return true;
+        } else if (id == R.id.nav_share) {
+
+            ShareCompat.IntentBuilder.from(this)
+                    .setType("text/plain")
+                    .setChooserTitle(R.string.menu_share)
+                    .setText(storeLink)
+                    .startChooser();
+
+            return true;
+        }
+
         return true;
     }
 
