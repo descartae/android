@@ -39,7 +39,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:layoutManager="LinearLayoutManager"
-            tools:context="org.descartae.android.view.fragments.facility.FacilityFragment"
+            tools:context="org.descartae.android.view.fragments.facility.FacilitiesFragment"
             tools:listitem="@layout/fragment_facility" />
 
     </android.support.v4.widget.NestedScrollView>
@@ -57,81 +57,45 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:foreground="?selectableItemBackgroundBorderless"
             android:background="@android:color/white"
-            android:foreground="?selectableItemBackground"
             android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/name"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Nome"
-                android:textStyle="normal"
-                android:layout_margin="@dimen/text_margin"
-                android:textSize="@dimen/text_regular"
-                android:textColor="@color/title_gray" />
-
-            <LinearLayout
-                android:id="@+id/type_waste"
+            <include
+                layout="@layout/fragment_facility"
                 android:layout_width="match_parent"
-                android:orientation="horizontal"
-                android:paddingLeft="@dimen/text_margin"
-                android:layout_height="wrap_content">
-
-
-            </LinearLayout>
+                android:layout_height="wrap_content" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:orientation="horizontal"
+                android:gravity="right"
+                android:background="@color/bg_light"
                 android:layout_height="wrap_content">
-
-                <TextView
-                    android:id="@+id/location"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:text="Local"
-                    android:textStyle="normal"
-                    android:layout_margin="@dimen/text_margin"
-                    android:textColor="@color/title_light_gray"
-                    android:textSize="@dimen/text_small" />
-
-                <TextView
-                    android:id="@+id/distance"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="0 Km"
-                    android:textStyle="normal"
-                    android:layout_margin="@dimen/text_margin"
-                    android:textColor="@color/colorPrimary"
-                    android:textSize="@dimen/text_small" />
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:orientation="horizontal"
-                android:layout_height="wrap_content">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:text="@string/detail"
-                    android:textStyle="normal"
-                    android:layout_margin="@dimen/text_margin"
-                    android:textColor="@color/title_light_gray"
-                    android:textSize="@dimen/text_small" />
 
                 <Button
-                    style="@style/Base.Widget.AppCompat.Button.Borderless.Colored"
+                    android:id="@+id/action_detail"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/detail"
+                    style="@style/Base.Widget.AppCompat.Button"
+                    android:background="@android:color/transparent"
+                    android:textStyle="normal"
+                    android:layout_marginRight="@dimen/activity_horizontal_margin"
+                    android:foreground="?selectableItemBackgroundBorderless"
+                    android:textAllCaps="true"
+                    android:layout_margin="@dimen/text_margin"
+                    android:textColor="@color/title_light_gray" />
+
+                <Button
+                    style="@style/Base.Widget.AppCompat.Button.Colored"
                     android:id="@+id/action_go"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textStyle="normal"
                     android:text="@string/drive"
                     android:layout_margin="@dimen/text_margin"
+                    android:foreground="?selectableItemBackgroundBorderless"
                     android:textColor="@android:color/white"
                     android:background="@color/colorPrimary" />
 

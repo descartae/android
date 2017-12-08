@@ -6,20 +6,20 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import org.descartae.android.FacilityQuery;
+import org.descartae.android.FacilitiesQuery;
 import org.descartae.android.R;
-import org.descartae.android.view.fragments.facility.FacilityFragment;
+import org.descartae.android.view.fragments.facility.FacilitiesFragment;
 import org.descartae.android.view.viewholder.FacilityViewHolder;
 
 import java.util.List;
 
 public class FacilityListAdapter extends RecyclerView.Adapter<FacilityViewHolder> {
 
-    private List<FacilityQuery.Item> mFacilities;
-    private final FacilityFragment.OnFacilityListener mListener;
+    private List<FacilitiesQuery.Item> mFacilities;
+    private final FacilitiesFragment.OnFacilityListener mListener;
     private Context mContext;
 
-    public FacilityListAdapter(Context context, FacilityFragment.OnFacilityListener listener) {
+    public FacilityListAdapter(Context context, FacilitiesFragment.OnFacilityListener listener) {
         mListener = listener;
         mContext = context;
     }
@@ -48,7 +48,7 @@ public class FacilityListAdapter extends RecyclerView.Adapter<FacilityViewHolder
         return (mFacilities == null) ? 0 : mFacilities.size();
     }
 
-    public void setCenters(List<FacilityQuery.Item> facilities) {
+    public void setCenters(List<FacilitiesQuery.Item> facilities) {
         mFacilities = facilities;
     }
 }

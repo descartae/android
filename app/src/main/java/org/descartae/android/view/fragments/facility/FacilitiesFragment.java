@@ -2,6 +2,7 @@ package org.descartae.android.view.fragments.facility;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -24,11 +25,13 @@ import com.facebook.network.connectionclass.ConnectionClassManager;
 import com.facebook.network.connectionclass.ConnectionQuality;
 import com.facebook.network.connectionclass.DeviceBandwidthSampler;
 
+import org.descartae.android.FacilitiesQuery;
 import org.descartae.android.FacilityQuery;
 import org.descartae.android.R;
 
 import org.descartae.android.adapters.FacilityListAdapter;
 import org.descartae.android.networking.NetworkingConstants;
+import org.descartae.android.view.activities.FacilityActivity;
 import org.descartae.android.view.utils.SimpleDividerItemDecoration;
 import org.descartae.android.view.viewholder.FacilityViewHolder;
 
@@ -36,8 +39,9 @@ import javax.annotation.Nonnull;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
-public class FacilityFragment extends Fragment implements ConnectionClassManager.ConnectionClassStateChangeListener {
+public class FacilitiesFragment extends Fragment implements ConnectionClassManager.ConnectionClassStateChangeListener {
 
     private OnListFacilitiesListener mListener;
     private FacilityListAdapter facilityListAdapter;
@@ -56,11 +60,15 @@ public class FacilityFragment extends Fragment implements ConnectionClassManager
 
     private FacilityViewHolder facilityViewHolder;
 
-    public FacilityFragment() {
+    private BottomSheetBehavior<View> behaviorDetail;
+    private BottomSheetBehavior<View> behaviorList;
+    private FacilitiesQuery.Item mItemSelected;
+
+    public FacilitiesFragment() {
     }
 
-    public static FacilityFragment newInstance() {
-        FacilityFragment fragment = new FacilityFragment();
+    public static FacilitiesFragment newInstance() {
+        FacilitiesFragment fragment = new FacilitiesFragment();
         Bundle args = new Bundle();
         fragment.setArguments(args);
         return fragment;
@@ -93,11 +101,11 @@ public class FacilityFragment extends Fragment implements ConnectionClassManager
         ApolloClient apolloClient = ApolloClient.builder()
             .serverUrl(NetworkingConstants.BASE_URL)
             .build();
-        FacilityQuery facilityQuery = FacilityQuery.builder().build();
-        apolloClient.query(facilityQuery).enqueue(new ApolloCall.Callback<FacilityQuery.Data>() {
+        FacilitiesQuery facilityQuery = FacilitiesQuery.builder().build();
+        apolloClient.query(facilityQuery).enqueue(new ApolloCall.Callback<FacilitiesQuery.Data>() {
 
             @Override
-            public void onResponse(@Nonnull final Response<FacilityQuery.Data> dataResponse) {
+            public void onResponse(@Nonnull final Response<FacilitiesQuery.Data> dataResponse) {
 
                 if (dataResponse == null) return;
                 if (dataResponse.data() == null) return;
@@ -135,30 +143,42 @@ public class FacilityFragment extends Fragment implements ConnectionClassManager
         Context context = view.getContext();
         recyclerView.addItemDecoration(new SimpleDividerItemDecoration(getActivity()));
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
-        facilityListAdapter = new FacilityListAdapter(getActivity(), (FacilityQuery.Item center) -> {
+        facilityListAdapter = new FacilityListAdapter(getActivity(), (FacilitiesQuery.Item center) -> {
 
-            bottomSheetDetail.setVisibility(View.VISIBLE);
-            bottomSheetList.setVisibility(View.GONE);
+            // On Facility Item Clicked
+            mItemSelected = center;
 
+            // Fill Item Detail
             facilityViewHolder = new FacilityViewHolder(bottomSheetDetail);
             facilityViewHolder.mItem = center;
             facilityViewHolder.fill();
+
+            // Show BottomSheetDetail
+            bottomSheetDetail.setVisibility(View.VISIBLE);
+            behaviorDetail.setState(BottomSheetBehavior.STATE_EXPANDED);
+
+            // List Collapse and GONE
+            behaviorList.setState(BottomSheetBehavior.STATE_COLLAPSED);
+            bottomSheetList.setVisibility(View.GONE);
         });
         recyclerView.setAdapter(facilityListAdapter);
 
-        final BottomSheetBehavior behavior = BottomSheetBehavior.from(bottomSheetList);
-        behavior.setHideable(true);
-        behavior.setPeekHeight(getResources().getDimensionPixelOffset(R.dimen.facilities_peek_height));
+        behaviorList = BottomSheetBehavior.from(bottomSheetList);
+        behaviorList.setHideable(false);
+        behaviorList.setPeekHeight(getResources().getDimensionPixelOffset(R.dimen.facilities_peek_height));
 
-        final BottomSheetBehavior behaviorDetail = BottomSheetBehavior.from(bottomSheetDetail);
+        behaviorDetail = BottomSheetBehavior.from(bottomSheetDetail);
         behaviorDetail.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
             @Override
             public void onStateChanged(@NonNull View bottomSheet, int newState) {
 
-                if (newState == BottomSheetBehavior.STATE_EXPANDED) {
-                    bottomSheetList.setVisibility(View.GONE);
-                } else {
+                if (newState == BottomSheetBehavior.STATE_HIDDEN) {
+
+                    // List VISIBLE and Expand
                     bottomSheetList.setVisibility(View.VISIBLE);
+                    behaviorList.setState(BottomSheetBehavior.STATE_EXPANDED);
+
+                    mItemSelected = null;
                 }
             }
 
@@ -167,8 +187,7 @@ public class FacilityFragment extends Fragment implements ConnectionClassManager
                 // React to dragging events
             }
         });
-
-        behaviorDetail.setPeekHeight(getResources().getDimensionPixelOffset(R.dimen.facility_peek_height));
+        behaviorDetail.setHideable(true);
 
         return view;
     }
@@ -196,11 +215,21 @@ public class FacilityFragment extends Fragment implements ConnectionClassManager
         }
     }
 
+    @OnClick(R.id.action_detail)
+    public void onActionDetail() {
+
+        if (mItemSelected == null) return;
+
+        Intent intent = new Intent(getActivity(), FacilityActivity.class);
+        intent.putExtra(FacilityActivity.ARG_ID, mItemSelected._id());
+        startActivity(intent);
+    }
+
     public interface OnListFacilitiesListener {
         void onNoConnection();
     }
 
     public interface OnFacilityListener {
-        void onListFacilityInteraction(FacilityQuery.Item facility);
+        void onListFacilityInteraction(FacilitiesQuery.Item facility);
     }
 }

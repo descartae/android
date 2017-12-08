@@ -1,10 +1,5 @@
-query FacilityQuery {
-  facilities(filters: {cursor: {quantity: 50}}) {
-    cursors {
-      after
-      before
-    }
-    items {
+query FacilityQuery($id: ID!) {
+  facility(_id: $id) {
       _id
       name
       location {
@@ -18,7 +13,6 @@ query FacilityQuery {
         _id
         name
         icons {
-          androidSmallURL
           androidMediumURL
           androidLargeURL
         }
@@ -29,5 +23,4 @@ query FacilityQuery {
         endTime
       }
     }
-  }
 }

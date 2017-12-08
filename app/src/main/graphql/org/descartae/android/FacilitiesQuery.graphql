@@ -1,0 +1,18 @@
+query FacilitiesQuery {
+  facilities(filters: {cursor: {quantity: 100}}) {
+    items {
+      _id
+      name
+      location {
+        municipality
+        state
+        zip
+      }
+      typesOfWaste {
+        icons {
+          androidSmallURL
+        }
+      }
+    }
+  }
+}
