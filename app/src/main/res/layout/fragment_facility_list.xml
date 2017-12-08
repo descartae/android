@@ -44,4 +44,102 @@
 
     </android.support.v4.widget.NestedScrollView>
 
+    <android.support.v4.widget.NestedScrollView
+        android:id="@+id/bottom_sheet_detail"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/white"
+        android:clipToPadding="true"
+        android:elevation="1dp"
+        android:visibility="gone"
+        app:layout_behavior="android.support.design.widget.BottomSheetBehavior">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:color/white"
+            android:foreground="?selectableItemBackground"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Nome"
+                android:textStyle="normal"
+                android:layout_margin="@dimen/text_margin"
+                android:textSize="@dimen/text_regular"
+                android:textColor="@color/title_gray" />
+
+            <LinearLayout
+                android:id="@+id/type_waste"
+                android:layout_width="match_parent"
+                android:orientation="horizontal"
+                android:paddingLeft="@dimen/text_margin"
+                android:layout_height="wrap_content">
+
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:orientation="horizontal"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/location"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:text="Local"
+                    android:textStyle="normal"
+                    android:layout_margin="@dimen/text_margin"
+                    android:textColor="@color/title_light_gray"
+                    android:textSize="@dimen/text_small" />
+
+                <TextView
+                    android:id="@+id/distance"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0 Km"
+                    android:textStyle="normal"
+                    android:layout_margin="@dimen/text_margin"
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="@dimen/text_small" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:orientation="horizontal"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:text="@string/detail"
+                    android:textStyle="normal"
+                    android:layout_margin="@dimen/text_margin"
+                    android:textColor="@color/title_light_gray"
+                    android:textSize="@dimen/text_small" />
+
+                <Button
+                    style="@style/Base.Widget.AppCompat.Button.Borderless.Colored"
+                    android:id="@+id/action_go"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textStyle="normal"
+                    android:text="@string/drive"
+                    android:layout_margin="@dimen/text_margin"
+                    android:textColor="@android:color/white"
+                    android:background="@color/colorPrimary" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+
+    </android.support.v4.widget.NestedScrollView>
+
 </android.support.design.widget.CoordinatorLayout>

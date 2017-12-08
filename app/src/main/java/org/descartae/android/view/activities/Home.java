@@ -129,11 +129,6 @@ public class Home extends BaseActivity
     }
 
     @Override
-    public void onListFacilityInteraction(FacilityQuery.Center center) {
-
-    }
-
-    @Override
     public void onNoConnection() {
         getSupportFragmentManager().beginTransaction().replace(R.id.content, EmptyOfflineFragment.newInstance()).commitAllowingStateLoss();
     }

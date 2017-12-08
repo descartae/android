@@ -41,4 +41,6 @@
     <string name="offline">Offline</string>
     <string name="offline_desc">Parece que você está sem conexão.  Clique no botão abaixo para atualizar.</string>
     <string name="try_again">Tentar novamente</string>
+    <string name="detail">Detalhes</string>
+    <string name="drive">Rotas</string>
 </resources>

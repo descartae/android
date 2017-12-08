@@ -30,6 +30,7 @@ import org.descartae.android.R;
 import org.descartae.android.adapters.FacilityListAdapter;
 import org.descartae.android.networking.NetworkingConstants;
 import org.descartae.android.view.utils.SimpleDividerItemDecoration;
+import org.descartae.android.view.viewholder.FacilityViewHolder;
 
 import javax.annotation.Nonnull;
 
@@ -46,6 +47,14 @@ public class FacilityFragment extends Fragment implements ConnectionClassManager
 
     @BindView(R.id.list)
     public RecyclerView recyclerView;
+
+    @BindView(R.id.bottom_sheet)
+    public View bottomSheetList;
+
+    @BindView(R.id.bottom_sheet_detail)
+    public View bottomSheetDetail;
+
+    private FacilityViewHolder facilityViewHolder;
 
     public FacilityFragment() {
     }
@@ -94,7 +103,7 @@ public class FacilityFragment extends Fragment implements ConnectionClassManager
                 if (dataResponse.data() == null) return;
 
                 getActivity().runOnUiThread(() -> {
-                    facilityListAdapter.setCenters(dataResponse.data().centers());
+                    facilityListAdapter.setCenters(dataResponse.data().facilities().items());
                     facilityListAdapter.notifyDataSetChanged();
                 });
             }
@@ -126,19 +135,30 @@ public class FacilityFragment extends Fragment implements ConnectionClassManager
         Context context = view.getContext();
         recyclerView.addItemDecoration(new SimpleDividerItemDecoration(getActivity()));
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
-        facilityListAdapter = new FacilityListAdapter(getActivity(), mListener);
+        facilityListAdapter = new FacilityListAdapter(getActivity(), (FacilityQuery.Item center) -> {
+
+            bottomSheetDetail.setVisibility(View.VISIBLE);
+            bottomSheetList.setVisibility(View.GONE);
+
+            facilityViewHolder = new FacilityViewHolder(bottomSheetDetail);
+            facilityViewHolder.mItem = center;
+            facilityViewHolder.fill();
+        });
         recyclerView.setAdapter(facilityListAdapter);
 
-        View bottomSheet = coordinatorLayout.findViewById(R.id.bottom_sheet);
-        final BottomSheetBehavior behavior = BottomSheetBehavior.from(bottomSheet);
-        behavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
+        final BottomSheetBehavior behavior = BottomSheetBehavior.from(bottomSheetList);
+        behavior.setHideable(true);
+        behavior.setPeekHeight(getResources().getDimensionPixelOffset(R.dimen.facilities_peek_height));
+
+        final BottomSheetBehavior behaviorDetail = BottomSheetBehavior.from(bottomSheetDetail);
+        behaviorDetail.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
             @Override
             public void onStateChanged(@NonNull View bottomSheet, int newState) {
 
                 if (newState == BottomSheetBehavior.STATE_EXPANDED) {
-                    // @TODO on expanded
+                    bottomSheetList.setVisibility(View.GONE);
                 } else {
-
+                    bottomSheetList.setVisibility(View.VISIBLE);
                 }
             }
 
@@ -148,8 +168,7 @@ public class FacilityFragment extends Fragment implements ConnectionClassManager
             }
         });
 
-        behavior.setHideable(true);
-        behavior.setPeekHeight(getResources().getDimensionPixelOffset(R.dimen.facilities_peek_height));
+        behaviorDetail.setPeekHeight(getResources().getDimensionPixelOffset(R.dimen.facility_peek_height));
 
         return view;
     }
@@ -178,7 +197,10 @@ public class FacilityFragment extends Fragment implements ConnectionClassManager
     }
 
     public interface OnListFacilitiesListener {
-        void onListFacilityInteraction(FacilityQuery.Center center);
         void onNoConnection();
+    }
+
+    public interface OnFacilityListener {
+        void onListFacilityInteraction(FacilityQuery.Item facility);
     }
 }

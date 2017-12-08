@@ -1,23 +1,33 @@
 query FacilityQuery {
-  centers {
-    _id
-    name
+  facilities(filters: {cursor: {quantity: 50}}) {
+    cursors {
+      after
+      before
+    }
+    items {
+      _id
+      name
       location {
         municipality
         state
         zip
       }
-    website
-    telephone
-    typesOfWaste {
-      _id
-      name
-      icon
-    }
-    openHours {
-      dayOfWeek
-      startTime
-      endTime
+      website
+      telephone
+      typesOfWaste {
+        _id
+        name
+        icons {
+          androidSmallURL
+          androidMediumURL
+          androidLargeURL
+        }
+      }
+      openHours {
+        dayOfWeek
+        startTime
+        endTime
+      }
     }
   }
 }
