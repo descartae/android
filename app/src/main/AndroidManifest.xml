@@ -28,6 +28,8 @@
         <activity
             android:name=".view.activities.FacilityActivity"
             android:theme="@style/AppTheme.NoActionBar"></activity>
+
+        <meta-data android:name="com.google.android.geo.API_KEY" android:value="AIzaSyB2nTXmhrzVHggaAwrMcJOz0QsQwvv55fY"/>
     </application>
 
 </manifest>

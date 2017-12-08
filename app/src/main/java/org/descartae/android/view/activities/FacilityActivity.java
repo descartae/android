@@ -18,13 +18,14 @@ import com.apollographql.apollo.api.Response;
 import com.apollographql.apollo.exception.ApolloException;
 import com.facebook.network.connectionclass.ConnectionClassManager;
 import com.facebook.network.connectionclass.ConnectionQuality;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import org.descartae.android.FacilitiesQuery;
 import org.descartae.android.FacilityQuery;
 import org.descartae.android.R;
 import org.descartae.android.networking.NetworkingConstants;
@@ -86,7 +87,8 @@ public class FacilityActivity extends AppCompatActivity implements OnMapReadyCal
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
         // Butterknife sucks for Fragment
-        mMapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
+        mMapFragment = MapFragment.newInstance();
+        getFragmentManager().beginTransaction().replace(R.id.map, mMapFragment).commitAllowingStateLoss();
 
         itemID = getIntent().getStringExtra(ARG_ID);
         query(itemID);
@@ -147,9 +149,14 @@ public class FacilityActivity extends AppCompatActivity implements OnMapReadyCal
 
         if (facility == null) return;
 
+        LatLng latlng = new LatLng(-33.867, 151.206);
+
+        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latlng, 13));
+
         googleMap.addMarker(
             new MarkerOptions()
-                .position(new LatLng(30.000, 20.000))
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_pin))
+                .position(latlng)
                 .title(facility.name()));
     }
 }
