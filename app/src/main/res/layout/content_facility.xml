@@ -39,7 +39,7 @@
                 android:fontFamily="sans-serif"
                 android:lineSpacingExtra="2sp"
                 android:textColor="@color/title_light_gray"
-                android:textSize="@dimen/text_small"
+                android:textSize="@dimen/text_medium"
                 android:textStyle="normal" />
 
             <TextView

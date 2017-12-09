@@ -36,7 +36,7 @@ public class WastesTypeListAdapter extends RecyclerView.Adapter<TypeWasteViewHol
     public void onBindViewHolder(final TypeWasteViewHolder holder, int position) {
         holder.mItem = mTypes.get(position);
 
-        Picasso.with(mContext).load(holder.mItem.icons().androidMediumURL()).resize(100, 100).placeholder(R.drawable.ic_waste_more).centerInside().into(holder.mWasteImage);
+        Picasso.with(mContext).load(holder.mItem.icons().androidMediumURL()).resize(100, 100).placeholder(R.drawable.ic_placeholder).centerInside().into(holder.mWasteImage);
 
         holder.mName.setText(holder.mItem.name());
 

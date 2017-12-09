@@ -43,4 +43,6 @@
     <string name="try_again">Tentar novamente</string>
     <string name="detail">Detalhes do local</string>
     <string name="drive">Rotas</string>
+    <string name="time">%1$s, %2$s - %3$s %4$s</string>
+    <string name="close">Fechar</string>
 </resources>

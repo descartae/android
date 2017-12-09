@@ -5,6 +5,9 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
@@ -37,7 +40,11 @@ import org.descartae.android.FacilityQuery;
 import org.descartae.android.R;
 import org.descartae.android.adapters.WastesTypeListAdapter;
 import org.descartae.android.networking.NetworkingConstants;
+import org.descartae.android.type.DayOfWeek;
 import org.descartae.android.view.fragments.empty.EmptyOfflineFragment;
+import org.descartae.android.view.fragments.wastes.WasteTypeDialog;
+
+import java.util.Calendar;
 
 import javax.annotation.Nonnull;
 
@@ -139,6 +146,23 @@ public class FacilityActivity extends AppCompatActivity implements OnMapReadyCal
                     mNameView.setText(facility.name());
                     mPhone.setText(facility.telephone());
 
+                    String time = null;
+                    for (FacilityQuery.OpenHour openHour : facility.openHours()) {
+
+                        Log.d("Open", "Open: " + openHour.dayOfWeek().ordinal() + " today is " + Calendar.getInstance().get(Calendar.DAY_OF_WEEK));
+
+                        String status = "Fechado";
+
+                        if (openHour.dayOfWeek().ordinal() == Calendar.getInstance().get(Calendar.DAY_OF_WEEK)) {
+
+                            status = "Aberto";
+
+                            time = getString(R.string.time, "Hoje", String.valueOf(openHour.startTime()), String.valueOf(openHour.endTime()), status);
+                            mTime.setText(time);
+                            break;
+                        }
+                    }
+
                     mMapFragment.getMapAsync(FacilityActivity.this);
 
                     mTypesWasteAdapter.setTypes(facility.typesOfWaste());
@@ -220,5 +244,15 @@ public class FacilityActivity extends AppCompatActivity implements OnMapReadyCal
     @Override
     public void onTypeClick(FacilityQuery.TypesOfWaste typesOfWaste) {
 
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        Fragment prev = getSupportFragmentManager().findFragmentByTag("dialog");
+        if (prev != null) {
+            ft.remove(prev);
+        }
+        ft.addToBackStack(null);
+
+        // Create and show the dialog.
+        DialogFragment newFragment = WasteTypeDialog.newInstance(typesOfWaste.name(), typesOfWaste.description(), typesOfWaste.icons().androidMediumURL());
+        newFragment.show(ft, "dialog");
     }
 }

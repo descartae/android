@@ -16,6 +16,7 @@ query FacilityQuery($id: ID!) {
       typesOfWaste {
         _id
         name
+        description
         icons {
           androidMediumURL
           androidLargeURL
