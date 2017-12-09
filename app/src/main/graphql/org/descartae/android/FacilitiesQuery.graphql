@@ -7,6 +7,10 @@ query FacilitiesQuery {
         municipality
         state
         zip
+        coordinates {
+            latitude
+            longitude
+        }
       }
       typesOfWaste {
         icons {

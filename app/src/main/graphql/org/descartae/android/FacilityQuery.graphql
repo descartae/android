@@ -6,6 +6,10 @@ query FacilityQuery($id: ID!) {
         municipality
         state
         zip
+        coordinates {
+            latitude
+            longitude
+        }
       }
       website
       telephone

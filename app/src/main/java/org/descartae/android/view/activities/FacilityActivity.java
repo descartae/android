@@ -2,14 +2,18 @@ package org.descartae.android.view.activities;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.location.Location;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.DividerItemDecoration;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.widget.LinearLayout;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.TextView;
 
 import com.apollographql.apollo.ApolloCall;
@@ -18,6 +22,8 @@ import com.apollographql.apollo.api.Response;
 import com.apollographql.apollo.exception.ApolloException;
 import com.facebook.network.connectionclass.ConnectionClassManager;
 import com.facebook.network.connectionclass.ConnectionQuality;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
@@ -25,9 +31,11 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnSuccessListener;
 
 import org.descartae.android.FacilityQuery;
 import org.descartae.android.R;
+import org.descartae.android.adapters.WastesTypeListAdapter;
 import org.descartae.android.networking.NetworkingConstants;
 import org.descartae.android.view.fragments.empty.EmptyOfflineFragment;
 
@@ -37,7 +45,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class FacilityActivity extends AppCompatActivity implements OnMapReadyCallback {
+public class FacilityActivity extends AppCompatActivity implements OnMapReadyCallback, OnSuccessListener<Location>,WastesTypeListAdapter.TypeOfWasteListner {
 
     public static final String ARG_ID = "ITEM";
 
@@ -60,13 +68,17 @@ public class FacilityActivity extends AppCompatActivity implements OnMapReadyCal
     public TextView mNameView;
 
     @BindView(R.id.type_waste)
-    public LinearLayout mTypes;
+    public RecyclerView mTypesWasteRecyclerView;
 
     public MapFragment mMapFragment;
 
     private String itemID;
 
     private FacilityQuery.Facility facility;
+
+    private FusedLocationProviderClient mFusedLocationClient;
+
+    private WastesTypeListAdapter mTypesWasteAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,6 +98,17 @@ public class FacilityActivity extends AppCompatActivity implements OnMapReadyCal
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
+        // Type of Waste
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+        mTypesWasteRecyclerView.setLayoutManager(layoutManager);
+
+        mTypesWasteAdapter = new WastesTypeListAdapter(this, this);
+        mTypesWasteRecyclerView.setAdapter(mTypesWasteAdapter);
+
+        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(this, layoutManager.getOrientation());
+        dividerItemDecoration.setDrawable(ContextCompat.getDrawable(this, R.drawable.divider_spacing));
+        mTypesWasteRecyclerView.addItemDecoration(dividerItemDecoration);
+
         // Butterknife sucks for Fragment
         mMapFragment = MapFragment.newInstance();
         getFragmentManager().beginTransaction().replace(R.id.map, mMapFragment).commitAllowingStateLoss();
@@ -95,11 +118,6 @@ public class FacilityActivity extends AppCompatActivity implements OnMapReadyCal
     }
 
     private void query(String id) {
-
-        int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
-        if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
-            return;
-        }
 
         ApolloClient apolloClient = ApolloClient.builder()
                 .serverUrl(NetworkingConstants.BASE_URL)
@@ -122,6 +140,9 @@ public class FacilityActivity extends AppCompatActivity implements OnMapReadyCal
                     mPhone.setText(facility.telephone());
 
                     mMapFragment.getMapAsync(FacilityActivity.this);
+
+                    mTypesWasteAdapter.setTypes(facility.typesOfWaste());
+                    mTypesWasteAdapter.notifyDataSetChanged();
                 });
             }
 
@@ -139,6 +160,29 @@ public class FacilityActivity extends AppCompatActivity implements OnMapReadyCal
         });
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_facility, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.action_share) {
+            return true;
+        }
+        if (id == R.id.action_feedback) {
+            return true;
+        }
+        if (id == android.R.id.home) {
+            finish();
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
     @OnClick(R.id.fab)
     public void onFab() {
 
@@ -149,14 +193,32 @@ public class FacilityActivity extends AppCompatActivity implements OnMapReadyCal
 
         if (facility == null) return;
 
-        LatLng latlng = new LatLng(-33.867, 151.206);
+        int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
+        if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        mFusedLocationClient.getLastLocation().addOnSuccessListener(this);
+
+        LatLng latlng = new LatLng(facility.location().coordinates().latitude(), facility.location().coordinates().longitude());
 
         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latlng, 13));
 
         googleMap.addMarker(
-            new MarkerOptions()
-                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_pin))
-                .position(latlng)
-                .title(facility.name()));
+                new MarkerOptions()
+                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_pin))
+                        .position(latlng)
+                        .title(facility.name()));
+    }
+
+    @Override
+    public void onSuccess(Location location) {
+
+    }
+
+    @Override
+    public void onTypeClick(FacilityQuery.TypesOfWaste typesOfWaste) {
+
     }
 }
