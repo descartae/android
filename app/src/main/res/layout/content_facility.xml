@@ -60,10 +60,10 @@
             android:id="@+id/type_waste"
             android:layout_width="match_parent"
             android:layout_height="32dp"
-            android:overScrollMode="never"
             android:layout_marginBottom="@dimen/margin_top"
             android:layout_marginTop="@dimen/activity_horizontal_margin"
-            android:orientation="horizontal" />
+            android:orientation="horizontal"
+            android:overScrollMode="never" />
 
         <View
             android:layout_width="match_parent"
@@ -71,37 +71,61 @@
             android:layout_marginLeft="@dimen/margin_left_big"
             android:background="@color/divider"></View>
 
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/activity_horizontal_margin"
-            android:orientation="horizontal">
+            android:orientation="vertical">
 
-            <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/ic_action_access_time" />
-
-            <TextView
-                android:id="@+id/time"
-                android:layout_width="0dp"
-                android:layout_weight="1"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textAllCaps="true"
-                android:textSize="@dimen/text_regular"
-                android:layout_marginLeft="@dimen/activity_horizontal_margin"
-                android:fontFamily="sans-serif"
-                android:textStyle="normal"
-                android:textColor="@color/title_gray"
-                />
+                android:layout_marginTop="@dimen/activity_horizontal_margin"
+                android:orientation="horizontal">
 
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_action_access_time" />
+
+                <TextView
+                    android:id="@+id/time"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                    android:layout_weight="1"
+                    android:fontFamily="sans-serif"
+                    android:textColor="@color/title_gray"
+                    android:textSize="@dimen/text_regular"
+                    android:textStyle="normal" />
+
+                <ImageButton
+                    android:id="@+id/time_expand"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="?selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_action_expand_more" />
+
+            </LinearLayout>
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/more_times"
+                android:visibility="gone"
+                android:layout_width="match_parent"
+                android:overScrollMode="never"
+                android:layout_marginTop="@dimen/padding"
+                android:layout_marginLeft="@dimen/margin_left_big"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+            </android.support.v7.widget.RecyclerView>
         </LinearLayout>
 
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:layout_marginTop="@dimen/activity_horizontal_margin"
             android:layout_marginLeft="@dimen/margin_left_big"
+            android:layout_marginTop="@dimen/activity_horizontal_margin"
             android:background="@color/divider"></View>
 
         <LinearLayout
@@ -118,15 +142,14 @@
             <TextView
                 android:id="@+id/phone"
                 android:layout_width="0dp"
-                android:layout_weight="1"
-                android:textAllCaps="true"
                 android:layout_height="wrap_content"
-                android:textSize="@dimen/text_regular"
                 android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                android:layout_weight="1"
                 android:fontFamily="sans-serif"
-                android:textStyle="normal"
+                android:textAllCaps="true"
                 android:textColor="@color/title_gray"
-                />
+                android:textSize="@dimen/text_regular"
+                android:textStyle="normal" />
 
         </LinearLayout>
 
@@ -134,8 +157,8 @@
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:layout_marginTop="@dimen/activity_horizontal_margin"
             android:layout_marginLeft="@dimen/margin_left_big"
+            android:layout_marginTop="@dimen/activity_horizontal_margin"
             android:background="@color/divider"></View>
 
     </LinearLayout>

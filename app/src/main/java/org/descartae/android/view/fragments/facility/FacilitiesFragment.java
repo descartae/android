@@ -58,6 +58,9 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
     @BindView(R.id.bottom_sheet_detail)
     public View bottomSheetDetail;
 
+    @BindView(R.id.loading)
+    public View mLoading;
+
     private FacilityViewHolder facilityViewHolder;
 
     private BottomSheetBehavior<View> behaviorDetail;
@@ -102,6 +105,9 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
             .serverUrl(NetworkingConstants.BASE_URL)
             .build();
         FacilitiesQuery facilityQuery = FacilitiesQuery.builder().build();
+
+        mLoading.setVisibility(View.VISIBLE);
+
         apolloClient.query(facilityQuery).enqueue(new ApolloCall.Callback<FacilitiesQuery.Data>() {
 
             @Override
@@ -109,10 +115,12 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
 
                 if (dataResponse == null) return;
                 if (dataResponse.data() == null) return;
+                if (getActivity() == null || getActivity().isDestroyed()) return;
 
                 getActivity().runOnUiThread(() -> {
                     facilityListAdapter.setCenters(dataResponse.data().facilities().items());
                     facilityListAdapter.notifyDataSetChanged();
+                    mLoading.setVisibility(View.GONE);
                 });
             }
 
@@ -128,7 +136,11 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
 
                 ConnectionQuality cq = ConnectionClassManager.getInstance().getCurrentBandwidthQuality();
                 if (cq.equals(ConnectionQuality.UNKNOWN)) {
-                    mListener.onNoConnection();
+
+                    getActivity().runOnUiThread(() -> {
+                        mListener.onNoConnection();
+                        mLoading.setVisibility(View.GONE);
+                    });
                 }
             }
         });

@@ -43,6 +43,19 @@
     <string name="try_again">Tentar novamente</string>
     <string name="detail">Detalhes do local</string>
     <string name="drive">Rotas</string>
-    <string name="time">%1$s, %2$s - %3$s %4$s</string>
+    <string name="time">%1$s - %2$s</string>
+    <string name="time_desc">Aberto das %1$s às %2$s</string>
     <string name="close">Fechar</string>
+
+    <string name="closed">Fechado</string>
+
+    <string-array name="day_of_week">
+        <item>Domingo</item>
+        <item>Segunda-feira</item>
+        <item>Terça-feira</item>
+        <item>Quarta-feira</item>
+        <item>Quinta-feira</item>
+        <item>Sexta-feira</item>
+        <item>Sábado</item>
+    </string-array>
 </resources>

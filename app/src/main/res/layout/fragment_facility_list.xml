@@ -31,6 +31,10 @@
         android:elevation="1dp"
         app:layout_behavior="android.support.design.widget.BottomSheetBehavior">
 
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
         <android.support.v7.widget.RecyclerView xmlns:android="http://schemas.android.com/apk/res/android"
             xmlns:app="http://schemas.android.com/apk/res-auto"
             xmlns:tools="http://schemas.android.com/tools"
@@ -41,6 +45,17 @@
             app:layoutManager="LinearLayoutManager"
             tools:context="org.descartae.android.view.fragments.facility.FacilitiesFragment"
             tools:listitem="@layout/fragment_facility" />
+
+            <ProgressBar
+                android:id="@+id/loading"
+                android:layout_width="wrap_content"
+                android:layout_centerInParent="true"
+                android:indeterminate="true"
+                android:visibility="gone"
+                android:indeterminateOnly="true"
+                android:layout_height="wrap_content" />
+
+        </RelativeLayout>
 
     </android.support.v4.widget.NestedScrollView>
 

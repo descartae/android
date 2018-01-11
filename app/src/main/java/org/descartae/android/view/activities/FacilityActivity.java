@@ -17,6 +17,8 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.apollographql.apollo.ApolloCall;
@@ -35,12 +37,13 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.squareup.picasso.Picasso;
 
 import org.descartae.android.FacilityQuery;
 import org.descartae.android.R;
+import org.descartae.android.adapters.OpenHourListAdapter;
 import org.descartae.android.adapters.WastesTypeListAdapter;
 import org.descartae.android.networking.NetworkingConstants;
-import org.descartae.android.type.DayOfWeek;
 import org.descartae.android.view.fragments.empty.EmptyOfflineFragment;
 import org.descartae.android.view.fragments.wastes.WasteTypeDialog;
 
@@ -76,6 +79,12 @@ public class FacilityActivity extends AppCompatActivity implements OnMapReadyCal
 
     @BindView(R.id.type_waste)
     public RecyclerView mTypesWasteRecyclerView;
+
+    @BindView(R.id.time_expand)
+    public ImageView mTimeExpand;
+
+    @BindView(R.id.more_times)
+    public RecyclerView mMoreTimes;
 
     public MapFragment mMapFragment;
 
@@ -146,27 +155,43 @@ public class FacilityActivity extends AppCompatActivity implements OnMapReadyCal
                     mNameView.setText(facility.name());
                     mPhone.setText(facility.telephone());
 
+                    LinearLayoutManager llm = new LinearLayoutManager(FacilityActivity.this);
+                    llm.setOrientation(LinearLayoutManager.VERTICAL);
+                    mMoreTimes.setLayoutManager(llm);
+
+                    OpenHourListAdapter timeListAdapter = new OpenHourListAdapter(FacilityActivity.this);
+                    timeListAdapter.setFacilityDays(facility.openHours());
+                    mMoreTimes.setAdapter(timeListAdapter);
+                    timeListAdapter.notifyDataSetChanged();
+
                     String time = null;
                     for (FacilityQuery.OpenHour openHour : facility.openHours()) {
-
-                        Log.d("Open", "Open: " + openHour.dayOfWeek().ordinal() + " today is " + Calendar.getInstance().get(Calendar.DAY_OF_WEEK));
-
-                        String status = "Fechado";
-
                         if (openHour.dayOfWeek().ordinal() == Calendar.getInstance().get(Calendar.DAY_OF_WEEK)) {
-
-                            status = "Aberto";
-
-                            time = getString(R.string.time, "Hoje", String.valueOf(openHour.startTime()), String.valueOf(openHour.endTime()), status);
+                            time = getString(R.string.time, "Hoje", getString(R.string.time_desc, String.valueOf(openHour.startTime()), String.valueOf(openHour.endTime())));
                             mTime.setText(time);
                             break;
                         }
+                    }
+
+                    if (time == null) {
+                        mTime.setText(getString(R.string.time, "Hoje", getString(R.string.closed)));
                     }
 
                     mMapFragment.getMapAsync(FacilityActivity.this);
 
                     mTypesWasteAdapter.setTypes(facility.typesOfWaste());
                     mTypesWasteAdapter.notifyDataSetChanged();
+
+                    mTimeExpand.setOnClickListener(view -> {
+
+                        if (mMoreTimes.getVisibility() == View.VISIBLE) {
+                            Picasso.with(FacilityActivity.this).load(R.drawable.ic_action_expand_less).into(mTimeExpand);
+                            mMoreTimes.setVisibility(View.GONE);
+                        } else {
+                            Picasso.with(FacilityActivity.this).load(R.drawable.ic_action_expand_more).into(mTimeExpand);
+                            mMoreTimes.setVisibility(View.VISIBLE);
+                        }
+                    });
                 });
             }
 

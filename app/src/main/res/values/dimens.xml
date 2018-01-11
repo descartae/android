@@ -19,4 +19,5 @@
     <dimen name="facility_peek_height">100dp</dimen>
     <dimen name="app_bar_height">220dp</dimen>
     <dimen name="margin_left_big">42dp</dimen>
+    <dimen name="height_open_hour_list">300dp</dimen>
 </resources>
