@@ -18,6 +18,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -86,6 +88,9 @@ public class FacilityActivity extends AppCompatActivity implements OnMapReadyCal
     @BindView(R.id.more_times)
     public RecyclerView mMoreTimes;
 
+    @BindView(R.id.distance)
+    public TextView mDistance;
+
     public MapFragment mMapFragment;
 
     private String itemID;
@@ -99,6 +104,10 @@ public class FacilityActivity extends AppCompatActivity implements OnMapReadyCal
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+
         setContentView(R.layout.activity_facility);
 
         if (getIntent() == null) {
@@ -174,7 +183,7 @@ public class FacilityActivity extends AppCompatActivity implements OnMapReadyCal
                     }
 
                     if (time == null) {
-                        mTime.setText(getString(R.string.time, "Hoje", getString(R.string.closed)));
+                        mTime.setText(R.string.no_open_hour_today);
                     }
 
                     mMapFragment.getMapAsync(FacilityActivity.this);
@@ -185,10 +194,10 @@ public class FacilityActivity extends AppCompatActivity implements OnMapReadyCal
                     mTimeExpand.setOnClickListener(view -> {
 
                         if (mMoreTimes.getVisibility() == View.VISIBLE) {
-                            Picasso.with(FacilityActivity.this).load(R.drawable.ic_action_expand_less).into(mTimeExpand);
+                            Picasso.with(FacilityActivity.this).load(R.drawable.ic_action_expand_more).into(mTimeExpand);
                             mMoreTimes.setVisibility(View.GONE);
                         } else {
-                            Picasso.with(FacilityActivity.this).load(R.drawable.ic_action_expand_more).into(mTimeExpand);
+                            Picasso.with(FacilityActivity.this).load(R.drawable.ic_action_expand_less).into(mTimeExpand);
                             mMoreTimes.setVisibility(View.VISIBLE);
                         }
                     });
@@ -263,7 +272,14 @@ public class FacilityActivity extends AppCompatActivity implements OnMapReadyCal
 
     @Override
     public void onSuccess(Location location) {
+        if (facility == null) return;
 
+        Location facilityLocation = new Location("Facility");
+        facilityLocation.setLatitude(facility.location().coordinates().latitude());
+        facilityLocation.setLongitude(facility.location().coordinates().longitude());
+
+        float distance = location.distanceTo(facilityLocation);
+        mDistance.setText(getString(R.string.distance, distance / 1000));
     }
 
     @Override

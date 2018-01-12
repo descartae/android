@@ -44,10 +44,12 @@
     <string name="detail">Detalhes do local</string>
     <string name="drive">Rotas</string>
     <string name="time">%1$s - %2$s</string>
-    <string name="time_desc">Aberto das %1$s às %2$s</string>
+    <string name="time_desc">Aberto das %1$sh às %2$sh</string>
     <string name="close">Fechar</string>
 
     <string name="closed">Fechado</string>
+    <string name="no_open_hour_today">Horários de hoje indisponíveis</string>
+    <string name="distance">%1$f Km</string>
 
     <string-array name="day_of_week">
         <item>Domingo</item>

@@ -33,23 +33,16 @@ public class OpenHourListAdapter extends RecyclerView.Adapter<ListTimeViewHolder
     @Override
     public void onBindViewHolder(final ListTimeViewHolder holder, int position) {
 
-        Calendar itemCalendar = (Calendar) todayCalendar.clone();
-        itemCalendar.add(Calendar.DAY_OF_WEEK, position + 1);
+        FacilityQuery.OpenHour openHour = openHourList.get(position);
+
+        //Calendar itemCalendar = (Calendar) todayCalendar.clone();
+        //itemCalendar.add(Calendar.DAY_OF_WEEK, position + 1);
 
         String[] daysWeek = mContext.getResources().getStringArray(R.array.day_of_week);
 
-        holder.mDay.setText(daysWeek[itemCalendar.get(Calendar.DAY_OF_WEEK) - 1]);
+        holder.mDay.setText(daysWeek[openHour.dayOfWeek().ordinal()]);
 
-        String time = mContext.getString(R.string.closed);
-
-        if (openHourList != null) {
-            for (FacilityQuery.OpenHour openHour : openHourList) {
-
-                if (openHour.dayOfWeek().ordinal() == itemCalendar.get(Calendar.DAY_OF_WEEK)) {
-                    time = mContext.getString(R.string.time_desc, String.valueOf(openHour.startTime()), String.valueOf(openHour.endTime()));
-                }
-            }
-        }
+        String time = mContext.getString(R.string.time_desc, String.valueOf(openHour.startTime()), String.valueOf(openHour.endTime()));
 
         holder.mTime.setText(time);
     }
@@ -60,6 +53,6 @@ public class OpenHourListAdapter extends RecyclerView.Adapter<ListTimeViewHolder
 
     @Override
     public int getItemCount() {
-        return 6;
+        return openHourList.size();
     }
 }

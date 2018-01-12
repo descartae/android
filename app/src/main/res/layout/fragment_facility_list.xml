@@ -84,23 +84,24 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:orientation="horizontal"
-                android:gravity="right"
                 android:background="@color/bg_light"
                 android:layout_height="wrap_content">
 
                 <Button
                     android:id="@+id/action_detail"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
                     android:layout_height="wrap_content"
                     android:text="@string/detail"
                     style="@style/Base.Widget.AppCompat.Button"
                     android:background="@android:color/transparent"
                     android:textStyle="normal"
+                    android:gravity="left|center_vertical"
                     android:layout_marginRight="@dimen/activity_horizontal_margin"
                     android:foreground="?selectableItemBackgroundBorderless"
                     android:textAllCaps="true"
                     android:layout_margin="@dimen/text_margin"
-                    android:textColor="@color/title_light_gray" />
+                    android:textColor="@color/title_gray" />
 
                 <Button
                     style="@style/Base.Widget.AppCompat.Button.Colored"

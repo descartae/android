@@ -12,13 +12,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:paddingLeft="@dimen/activity_horizontal_margin"
-        android:paddingRight="@dimen/activity_horizontal_margin"
         android:paddingTop="@dimen/margin_top">
 
         <TextView
             android:id="@+id/name"
             android:layout_width="wrap_content"
+            android:paddingLeft="@dimen/activity_horizontal_margin"
+            android:paddingRight="@dimen/activity_horizontal_margin"
             android:layout_height="wrap_content"
             android:fontFamily="sans-serif-medium"
             android:textColor="@color/title_gray"
@@ -29,6 +29,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/padding"
+            android:paddingLeft="@dimen/activity_horizontal_margin"
+            android:paddingRight="@dimen/activity_horizontal_margin"
             android:orientation="horizontal">
 
             <TextView
@@ -60,6 +62,9 @@
             android:id="@+id/type_waste"
             android:layout_width="match_parent"
             android:layout_height="32dp"
+            android:paddingLeft="@dimen/activity_horizontal_margin"
+            android:paddingRight="@dimen/activity_horizontal_margin"
+            android:clipToPadding="false"
             android:layout_marginBottom="@dimen/margin_top"
             android:layout_marginTop="@dimen/activity_horizontal_margin"
             android:orientation="horizontal"
@@ -68,6 +73,7 @@
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
+            android:layout_marginRight="@dimen/activity_horizontal_margin"
             android:layout_marginLeft="@dimen/margin_left_big"
             android:background="@color/divider"></View>
 
@@ -75,6 +81,8 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:paddingLeft="@dimen/activity_horizontal_margin"
+            android:paddingRight="@dimen/activity_horizontal_margin"
             android:orientation="vertical">
 
             <LinearLayout
@@ -113,8 +121,9 @@
                 android:visibility="gone"
                 android:layout_width="match_parent"
                 android:overScrollMode="never"
+                android:paddingLeft="24dp"
                 android:layout_marginTop="@dimen/padding"
-                android:layout_marginLeft="@dimen/margin_left_big"
+                android:layout_marginLeft="@dimen/activity_horizontal_margin"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
@@ -125,12 +134,15 @@
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:layout_marginLeft="@dimen/margin_left_big"
+            android:layout_marginRight="@dimen/activity_horizontal_margin"
             android:layout_marginTop="@dimen/activity_horizontal_margin"
             android:background="@color/divider"></View>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:paddingLeft="@dimen/activity_horizontal_margin"
+            android:paddingRight="@dimen/activity_horizontal_margin"
             android:layout_marginTop="@dimen/activity_horizontal_margin"
             android:orientation="horizontal">
 
@@ -159,6 +171,7 @@
             android:layout_height="1dp"
             android:layout_marginLeft="@dimen/margin_left_big"
             android:layout_marginTop="@dimen/activity_horizontal_margin"
+            android:layout_marginRight="@dimen/activity_horizontal_margin"
             android:background="@color/divider"></View>
 
     </LinearLayout>
