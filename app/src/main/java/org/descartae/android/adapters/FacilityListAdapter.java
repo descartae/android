@@ -58,4 +58,8 @@ public class FacilityListAdapter extends RecyclerView.Adapter<FacilityViewHolder
     public void setCurrentLocation(Location currentLocation) {
         this.currentLocation = currentLocation;
     }
+
+    public List<FacilitiesQuery.Item> getCenters() {
+        return mFacilities;
+    }
 }

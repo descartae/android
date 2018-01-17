@@ -19,6 +19,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
+
 import com.apollographql.apollo.ApolloCall;
 import com.apollographql.apollo.ApolloClient;
 import com.apollographql.apollo.api.Response;
@@ -28,10 +36,10 @@ import com.facebook.network.connectionclass.ConnectionQuality;
 import com.facebook.network.connectionclass.DeviceBandwidthSampler;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
+
 import com.google.android.gms.tasks.OnSuccessListener;
 
 import org.descartae.android.FacilitiesQuery;
-import org.descartae.android.FacilityQuery;
 import org.descartae.android.R;
 
 import org.descartae.android.adapters.FacilityListAdapter;
@@ -40,13 +48,15 @@ import org.descartae.android.view.activities.FacilityActivity;
 import org.descartae.android.view.utils.SimpleDividerItemDecoration;
 import org.descartae.android.view.viewholder.FacilityViewHolder;
 
+import java.util.List;
+
 import javax.annotation.Nonnull;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class FacilitiesFragment extends Fragment implements ConnectionClassManager.ConnectionClassStateChangeListener, OnSuccessListener<Location> {
+public class FacilitiesFragment extends Fragment implements ConnectionClassManager.ConnectionClassStateChangeListener, OnSuccessListener<Location>, OnMapReadyCallback {
 
     private OnListFacilitiesListener mListener;
     private FacilityListAdapter facilityListAdapter;
@@ -73,6 +83,8 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
     private FacilitiesQuery.Item mItemSelected;
     private FusedLocationProviderClient mFusedLocationClient;
     private Location currentLocation;
+    private MapFragment mMapFragment;
+    private GoogleMap mMap;
 
     public FacilitiesFragment() {
     }
@@ -128,6 +140,8 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
                     facilityListAdapter.setCurrentLocation(currentLocation);
                     facilityListAdapter.notifyDataSetChanged();
                     mLoading.setVisibility(View.GONE);
+
+                    mMapFragment.getMapAsync(FacilitiesFragment.this);
                 });
             }
 
@@ -159,6 +173,10 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
 
         ButterKnife.bind(this, view);
 
+        // Butterknife sucks for Fragment
+        mMapFragment = MapFragment.newInstance();
+        getActivity().getFragmentManager().beginTransaction().replace(R.id.map, mMapFragment).commitAllowingStateLoss();
+
         Context context = view.getContext();
         recyclerView.addItemDecoration(new SimpleDividerItemDecoration(getActivity()));
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
@@ -180,6 +198,24 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
             // List Collapse and GONE
             behaviorList.setState(BottomSheetBehavior.STATE_COLLAPSED);
             bottomSheetList.setVisibility(View.GONE);
+
+            // Move Map
+            if (mMap != null) {
+
+                mMap.clear();
+
+                LatLng latlng = new LatLng(
+                    mItemSelected.location().coordinates().latitude(),
+                    mItemSelected.location().coordinates().longitude()
+                );
+
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latlng, 13));
+                mMap.addMarker(
+                        new MarkerOptions()
+                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_pin))
+                                .position(latlng)
+                                .title(mItemSelected.name()));
+            }
         });
         recyclerView.setAdapter(facilityListAdapter);
 
@@ -199,6 +235,9 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
                     behaviorList.setState(BottomSheetBehavior.STATE_EXPANDED);
 
                     mItemSelected = null;
+
+                    // Reset Map Pins
+                    onMapReady(mMap);
                 }
             }
 
@@ -264,6 +303,34 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
         DeviceBandwidthSampler.getInstance().startSampling();
         query();
         DeviceBandwidthSampler.getInstance().stopSampling();
+    }
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+
+        mMap = googleMap;
+        mMap.clear();
+
+        // Add pins to map
+        List<FacilitiesQuery.Item> facilities = facilityListAdapter.getCenters();
+        if (facilities != null && facilities.size() > 0) {
+
+            for (FacilitiesQuery.Item facility : facilities) {
+
+                LatLng latlng = new LatLng(facility.location().coordinates().latitude(), facility.location().coordinates().longitude());
+                mMap.addMarker(
+                        new MarkerOptions()
+                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_pin))
+                                .position(latlng)
+                                .title(facility.name()));
+            }
+        }
+
+        // Move camera
+        if (currentLocation != null) {
+            LatLng latlng = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latlng, 13));
+        }
     }
 
     public interface OnListFacilitiesListener {
