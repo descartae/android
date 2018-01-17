@@ -14,18 +14,17 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import org.descartae.android.BuildConfig;
-import org.descartae.android.FacilityQuery;
 import org.descartae.android.R;
 import org.descartae.android.interfaces.RetryConnectionView;
 import org.descartae.android.view.fragments.empty.EmptyLocationPermissionFragment;
 import org.descartae.android.view.fragments.empty.EmptyOfflineFragment;
-import org.descartae.android.view.fragments.facility.FacilityFragment;
+import org.descartae.android.view.fragments.facility.FacilitiesFragment;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class Home extends BaseActivity
-        implements NavigationView.OnNavigationItemSelectedListener, FacilityFragment.OnListFacilitiesListener, RetryConnectionView {
+        implements NavigationView.OnNavigationItemSelectedListener, FacilitiesFragment.OnListFacilitiesListener, RetryConnectionView {
 
     @BindView(R.id.toolbar)
     Toolbar toolbar;
@@ -43,7 +42,7 @@ public class Home extends BaseActivity
 
     @Override
     void permissionGranted() {
-        getSupportFragmentManager().beginTransaction().replace(R.id.content, FacilityFragment.newInstance()).commitAllowingStateLoss();
+        getSupportFragmentManager().beginTransaction().replace(R.id.content, FacilitiesFragment.newInstance()).commitAllowingStateLoss();
     }
 
     @Override
@@ -126,11 +125,6 @@ public class Home extends BaseActivity
         }
 
         return true;
-    }
-
-    @Override
-    public void onListFacilityInteraction(FacilityQuery.Center center) {
-
     }
 
     @Override

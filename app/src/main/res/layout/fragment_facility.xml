@@ -10,9 +10,9 @@
         android:id="@+id/name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Nome"
-        android:textStyle="normal"
         android:layout_margin="@dimen/text_margin"
+        android:fontFamily="sans-serif-medium"
+        android:textStyle="normal"
         android:textSize="@dimen/text_regular"
         android:textColor="@color/title_gray" />
 
@@ -22,7 +22,6 @@
         android:orientation="horizontal"
         android:paddingLeft="@dimen/text_margin"
         android:layout_height="wrap_content">
-
 
     </LinearLayout>
 
@@ -38,6 +37,8 @@
             android:layout_height="wrap_content"
             android:text="Local"
             android:textStyle="normal"
+            android:fontFamily="sans-serif"
+            android:lineSpacingExtra="2sp"
             android:layout_margin="@dimen/text_margin"
             android:textColor="@color/title_light_gray"
             android:textSize="@dimen/text_small" />
@@ -47,6 +48,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="0 Km"
+            android:lineSpacingExtra="2sp"
+            android:gravity="end"
+            android:fontFamily="sans-serif-medium"
             android:textStyle="normal"
             android:layout_margin="@dimen/text_margin"
             android:textColor="@color/colorPrimary"

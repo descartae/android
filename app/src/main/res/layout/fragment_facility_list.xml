@@ -31,6 +31,10 @@
         android:elevation="1dp"
         app:layout_behavior="android.support.design.widget.BottomSheetBehavior">
 
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
         <android.support.v7.widget.RecyclerView xmlns:android="http://schemas.android.com/apk/res/android"
             xmlns:app="http://schemas.android.com/apk/res-auto"
             xmlns:tools="http://schemas.android.com/tools"
@@ -39,8 +43,89 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:layoutManager="LinearLayoutManager"
-            tools:context="org.descartae.android.view.fragments.facility.FacilityFragment"
+            tools:context="org.descartae.android.view.fragments.facility.FacilitiesFragment"
             tools:listitem="@layout/fragment_facility" />
+
+            <ProgressBar
+                android:id="@+id/loading"
+                android:layout_width="wrap_content"
+                android:layout_centerInParent="true"
+                android:indeterminate="true"
+                android:visibility="gone"
+                android:indeterminateOnly="true"
+                android:layout_height="wrap_content" />
+
+        </RelativeLayout>
+
+    </android.support.v4.widget.NestedScrollView>
+
+    <android.support.v4.widget.NestedScrollView
+        android:id="@+id/bottom_sheet_detail"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/white"
+        android:clipToPadding="true"
+        android:elevation="1dp"
+        android:visibility="gone"
+        app:layout_behavior="android.support.design.widget.BottomSheetBehavior">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:foreground="?selectableItemBackgroundBorderless"
+            android:background="@android:color/white"
+            android:orientation="vertical">
+
+            <include
+                layout="@layout/fragment_facility"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:orientation="horizontal"
+                android:paddingLeft="@dimen/activity_horizontal_margin"
+                android:paddingRight="@dimen/activity_horizontal_margin"
+                android:background="@color/bg_light"
+                android:layout_height="56dp">
+
+                <Button
+                    android:id="@+id/action_detail"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:text="@string/detail"
+                    style="@style/Base.Widget.AppCompat.Button"
+                    android:background="@android:color/transparent"
+                    android:textStyle="normal"
+                    android:layout_gravity="center_vertical"
+                    android:gravity="left|center_vertical"
+                    android:layout_marginRight="@dimen/activity_horizontal_margin"
+                    android:foreground="?selectableItemBackgroundBorderless"
+                    android:textAllCaps="true"
+                    android:textColor="@color/button_gray" />
+
+                <Button
+                    style="@style/Base.Widget.AppCompat.Button.Colored"
+                    android:id="@+id/action_go"
+                    android:layout_width="wrap_content"
+                    android:layout_height="32dp"
+                    android:textStyle="normal"
+                    android:layout_gravity="center_vertical"
+                    android:drawableLeft="@drawable/ic_action_navigation"
+                    android:drawablePadding="@dimen/padding"
+                    android:text="@string/drive"
+                    android:minWidth="100dp"
+                    android:paddingLeft="@dimen/padding"
+                    android:paddingRight="@dimen/padding"
+                    android:foreground="?selectableItemBackgroundBorderless"
+                    android:textColor="@android:color/white"
+                    android:background="@color/colorPrimary" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
 
     </android.support.v4.widget.NestedScrollView>
 

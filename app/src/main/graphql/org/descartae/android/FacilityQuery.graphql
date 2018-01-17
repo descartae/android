@@ -1,23 +1,31 @@
-query FacilityQuery {
-  centers {
-    _id
-    name
+query FacilityQuery($id: ID!) {
+  facility(_id: $id) {
+      _id
+      name
       location {
         municipality
         state
         zip
+        coordinates {
+            latitude
+            longitude
+        }
       }
-    website
-    telephone
-    typesOfWaste {
-      _id
-      name
-      icon
+      website
+      telephone
+      typesOfWaste {
+        _id
+        name
+        description
+        icons {
+          androidMediumURL
+          androidLargeURL
+        }
+      }
+      openHours {
+        dayOfWeek
+        startTime
+        endTime
+      }
     }
-    openHours {
-      dayOfWeek
-      startTime
-      endTime
-    }
-  }
 }
