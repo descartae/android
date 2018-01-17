@@ -4,6 +4,8 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.Location;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
@@ -24,6 +26,9 @@ import com.apollographql.apollo.exception.ApolloException;
 import com.facebook.network.connectionclass.ConnectionClassManager;
 import com.facebook.network.connectionclass.ConnectionQuality;
 import com.facebook.network.connectionclass.DeviceBandwidthSampler;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnSuccessListener;
 
 import org.descartae.android.FacilitiesQuery;
 import org.descartae.android.FacilityQuery;
@@ -41,7 +46,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class FacilitiesFragment extends Fragment implements ConnectionClassManager.ConnectionClassStateChangeListener {
+public class FacilitiesFragment extends Fragment implements ConnectionClassManager.ConnectionClassStateChangeListener, OnSuccessListener<Location> {
 
     private OnListFacilitiesListener mListener;
     private FacilityListAdapter facilityListAdapter;
@@ -66,6 +71,8 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
     private BottomSheetBehavior<View> behaviorDetail;
     private BottomSheetBehavior<View> behaviorList;
     private FacilitiesQuery.Item mItemSelected;
+    private FusedLocationProviderClient mFusedLocationClient;
+    private Location currentLocation;
 
     public FacilitiesFragment() {
     }
@@ -88,25 +95,24 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
 
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        ConnectionClassManager.getInstance().register(this);
-        DeviceBandwidthSampler.getInstance().startSampling();
-        query();
-        DeviceBandwidthSampler.getInstance().stopSampling();
-    }
-
-    private void query() {
 
         int permissionCheck = ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION);
         if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
             return;
         }
 
+        mLoading.setVisibility(View.VISIBLE);
+
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(getActivity());
+        mFusedLocationClient.getLastLocation().addOnSuccessListener(this);
+    }
+
+    private void query() {
+
         ApolloClient apolloClient = ApolloClient.builder()
             .serverUrl(NetworkingConstants.BASE_URL)
             .build();
         FacilitiesQuery facilityQuery = FacilitiesQuery.builder().build();
-
-        mLoading.setVisibility(View.VISIBLE);
 
         apolloClient.query(facilityQuery).enqueue(new ApolloCall.Callback<FacilitiesQuery.Data>() {
 
@@ -119,6 +125,7 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
 
                 getActivity().runOnUiThread(() -> {
                     facilityListAdapter.setCenters(dataResponse.data().facilities().items());
+                    facilityListAdapter.setCurrentLocation(currentLocation);
                     facilityListAdapter.notifyDataSetChanged();
                     mLoading.setVisibility(View.GONE);
                 });
@@ -163,6 +170,7 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
             // Fill Item Detail
             facilityViewHolder = new FacilityViewHolder(bottomSheetDetail);
             facilityViewHolder.mItem = center;
+            facilityViewHolder.setCurrentLocation(currentLocation);
             facilityViewHolder.fill();
 
             // Show BottomSheetDetail
@@ -235,6 +243,27 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
         Intent intent = new Intent(getActivity(), FacilityActivity.class);
         intent.putExtra(FacilityActivity.ARG_ID, mItemSelected._id());
         startActivity(intent);
+    }
+
+    @OnClick(R.id.action_go)
+    public void onActionGo() {
+
+        if (mItemSelected == null) return;
+
+        String uri = "geo:" + mItemSelected.location().coordinates().latitude() + ","
+                + mItemSelected.location().coordinates().longitude() + "?q=" + mItemSelected.location().coordinates().latitude()
+                + "," + mItemSelected.location().coordinates().longitude();
+        startActivity(new Intent(android.content.Intent.ACTION_VIEW, Uri.parse(uri)));
+    }
+
+    @Override
+    public void onSuccess(Location location) {
+        currentLocation = location;
+
+        ConnectionClassManager.getInstance().register(this);
+        DeviceBandwidthSampler.getInstance().startSampling();
+        query();
+        DeviceBandwidthSampler.getInstance().stopSampling();
     }
 
     public interface OnListFacilitiesListener {

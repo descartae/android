@@ -1,8 +1,10 @@
 package org.descartae.android.view.activities;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.DialogFragment;
@@ -295,5 +297,16 @@ public class FacilityActivity extends AppCompatActivity implements OnMapReadyCal
         // Create and show the dialog.
         DialogFragment newFragment = WasteTypeDialog.newInstance(typesOfWaste.name(), typesOfWaste.description(), typesOfWaste.icons().androidMediumURL());
         newFragment.show(ft, "dialog");
+    }
+
+    @OnClick(R.id.fab)
+    public void onNavClick() {
+
+        if (facility == null) return;
+
+        String uri = "geo:" + facility.location().coordinates().latitude() + ","
+                + facility.location().coordinates().longitude() + "?q=" + facility.location().coordinates().latitude()
+                + "," + facility.location().coordinates().longitude();
+        startActivity(new Intent(android.content.Intent.ACTION_VIEW, Uri.parse(uri)));
     }
 }

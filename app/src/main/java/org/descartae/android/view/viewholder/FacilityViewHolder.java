@@ -1,5 +1,6 @@
 package org.descartae.android.view.viewholder;
 
+import android.location.Location;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageView;
@@ -32,7 +33,11 @@ public class FacilityViewHolder extends RecyclerView.ViewHolder {
     @BindView(R.id.type_waste)
     public LinearLayout mTypes;
 
+    @BindView(R.id.distance)
+    public TextView mDistance;
+
     public FacilitiesQuery.Item mItem;
+    private Location currentLocation;
 
     public FacilityViewHolder(View view) {
         super(view);
@@ -68,5 +73,19 @@ public class FacilityViewHolder extends RecyclerView.ViewHolder {
                 mTypes.addView(ii);
             }
         }
+
+        // Distance
+        if (currentLocation != null) {
+            Location facilityLocation = new Location("Facility");
+            facilityLocation.setLatitude(mItem.location().coordinates().latitude());
+            facilityLocation.setLongitude(mItem.location().coordinates().longitude());
+
+            float distance = currentLocation.distanceTo(facilityLocation);
+            mDistance.setText(mView.getContext().getString(R.string.distance, distance / 1000));
+        }
+    }
+
+    public void setCurrentLocation(Location currentLocation) {
+        this.currentLocation = currentLocation;
     }
 }

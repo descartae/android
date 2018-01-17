@@ -84,8 +84,10 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:orientation="horizontal"
+                android:paddingLeft="@dimen/activity_horizontal_margin"
+                android:paddingRight="@dimen/activity_horizontal_margin"
                 android:background="@color/bg_light"
-                android:layout_height="wrap_content">
+                android:layout_height="56dp">
 
                 <Button
                     android:id="@+id/action_detail"
@@ -96,21 +98,26 @@
                     style="@style/Base.Widget.AppCompat.Button"
                     android:background="@android:color/transparent"
                     android:textStyle="normal"
+                    android:layout_gravity="center_vertical"
                     android:gravity="left|center_vertical"
                     android:layout_marginRight="@dimen/activity_horizontal_margin"
                     android:foreground="?selectableItemBackgroundBorderless"
                     android:textAllCaps="true"
-                    android:layout_margin="@dimen/text_margin"
-                    android:textColor="@color/title_gray" />
+                    android:textColor="@color/button_gray" />
 
                 <Button
                     style="@style/Base.Widget.AppCompat.Button.Colored"
                     android:id="@+id/action_go"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="32dp"
                     android:textStyle="normal"
+                    android:layout_gravity="center_vertical"
+                    android:drawableLeft="@drawable/ic_action_navigation"
+                    android:drawablePadding="@dimen/padding"
                     android:text="@string/drive"
-                    android:layout_margin="@dimen/text_margin"
+                    android:minWidth="100dp"
+                    android:paddingLeft="@dimen/padding"
+                    android:paddingRight="@dimen/padding"
                     android:foreground="?selectableItemBackgroundBorderless"
                     android:textColor="@android:color/white"
                     android:background="@color/colorPrimary" />

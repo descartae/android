@@ -49,7 +49,7 @@
 
     <string name="closed">Fechado</string>
     <string name="no_open_hour_today">Horários de hoje indisponíveis</string>
-    <string name="distance">%1$f Km</string>
+    <string name="distance">%1$.2f Km</string>
 
     <string-array name="day_of_week">
         <item>Domingo</item>
