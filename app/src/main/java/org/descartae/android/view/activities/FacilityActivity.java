@@ -163,7 +163,7 @@ public class FacilityActivity extends AppCompatActivity implements OnMapReadyCal
 
                     facility = dataResponse.data().facility();
 
-                    mLocationView.setText(facility.location().municipality());
+                    mLocationView.setText(facility.location().address());
                     mNameView.setText(facility.name());
                     mPhone.setText(facility.telephone());
 
@@ -279,7 +279,7 @@ public class FacilityActivity extends AppCompatActivity implements OnMapReadyCal
 
     @Override
     public void onSuccess(Location location) {
-        if (facility == null) return;
+        if (facility == null || location == null) return;
 
         Location facilityLocation = new Location("Facility");
         facilityLocation.setLatitude(facility.location().coordinates().latitude());

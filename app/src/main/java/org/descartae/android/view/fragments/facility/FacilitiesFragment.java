@@ -25,6 +25,7 @@ import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import com.apollographql.apollo.ApolloCall;
@@ -184,38 +185,7 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
 
             // On Facility Item Clicked
             mItemSelected = center;
-
-            // Fill Item Detail
-            facilityViewHolder = new FacilityViewHolder(bottomSheetDetail);
-            facilityViewHolder.mItem = center;
-            facilityViewHolder.setCurrentLocation(currentLocation);
-            facilityViewHolder.fill();
-
-            // Show BottomSheetDetail
-            bottomSheetDetail.setVisibility(View.VISIBLE);
-            behaviorDetail.setState(BottomSheetBehavior.STATE_EXPANDED);
-
-            // List Collapse and GONE
-            behaviorList.setState(BottomSheetBehavior.STATE_COLLAPSED);
-            bottomSheetList.setVisibility(View.GONE);
-
-            // Move Map
-            if (mMap != null) {
-
-                mMap.clear();
-
-                LatLng latlng = new LatLng(
-                    mItemSelected.location().coordinates().latitude(),
-                    mItemSelected.location().coordinates().longitude()
-                );
-
-                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latlng, 13));
-                mMap.addMarker(
-                        new MarkerOptions()
-                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_pin))
-                                .position(latlng)
-                                .title(mItemSelected.name()));
-            }
+            selectFacility(center);
         });
         recyclerView.setAdapter(facilityListAdapter);
 
@@ -237,7 +207,7 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
                     mItemSelected = null;
 
                     // Reset Map Pins
-                    onMapReady(mMap);
+                    fillMapMarkers();
                 }
             }
 
@@ -249,6 +219,41 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
         behaviorDetail.setHideable(true);
 
         return view;
+    }
+
+    private void selectFacility(FacilitiesQuery.Item center) {
+
+        // Fill Item Detail
+        facilityViewHolder = new FacilityViewHolder(bottomSheetDetail);
+        facilityViewHolder.mItem = center;
+        facilityViewHolder.setCurrentLocation(currentLocation);
+        facilityViewHolder.fill();
+
+        // Show BottomSheetDetail
+        bottomSheetDetail.setVisibility(View.VISIBLE);
+        behaviorDetail.setState(BottomSheetBehavior.STATE_EXPANDED);
+
+        // List Collapse and GONE
+        behaviorList.setState(BottomSheetBehavior.STATE_COLLAPSED);
+        bottomSheetList.setVisibility(View.GONE);
+
+        // Move Map
+        if (mMap != null) {
+
+            mMap.clear();
+
+            LatLng latlng = new LatLng(
+                mItemSelected.location().coordinates().latitude(),
+                mItemSelected.location().coordinates().longitude()
+            );
+
+            mMap.moveCamera(CameraUpdateFactory.newLatLng(latlng));
+            mMap.addMarker(
+                    new MarkerOptions()
+                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_pin))
+                            .position(latlng)
+                            .title(mItemSelected.name()));
+        }
     }
 
     @Override
@@ -309,6 +314,32 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
     public void onMapReady(GoogleMap googleMap) {
 
         mMap = googleMap;
+
+        fillMapMarkers();
+
+        // Initial Zoom
+        mMap.moveCamera(CameraUpdateFactory.zoomBy(13));
+
+        mMap.setOnMarkerClickListener((Marker marker) -> {
+            marker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.ic_pin));
+            selectFacility(marker.getTitle());
+            return false;
+        });
+    }
+
+    private void selectFacility(String name) {
+        List<FacilitiesQuery.Item> centers = facilityListAdapter.getCenters();
+        for (FacilitiesQuery.Item facility : centers) {
+            if (facility.name().equals(name)) {
+                mItemSelected = facility;
+                selectFacility(facility);
+                break;
+            }
+        }
+    }
+
+    private void fillMapMarkers() {
+
         mMap.clear();
 
         // Add pins to map
@@ -319,17 +350,18 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
 
                 LatLng latlng = new LatLng(facility.location().coordinates().latitude(), facility.location().coordinates().longitude());
                 mMap.addMarker(
-                        new MarkerOptions()
-                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_pin))
-                                .position(latlng)
-                                .title(facility.name()));
+                    new MarkerOptions()
+                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_places_map))
+                        .position(latlng)
+                        .snippet(facility.location().address())
+                        .title(facility.name()));
             }
         }
 
         // Move camera
         if (currentLocation != null) {
             LatLng latlng = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latlng, 13));
+            mMap.moveCamera(CameraUpdateFactory.newLatLng(latlng));
         }
     }
 
