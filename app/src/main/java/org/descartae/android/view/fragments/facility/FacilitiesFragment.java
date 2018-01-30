@@ -115,7 +115,6 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
         mLoading.setVisibility(View.VISIBLE);
 
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(getActivity());
-
         mLocationCallback = new LocationCallback() {
 
             @Override
@@ -123,6 +122,9 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
 
                 // Last Location
                 currentLocation = locationResult.getLastLocation();
+
+                // Move Map
+                moveMapCamera();
 
                 // Start Test Connection Quality
                 ConnectionClassManager.getInstance().register(FacilitiesFragment.this);
@@ -137,9 +139,10 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
         };
         LocationRequest mRequestingLocationUpdates = new LocationRequest();
         mRequestingLocationUpdates.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        mRequestingLocationUpdates.setInterval(60000);
 
         // Update Location Once
-        mRequestingLocationUpdates.setNumUpdates(1);
+         mRequestingLocationUpdates.setNumUpdates(1);
 
         mFusedLocationClient.requestLocationUpdates(mRequestingLocationUpdates, mLocationCallback, null /* Looper */);
     }
@@ -390,8 +393,13 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
             }
         }
 
+        moveMapCamera();
+    }
+
+    private void moveMapCamera() {
+
         // Move camera
-        if (currentLocation != null) {
+        if (currentLocation != null && mMap != null) {
 
             Log.d("Move map to: ", "Lat: " + currentLocation.getLatitude() + ", long:" + currentLocation.getLongitude());
 
