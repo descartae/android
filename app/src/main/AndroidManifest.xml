@@ -17,6 +17,10 @@
             android:label="@string/title_activity_home"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
+            android:name=".view.activities.LegendTypeOfWasteActivity"
+            android:label="@string/title_activity_type_of_waste"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
+        <activity
             android:name=".view.activities.Intro"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
@@ -27,9 +31,12 @@
         </activity>
         <activity
             android:name=".view.activities.FacilityActivity"
-            android:theme="@style/AppTheme.NoActionBar.Dark"></activity>
+            android:theme="@style/AppTheme.NoActionBar.Dark" />
 
-        <meta-data android:name="com.google.android.geo.API_KEY" android:value="AIzaSyB2nTXmhrzVHggaAwrMcJOz0QsQwvv55fY"/>
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyB2nTXmhrzVHggaAwrMcJOz0QsQwvv55fY" />
+
     </application>
 
 </manifest>

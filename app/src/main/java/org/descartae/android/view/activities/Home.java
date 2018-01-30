@@ -84,6 +84,9 @@ public class Home extends BaseActivity
         int id = item.getItemId();
         if (id == R.id.action_filter) {
             return true;
+        } else if (id == R.id.action_info) {
+            startActivity(new Intent(this, LegendTypeOfWasteActivity.class));
+            return true;
         }
 
         return super.onOptionsItemSelected(item);

@@ -733,6 +733,22 @@
               "deprecationReason": null
             },
             {
+              "name": "color",
+              "description": "The color for this type",
+              "args": [],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "icons",
               "description": "The icons for this type",
               "args": [],
