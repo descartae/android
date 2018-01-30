@@ -60,4 +60,5 @@
         <item>Sexta-feira</item>
         <item>Sábado</item>
     </string-array>
+    <string name="title_activity_type_of_waste">Legendas</string>
 </resources>

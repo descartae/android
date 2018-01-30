@@ -1,0 +1,10 @@
+query TypeOfWasteQuery {
+  typesOfWaste {
+    name
+    description
+    color
+    icons {
+      androidMediumURL
+    }
+  }
+}
