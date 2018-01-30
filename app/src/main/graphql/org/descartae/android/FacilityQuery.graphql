@@ -3,6 +3,7 @@ query FacilityQuery($id: ID!) {
       _id
       name
       location {
+        address
         municipality
         state
         zip

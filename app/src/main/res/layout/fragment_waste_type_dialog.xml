@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
-    android:padding="@dimen/activity_horizontal_margin"
+    android:padding="@dimen/dialog_margin"
     android:layout_height="wrap_content">
 
     <ImageView
@@ -42,7 +42,7 @@
         android:layout_alignParentRight="true"
         android:layout_below="@+id/desc"
         android:text="@string/close"
-        android:layout_marginTop="@dimen/margin_top"
+        android:layout_marginTop="@dimen/dialog_margin"
         android:background="@android:color/transparent"
         android:foreground="?selectableItemBackgroundBorderless"
         android:textColor="@color/colorPrimary"

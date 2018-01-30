@@ -52,7 +52,7 @@ public class FacilityViewHolder extends RecyclerView.ViewHolder {
 
     public void fill() {
 
-        mLocationView.setText(mItem.location().municipality());
+        mLocationView.setText(mItem.location().address());
         mNameView.setText(mItem.name());
 
         mTypes.removeAllViews();
@@ -60,16 +60,22 @@ public class FacilityViewHolder extends RecyclerView.ViewHolder {
         for (FacilitiesQuery.TypesOfWaste typesOfWaste: mItem.typesOfWaste()) {
             ImageView ii = new ImageView(mView.getContext());
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-            lp.setMargins(20, 0, 20, 0);
+
+            if (mTypes.getChildCount() == 0) {
+                lp.setMargins(0, 0, 10, 0);
+            } else {
+                lp.setMargins(10, 0, 10, 0);
+            }
+
             ii.setLayoutParams(lp);
 
             // More Icons
             if (mTypes.getChildCount() == 4) {
-                Picasso.with(mView.getContext()).load(R.drawable.ic_waste_more).resize(100, 100).centerInside().into(ii);
+                Picasso.with(mView.getContext()).load(R.drawable.ic_waste_more).resize(60, 60).centerInside().into(ii);
                 mTypes.addView(ii);
                 break;
             } else {
-                Picasso.with(mView.getContext()).load(typesOfWaste.icons().androidSmallURL()).resize(100, 100).placeholder(R.drawable.ic_placeholder).centerInside().into(ii);
+                Picasso.with(mView.getContext()).load(typesOfWaste.icons().androidSmallURL()).resize(60, 60).placeholder(R.drawable.ic_placeholder).centerInside().into(ii);
                 mTypes.addView(ii);
             }
         }

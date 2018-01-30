@@ -4,6 +4,7 @@ query FacilitiesQuery {
       _id
       name
       location {
+        address
         municipality
         state
         zip

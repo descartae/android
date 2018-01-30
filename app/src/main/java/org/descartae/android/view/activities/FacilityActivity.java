@@ -102,6 +102,7 @@ public class FacilityActivity extends AppCompatActivity implements OnMapReadyCal
     private FusedLocationProviderClient mFusedLocationClient;
 
     private WastesTypeListAdapter mTypesWasteAdapter;
+    private GoogleMap mMap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -162,7 +163,7 @@ public class FacilityActivity extends AppCompatActivity implements OnMapReadyCal
 
                     facility = dataResponse.data().facility();
 
-                    mLocationView.setText(facility.location().municipality());
+                    mLocationView.setText(facility.location().address());
                     mNameView.setText(facility.name());
                     mPhone.setText(facility.telephone());
 
@@ -251,6 +252,8 @@ public class FacilityActivity extends AppCompatActivity implements OnMapReadyCal
     @Override
     public void onMapReady(GoogleMap googleMap) {
 
+        this.mMap = googleMap;
+
         if (facility == null) return;
 
         int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
@@ -261,11 +264,13 @@ public class FacilityActivity extends AppCompatActivity implements OnMapReadyCal
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         mFusedLocationClient.getLastLocation().addOnSuccessListener(this);
 
-        LatLng latlng = new LatLng(facility.location().coordinates().latitude(), facility.location().coordinates().longitude());
+        LatLng latlng = new LatLng(
+            facility.location().coordinates().latitude(),
+            facility.location().coordinates().longitude()
+        );
 
-        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latlng, 13));
-
-        googleMap.addMarker(
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latlng, 13));
+        mMap.addMarker(
                 new MarkerOptions()
                         .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_pin))
                         .position(latlng)
@@ -274,7 +279,7 @@ public class FacilityActivity extends AppCompatActivity implements OnMapReadyCal
 
     @Override
     public void onSuccess(Location location) {
-        if (facility == null) return;
+        if (facility == null || location == null) return;
 
         Location facilityLocation = new Location("Facility");
         facilityLocation.setLatitude(facility.location().coordinates().latitude());
