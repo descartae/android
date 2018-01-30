@@ -1,5 +1,5 @@
-query FacilitiesQuery {
-  facilities(filters: {cursor: {quantity: 100}}) {
+query FacilitiesQuery($latitude: Float!, $longitude: Float!) {
+  facilities(filters: {cursor: {quantity: 100}, location: {near: {latitude: $latitude, longitude: $longitude}}}) {
     items {
       _id
       name

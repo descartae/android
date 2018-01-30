@@ -19,6 +19,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
@@ -57,7 +60,9 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class FacilitiesFragment extends Fragment implements ConnectionClassManager.ConnectionClassStateChangeListener, OnSuccessListener<Location>, OnMapReadyCallback {
+public class FacilitiesFragment extends Fragment implements ConnectionClassManager.ConnectionClassStateChangeListener, OnMapReadyCallback {
+
+    private static final String REQUESTING_LOCATION_UPDATES_KEY = "REQUESTING_LOCATION_UPDATES_KEY";
 
     private OnListFacilitiesListener mListener;
     private FacilityListAdapter facilityListAdapter;
@@ -86,6 +91,7 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
     private Location currentLocation;
     private MapFragment mMapFragment;
     private GoogleMap mMap;
+    private LocationCallback mLocationCallback;
 
     public FacilitiesFragment() {
     }
@@ -98,14 +104,6 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        if (getArguments() != null) {
-
-        }
-    }
-
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
@@ -117,7 +115,42 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
         mLoading.setVisibility(View.VISIBLE);
 
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(getActivity());
-        mFusedLocationClient.getLastLocation().addOnSuccessListener(this);
+        mLocationCallback = new LocationCallback() {
+
+            @Override
+            public void onLocationResult(LocationResult locationResult) {
+
+                // Last Location
+                currentLocation = locationResult.getLastLocation();
+
+                // Move Map
+                moveMapCamera();
+
+                // Start Test Connection Quality
+                ConnectionClassManager.getInstance().register(FacilitiesFragment.this);
+                DeviceBandwidthSampler.getInstance().startSampling();
+
+                // Request nearby facilities
+                query();
+
+                // Stop Test Connection Quality
+                DeviceBandwidthSampler.getInstance().stopSampling();
+            };
+        };
+        LocationRequest mRequestingLocationUpdates = new LocationRequest();
+        mRequestingLocationUpdates.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        mRequestingLocationUpdates.setInterval(60000);
+
+        // Update Location Once
+         mRequestingLocationUpdates.setNumUpdates(1);
+
+        mFusedLocationClient.requestLocationUpdates(mRequestingLocationUpdates, mLocationCallback, null /* Looper */);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mFusedLocationClient.removeLocationUpdates(mLocationCallback);
     }
 
     private void query() {
@@ -125,7 +158,19 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
         ApolloClient apolloClient = ApolloClient.builder()
             .serverUrl(NetworkingConstants.BASE_URL)
             .build();
-        FacilitiesQuery facilityQuery = FacilitiesQuery.builder().build();
+
+        FacilitiesQuery.Builder builder = FacilitiesQuery.builder();
+
+        // IF location is loaded, fetch by near facilities
+        if (currentLocation != null) {
+
+            Log.d("Query Facility", "Nearby: " + currentLocation.getLatitude() + ", " + currentLocation.getLongitude());
+
+            builder.latitude(currentLocation.getLatitude());
+            builder.longitude(currentLocation.getLongitude());
+        }
+
+        FacilitiesQuery facilityQuery = builder.build();
 
         apolloClient.query(facilityQuery).enqueue(new ApolloCall.Callback<FacilitiesQuery.Data>() {
 
@@ -301,16 +346,6 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
     }
 
     @Override
-    public void onSuccess(Location location) {
-        currentLocation = location;
-
-        ConnectionClassManager.getInstance().register(this);
-        DeviceBandwidthSampler.getInstance().startSampling();
-        query();
-        DeviceBandwidthSampler.getInstance().stopSampling();
-    }
-
-    @Override
     public void onMapReady(GoogleMap googleMap) {
 
         mMap = googleMap;
@@ -358,8 +393,16 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
             }
         }
 
+        moveMapCamera();
+    }
+
+    private void moveMapCamera() {
+
         // Move camera
-        if (currentLocation != null) {
+        if (currentLocation != null && mMap != null) {
+
+            Log.d("Move map to: ", "Lat: " + currentLocation.getLatitude() + ", long:" + currentLocation.getLongitude());
+
             LatLng latlng = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
             mMap.moveCamera(CameraUpdateFactory.newLatLng(latlng));
         }
