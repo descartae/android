@@ -16,12 +16,16 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
@@ -46,12 +50,15 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import org.descartae.android.FacilitiesQuery;
 import org.descartae.android.R;
 
+import org.descartae.android.TypeOfWasteQuery;
 import org.descartae.android.adapters.FacilityListAdapter;
 import org.descartae.android.networking.NetworkingConstants;
 import org.descartae.android.view.activities.FacilityActivity;
 import org.descartae.android.view.utils.SimpleDividerItemDecoration;
 import org.descartae.android.view.viewholder.FacilityViewHolder;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.annotation.Nonnull;
@@ -93,6 +100,9 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
     private GoogleMap mMap;
     private LocationCallback mLocationCallback;
 
+    private List<TypeOfWasteQuery.TypesOfWaste> typesOfWasteData;
+    private String[] typesOfWasteTitle;
+
     public FacilitiesFragment() {
     }
 
@@ -104,6 +114,48 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
     }
 
     @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+
+            case R.id.action_filter:
+
+                if (typesOfWasteTitle == null || typesOfWasteTitle.length <= 0) {
+                    return false;
+                }
+
+                new MaterialDialog.Builder(getActivity())
+                        .title(R.string.title_filter)
+                        .items(typesOfWasteTitle)
+                        .itemsCallbackMultiChoice(null, (MaterialDialog dialog, Integer[] which, CharSequence[] text) -> {
+
+                            List<TypeOfWasteQuery.TypesOfWaste> selected = new ArrayList<>();
+                            for (Integer index : which) {
+                                selected.add(typesOfWasteData.get(index));
+                            }
+
+                            query(selected);
+
+                            return true;
+                        })
+                        .positiveText(R.string.action_filter)
+                        .show();
+
+                return true;
+        }
+        return false;
+    }
+
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
@@ -115,6 +167,7 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
         mLoading.setVisibility(View.VISIBLE);
 
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(getActivity());
+
         mLocationCallback = new LocationCallback() {
 
             @Override
@@ -131,7 +184,7 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
                 DeviceBandwidthSampler.getInstance().startSampling();
 
                 // Request nearby facilities
-                query();
+                query(null);
 
                 // Stop Test Connection Quality
                 DeviceBandwidthSampler.getInstance().stopSampling();
@@ -151,9 +204,40 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
     public void onDestroy() {
         super.onDestroy();
         mFusedLocationClient.removeLocationUpdates(mLocationCallback);
+
+        /**
+         * Load Type of Waste in order to be fetched before click on filter option
+         */
+        ApolloClient apolloClient = ApolloClient.builder().serverUrl(NetworkingConstants.BASE_URL).build();
+        TypeOfWasteQuery typeOfWasteQuery = TypeOfWasteQuery.builder().build();
+        apolloClient.query(typeOfWasteQuery).enqueue(new ApolloCall.Callback<TypeOfWasteQuery.Data>() {
+
+            @Override
+            public void onResponse(@Nonnull final Response<TypeOfWasteQuery.Data> dataResponse) {
+
+                if (dataResponse == null) return;
+                if (dataResponse.data() == null) return;
+
+                typesOfWasteData = dataResponse.data().typesOfWaste();
+                typesOfWasteTitle = new String[typesOfWasteData.size()];
+
+                int i = 0;
+                for (TypeOfWasteQuery.TypesOfWaste type : typesOfWasteData) {
+                    typesOfWasteTitle[i] = type.name();
+                    i++;
+                }
+            }
+
+            @Override
+            public void onFailure(@Nonnull ApolloException e) {
+
+                if (e != null && e.getMessage() != null)
+                    Log.e("ApolloFacilityQuery", e.getMessage());
+            }
+        });
     }
 
-    private void query() {
+    private void query(List<TypeOfWasteQuery.TypesOfWaste> filter) {
 
         ApolloClient apolloClient = ApolloClient.builder()
             .serverUrl(NetworkingConstants.BASE_URL)

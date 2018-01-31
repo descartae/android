@@ -61,4 +61,5 @@
         <item>Sábado</item>
     </string-array>
     <string name="title_activity_type_of_waste">Legendas</string>
+    <string name="title_filter">Selecione os tipos desejados</string>
 </resources>
