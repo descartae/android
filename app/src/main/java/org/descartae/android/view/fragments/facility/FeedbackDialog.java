@@ -1,14 +1,18 @@
 package org.descartae.android.view.fragments.facility;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.DialogFragment;
+import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -52,6 +56,7 @@ public class FeedbackDialog extends DialogFragment {
     public View mActionOk;
 
     private String facilityID;
+    private AlertDialog.Builder mBuilder;
 
     public static FeedbackDialog newInstance(String facilityID) {
         FeedbackDialog frag = new FeedbackDialog();
@@ -62,12 +67,13 @@ public class FeedbackDialog extends DialogFragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.dialog_feedback, container, false);
+    public Dialog onCreateDialog(Bundle savedInstanceState) {
+
+        LinearLayout viewInflated = (LinearLayout) getActivity().getLayoutInflater().inflate(R.layout.dialog_feedback, null);
+
+        ButterKnife.bind(this, viewInflated);
 
         facilityID = getArguments().getString("facilityID");
-
-        ButterKnife.bind(this, v);
 
         if (facilityID == null) {
             mTitle.setText(R.string.feedback_title);
@@ -77,10 +83,10 @@ public class FeedbackDialog extends DialogFragment {
             mSubTitle.setText(R.string.feedback_facility_desc);
         }
 
-        getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
-        getDialog().getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+        mBuilder = new AlertDialog.Builder(new ContextThemeWrapper(getActivity(), R.style.Theme_AppCompat_Light));
+        mBuilder.setView(viewInflated);
 
-        return v;
+        return mBuilder.create();
     }
 
     @OnClick(R.id.action_send)
