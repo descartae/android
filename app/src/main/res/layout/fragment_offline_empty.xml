@@ -21,7 +21,7 @@
             android:id="@+id/intro_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/margin_top"
+            android:layout_marginTop="@dimen/activity_horizontal_margin"
             android:gravity="center_horizontal"
             android:text="@string/offline"
             android:textColor="@color/title_gray"

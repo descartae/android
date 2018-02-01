@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/filter_empty"
+    android:visibility="gone"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/bg">
@@ -23,7 +25,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/activity_horizontal_margin"
             android:gravity="center_horizontal"
-            android:text="@string/enable_location"
+            android:text="@string/title_filter_empty"
             android:textColor="@color/title_gray"
             android:textSize="@dimen/text_large"
             android:textStyle="bold" />
@@ -35,12 +37,12 @@
             android:gravity="center_horizontal"
             android:lineSpacingExtra="2dp"
             android:padding="@dimen/activity_horizontal_margin"
-            android:text="@string/enable_location_desc"
+            android:text="@string/desc_filter_empty"
             android:textColor="@color/title_gray"
             android:textSize="@dimen/text_regular" />
 
         <Button
-            android:id="@+id/action_allow"
+            android:id="@+id/action_clear_filter"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
@@ -49,8 +51,9 @@
             android:layout_marginTop="@dimen/margin_btn_top"
             style="@style/Widget.AppCompat.Button.Colored"
             android:minWidth="125dp"
+            android:background="@color/colorPrimary"
             android:padding="@dimen/activity_horizontal_margin"
-            android:text="@string/allow"
+            android:text="@string/clear_filter"
             android:textColor="@android:color/white" />
 
     </LinearLayout>
