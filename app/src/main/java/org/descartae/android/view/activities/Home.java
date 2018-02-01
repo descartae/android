@@ -82,9 +82,8 @@ public class Home extends BaseActivity
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        if (id == R.id.action_filter) {
-            return true;
-        } else if (id == R.id.action_info) {
+
+        if (id == R.id.action_info) {
             startActivity(new Intent(this, LegendTypeOfWasteActivity.class));
             return true;
         }

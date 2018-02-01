@@ -1,5 +1,6 @@
 query TypeOfWasteQuery {
   typesOfWaste {
+    _id
     name
     description
     color

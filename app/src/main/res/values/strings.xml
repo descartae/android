@@ -61,4 +61,8 @@
         <item>Sábado</item>
     </string-array>
     <string name="title_activity_type_of_waste">Legendas</string>
+    <string name="title_filter">Selecione os tipos desejados</string>
+    <string name="title_filter_empty">Ops, nada encontrado</string>
+    <string name="desc_filter_empty">Não encontramos nenhum ponto de coleta próximo de você que recolha os tipos de resíduo escolhidos.</string>
+    <string name="clear_filter">Limpar filtros</string>
 </resources>

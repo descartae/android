@@ -10,18 +10,23 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.CoordinatorLayout;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
@@ -46,12 +51,15 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import org.descartae.android.FacilitiesQuery;
 import org.descartae.android.R;
 
+import org.descartae.android.TypeOfWasteQuery;
 import org.descartae.android.adapters.FacilityListAdapter;
 import org.descartae.android.networking.NetworkingConstants;
 import org.descartae.android.view.activities.FacilityActivity;
 import org.descartae.android.view.utils.SimpleDividerItemDecoration;
 import org.descartae.android.view.viewholder.FacilityViewHolder;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.annotation.Nonnull;
@@ -60,7 +68,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class FacilitiesFragment extends Fragment implements ConnectionClassManager.ConnectionClassStateChangeListener, OnMapReadyCallback {
+public class FacilitiesFragment extends Fragment implements ConnectionClassManager.ConnectionClassStateChangeListener, OnMapReadyCallback, OnSuccessListener<Location> {
 
     private static final String REQUESTING_LOCATION_UPDATES_KEY = "REQUESTING_LOCATION_UPDATES_KEY";
 
@@ -82,6 +90,9 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
     @BindView(R.id.loading)
     public View mLoading;
 
+    @BindView(R.id.filter_empty)
+    public View mFilterEmpty;
+
     private FacilityViewHolder facilityViewHolder;
 
     private BottomSheetBehavior<View> behaviorDetail;
@@ -92,6 +103,10 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
     private MapFragment mMapFragment;
     private GoogleMap mMap;
     private LocationCallback mLocationCallback;
+
+    private List<TypeOfWasteQuery.TypesOfWaste> typesOfWasteData;
+    private String[] typesOfWasteTitle;
+    private Integer[] selectedTypesIndices = {};
 
     public FacilitiesFragment() {
     }
@@ -104,47 +119,159 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
     }
 
     @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        switch (item.getItemId()) {
+
+            case R.id.action_filter:
+
+                if (typesOfWasteTitle == null || typesOfWasteTitle.length <= 0) {
+                    Log.d("Filter", "No Types");
+                    return false;
+                }
+
+                new MaterialDialog.Builder(getActivity())
+                        .title(R.string.title_filter)
+                        .items(typesOfWasteTitle)
+                        .itemsCallbackMultiChoice(selectedTypesIndices, (MaterialDialog dialog, Integer[] which, CharSequence[] text) -> {
+
+                            selectedTypesIndices = which;
+
+                            List<String> selected = new ArrayList<>();
+                            for (Integer index : which) {
+                                selected.add(typesOfWasteData.get(index)._id());
+                            }
+
+                            facilityListAdapter.setCenters(null);
+                            facilityListAdapter.notifyDataSetChanged();
+
+                            mLoading.setVisibility(View.VISIBLE);
+
+                            query(selected);
+
+                            return true;
+                        })
+                        .positiveText(R.string.action_filter)
+                        .show();
+
+                return true;
+        }
+        return false;
+    }
+
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
+        mLoading.setVisibility(View.VISIBLE);
+
+        /**
+         * Init Location Service: the facility query is called automatic after got the current location
+         */
         int permissionCheck = ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION);
         if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
             return;
         }
 
-        mLoading.setVisibility(View.VISIBLE);
-
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(getActivity());
-        mLocationCallback = new LocationCallback() {
+        mFusedLocationClient.getLastLocation().addOnSuccessListener(this);
+
+        /**
+         * Load Type of Waste in order to be fetched before click on filter option
+         */
+        queryTypeOfWastes();
+    }
+
+    @Override
+    public void onSuccess(Location location) {
+        currentLocation = location;
+
+        if (currentLocation != null) {
+            afterGetLocation();
+
+        } else {
+
+            int permissionCheck = ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION);
+            if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
+                return;
+            }
+
+            mLocationCallback = new LocationCallback() {
+
+                @Override
+                public void onLocationResult(LocationResult locationResult) {
+
+                    /**
+                     * If fused location has not return the last location
+                     */
+                    if (currentLocation == null) {
+                        currentLocation = locationResult.getLastLocation();
+                        afterGetLocation();
+                    }
+                }
+
+                ;
+            };
+            LocationRequest mRequestingLocationUpdates = new LocationRequest();
+            mRequestingLocationUpdates.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+            mRequestingLocationUpdates.setInterval(60000);
+
+            // Update Location Once
+            mRequestingLocationUpdates.setNumUpdates(1);
+
+            mFusedLocationClient.requestLocationUpdates(mRequestingLocationUpdates, mLocationCallback, null /* Looper */);
+        }
+    }
+
+    private void queryTypeOfWastes() {
+
+        ApolloClient apolloClient = ApolloClient.builder().serverUrl(NetworkingConstants.BASE_URL).build();
+        TypeOfWasteQuery typeOfWasteQuery = TypeOfWasteQuery.builder().build();
+        apolloClient.query(typeOfWasteQuery).enqueue(new ApolloCall.Callback<TypeOfWasteQuery.Data>() {
 
             @Override
-            public void onLocationResult(LocationResult locationResult) {
+            public void onResponse(@Nonnull final Response<TypeOfWasteQuery.Data> dataResponse) {
 
-                // Last Location
-                currentLocation = locationResult.getLastLocation();
+                if (dataResponse == null) return;
+                if (dataResponse.data() == null) return;
 
-                // Move Map
-                moveMapCamera();
+                typesOfWasteData = dataResponse.data().typesOfWaste();
+                typesOfWasteTitle = new String[typesOfWasteData.size()];
 
-                // Start Test Connection Quality
-                ConnectionClassManager.getInstance().register(FacilitiesFragment.this);
-                DeviceBandwidthSampler.getInstance().startSampling();
+                int i = 0;
+                for (TypeOfWasteQuery.TypesOfWaste type : typesOfWasteData) {
+                    typesOfWasteTitle[i] = type.name();
+                    i++;
+                }
+            }
 
-                // Request nearby facilities
-                query();
+            @Override
+            public void onFailure(@Nonnull ApolloException e) {
 
-                // Stop Test Connection Quality
-                DeviceBandwidthSampler.getInstance().stopSampling();
-            };
-        };
-        LocationRequest mRequestingLocationUpdates = new LocationRequest();
-        mRequestingLocationUpdates.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        mRequestingLocationUpdates.setInterval(60000);
+                if (e != null && e.getMessage() != null)
+                    Log.e("ApolloFacilityQuery", e.getMessage());
+            }
+        });
+    }
 
-        // Update Location Once
-         mRequestingLocationUpdates.setNumUpdates(1);
+    private void afterGetLocation() {
+        // Move Map
+        moveMapCamera();
 
-        mFusedLocationClient.requestLocationUpdates(mRequestingLocationUpdates, mLocationCallback, null /* Looper */);
+        // Start Test Connection Quality
+        ConnectionClassManager.getInstance().register(FacilitiesFragment.this);
+        DeviceBandwidthSampler.getInstance().startSampling();
+
+        // Request nearby facilities
+        query(null);
+
+        // Stop Test Connection Quality
+        DeviceBandwidthSampler.getInstance().stopSampling();
     }
 
     @Override
@@ -153,11 +280,15 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
         mFusedLocationClient.removeLocationUpdates(mLocationCallback);
     }
 
-    private void query() {
+    private void query(List<String> filterTypesID) {
+
+        // Clear Map Pins
+        if (mMap != null)
+            mMap.clear();
 
         ApolloClient apolloClient = ApolloClient.builder()
-            .serverUrl(NetworkingConstants.BASE_URL)
-            .build();
+                .serverUrl(NetworkingConstants.BASE_URL)
+                .build();
 
         FacilitiesQuery.Builder builder = FacilitiesQuery.builder();
 
@@ -168,6 +299,11 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
 
             builder.latitude(currentLocation.getLatitude());
             builder.longitude(currentLocation.getLongitude());
+        }
+
+        // IF wast pass type of waste filter
+        if (filterTypesID != null) {
+            builder.typesOfWasteToFilter(filterTypesID);
         }
 
         FacilitiesQuery facilityQuery = builder.build();
@@ -185,6 +321,14 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
                     facilityListAdapter.setCenters(dataResponse.data().facilities().items());
                     facilityListAdapter.setCurrentLocation(currentLocation);
                     facilityListAdapter.notifyDataSetChanged();
+
+                    /**
+                     * If no facilities return with filter
+                     */
+                    if (facilityListAdapter.getItemCount() <= 0 && selectedTypesIndices.length > 0) {
+                        mFilterEmpty.setVisibility(View.VISIBLE);
+                    }
+
                     mLoading.setVisibility(View.GONE);
 
                     mMapFragment.getMapAsync(FacilitiesFragment.this);
@@ -196,7 +340,7 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
 
                 if (e != null && e.getMessage() != null)
                     Log.e("ApolloFacilityQuery", e.getMessage());
-                
+
                 if (getActivity() == null || getActivity().isDestroyed() || getActivity().isFinishing()) {
                     return;
                 }
@@ -288,8 +432,8 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
             mMap.clear();
 
             LatLng latlng = new LatLng(
-                mItemSelected.location().coordinates().latitude(),
-                mItemSelected.location().coordinates().longitude()
+                    mItemSelected.location().coordinates().latitude(),
+                    mItemSelected.location().coordinates().longitude()
             );
 
             mMap.moveCamera(CameraUpdateFactory.newLatLng(latlng));
@@ -352,9 +496,6 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
 
         fillMapMarkers();
 
-        // Initial Zoom
-        mMap.moveCamera(CameraUpdateFactory.zoomBy(13));
-
         mMap.setOnMarkerClickListener((Marker marker) -> {
             marker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.ic_pin));
             selectFacility(marker.getTitle());
@@ -385,11 +526,11 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
 
                 LatLng latlng = new LatLng(facility.location().coordinates().latitude(), facility.location().coordinates().longitude());
                 mMap.addMarker(
-                    new MarkerOptions()
-                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_places_map))
-                        .position(latlng)
-                        .snippet(facility.location().address())
-                        .title(facility.name()));
+                        new MarkerOptions()
+                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_places_map))
+                                .position(latlng)
+                                .snippet(facility.location().address())
+                                .title(facility.name()));
             }
         }
 
@@ -404,8 +545,18 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
             Log.d("Move map to: ", "Lat: " + currentLocation.getLatitude() + ", long:" + currentLocation.getLongitude());
 
             LatLng latlng = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
-            mMap.moveCamera(CameraUpdateFactory.newLatLng(latlng));
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latlng, 13));
         }
+    }
+
+    @OnClick(R.id.action_clear_filter)
+    public void onClearFilters() {
+        selectedTypesIndices = new Integer[]{};
+
+        mFilterEmpty.setVisibility(View.GONE);
+        mLoading.setVisibility(View.VISIBLE);
+
+        query(null);
     }
 
     public interface OnListFacilitiesListener {
