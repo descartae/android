@@ -68,4 +68,14 @@
     <string name="send">Enviar</string>
     <string name="feedback_title">Solta o verbo</string>
     <string name="feedback_desc">O que ta achando do Descartaê? \nNos conta aí!</string>
+    <string name="feedback_error">Ops! Ocorreu um erro ao enviar o feedback :(</string>
+    <string name="feedback_facility_title">Reportar um problema</string>
+    <string name="feedback_facility_desc">Encontrou algum problema com\neste ponto de coleta? Nos conte!</string>
+    <string name="feedback_no_message_error">O campo de texto está vazio.</string>
+    <string name="ok">Ok</string>
+    <string name="feedback_title_success">Obrigado por nos contar!</string>
+    <string name="feedback_desc_success">Ah, não esquece de nos avaliar na Google Play! :)</string>
+    <string name="feedback_facility_title_success">Obrigado por nos ajudar a melhorar!</string>
+    <string name="feedback_facility_desc_success">Nossos voluntários irão analisar e endereçar sua reclamação.</string>
+    <string name="website_url">https://descartae.com/%1$s</string>
 </resources>

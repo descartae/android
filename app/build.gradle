@@ -1,6 +1,10 @@
 apply plugin: 'com.android.application'
 apply plugin: 'com.apollographql.android'
 
+apollo {
+    customTypeMapping['Time'] = "java.lang.String"
+}
+
 android {
     compileSdkVersion 27
     defaultConfig {

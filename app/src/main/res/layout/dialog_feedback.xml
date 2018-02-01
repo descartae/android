@@ -7,6 +7,7 @@
     android:paddingTop="@dimen/activity_horizontal_margin">
 
     <TextView
+        android:id="@+id/title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="@dimen/activity_horizontal_margin"
@@ -18,6 +19,7 @@
         android:textSize="@dimen/text_regular" />
 
     <TextView
+        android:id="@+id/subtitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/padding"
@@ -26,11 +28,10 @@
         android:fontFamily="sans-serif"
         android:text="@string/feedback_desc"
         android:textColor="@color/title_gray"
-        android:textSize="@dimen/text_regular" />
+        android:textSize="@dimen/text_small" />
 
     <FrameLayout
         android:layout_width="match_parent"
-        android:minHeight="100dp"
         android:layout_height="wrap_content">
 
         <EditText
@@ -82,6 +83,16 @@
             android:background="@android:color/transparent"
             android:foreground="?selectableItemBackground"
             android:text="@string/send"
+            android:textAllCaps="false" />
+
+        <Button
+            android:id="@+id/action_ok"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:foreground="?selectableItemBackground"
+            android:text="@string/ok"
+            android:visibility="gone"
             android:textAllCaps="false" />
 
     </LinearLayout>

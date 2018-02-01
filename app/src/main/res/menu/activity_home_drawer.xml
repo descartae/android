@@ -24,11 +24,6 @@
             android:icon="@drawable/ic_share"
             android:checked="false"
             android:title="@string/menu_share" />
-        <item
-            android:id="@+id/nav_blog"
-            android:icon="@drawable/ic_blog"
-            android:checked="false"
-            android:title="@string/menu_blog" />
     </group>
 
 </menu>
