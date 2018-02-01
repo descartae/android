@@ -65,4 +65,7 @@
     <string name="title_filter_empty">Ops, nada encontrado</string>
     <string name="desc_filter_empty">Não encontramos nenhum ponto de coleta próximo de você que recolha os tipos de resíduo escolhidos.</string>
     <string name="clear_filter">Limpar filtros</string>
+    <string name="send">Enviar</string>
+    <string name="feedback_title">Solta o verbo</string>
+    <string name="feedback_desc">O que ta achando do Descartaê? \nNos conta aí!</string>
 </resources>
