@@ -19,6 +19,7 @@ import org.descartae.android.interfaces.RetryConnectionView;
 import org.descartae.android.view.fragments.empty.EmptyLocationPermissionFragment;
 import org.descartae.android.view.fragments.empty.EmptyOfflineFragment;
 import org.descartae.android.view.fragments.facility.FacilitiesFragment;
+import org.descartae.android.view.fragments.facility.FeedbackDialog;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -122,6 +123,23 @@ public class Home extends BaseActivity
                     .setChooserTitle(R.string.menu_share)
                     .setText(storeLink)
                     .startChooser();
+
+            return true;
+        } else if (id == R.id.nav_feedback) {
+            FeedbackDialog.newInstance(null).show(getSupportFragmentManager(), "DIALOG_FEEDBACK");
+            return true;
+        } else if (id == R.id.nav_about) {
+
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.website_url, "")));
+            intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY |
+                    Intent.FLAG_ACTIVITY_NEW_DOCUMENT |
+                    Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
+
+            try {
+                startActivity(intent);
+            } catch (ActivityNotFoundException e) {
+                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(storeLink)));
+            }
 
             return true;
         }

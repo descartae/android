@@ -10,6 +10,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.ShareCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
@@ -27,6 +28,7 @@ import android.widget.TextView;
 
 import com.apollographql.apollo.ApolloCall;
 import com.apollographql.apollo.ApolloClient;
+import com.apollographql.apollo.CustomTypeAdapter;
 import com.apollographql.apollo.api.Response;
 import com.apollographql.apollo.exception.ApolloException;
 import com.facebook.network.connectionclass.ConnectionClassManager;
@@ -47,8 +49,11 @@ import org.descartae.android.FacilityQuery;
 import org.descartae.android.R;
 import org.descartae.android.adapters.OpenHourListAdapter;
 import org.descartae.android.adapters.WastesTypeListAdapter;
+import org.descartae.android.interfaces.RetryConnectionView;
 import org.descartae.android.networking.NetworkingConstants;
+import org.descartae.android.type.CustomType;
 import org.descartae.android.view.fragments.empty.EmptyOfflineFragment;
+import org.descartae.android.view.fragments.facility.FeedbackDialog;
 import org.descartae.android.view.fragments.wastes.WasteTypeDialog;
 
 import java.util.Calendar;
@@ -59,7 +64,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class FacilityActivity extends AppCompatActivity implements OnMapReadyCallback, OnSuccessListener<Location>,WastesTypeListAdapter.TypeOfWasteListner {
+public class FacilityActivity extends AppCompatActivity implements OnMapReadyCallback, OnSuccessListener<Location>,WastesTypeListAdapter.TypeOfWasteListner, RetryConnectionView {
 
     public static final String ARG_ID = "ITEM";
 
@@ -92,6 +97,12 @@ public class FacilityActivity extends AppCompatActivity implements OnMapReadyCal
 
     @BindView(R.id.distance)
     public TextView mDistance;
+
+    @BindView(R.id.no_connection)
+    public View mContent;
+
+    @BindView(R.id.loading)
+    public View mLoading;
 
     public MapFragment mMapFragment;
 
@@ -126,6 +137,8 @@ public class FacilityActivity extends AppCompatActivity implements OnMapReadyCal
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
+        mLoading.setVisibility(View.VISIBLE);
+
         // Type of Waste
         LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
         mTypesWasteRecyclerView.setLayoutManager(layoutManager);
@@ -147,8 +160,21 @@ public class FacilityActivity extends AppCompatActivity implements OnMapReadyCal
 
     private void query(String id) {
 
+        CustomTypeAdapter<String> customTypeAdapter = new CustomTypeAdapter<String>() {
+            @Override
+            public String decode(String value) {
+               return value;
+            }
+
+            @Override
+            public String encode(String value) {
+                return value;
+            }
+        };
+
         ApolloClient apolloClient = ApolloClient.builder()
                 .serverUrl(NetworkingConstants.BASE_URL)
+                .addCustomTypeAdapter(CustomType.TIME, customTypeAdapter)
                 .build();
         FacilityQuery facilityQuery = FacilityQuery.builder().id(id).build();
         apolloClient.query(facilityQuery).enqueue(new ApolloCall.Callback<FacilityQuery.Data>() {
@@ -204,6 +230,8 @@ public class FacilityActivity extends AppCompatActivity implements OnMapReadyCal
                             mMoreTimes.setVisibility(View.VISIBLE);
                         }
                     });
+
+                    mLoading.setVisibility(View.GONE);
                 });
             }
 
@@ -213,10 +241,14 @@ public class FacilityActivity extends AppCompatActivity implements OnMapReadyCal
                 if (e != null && e.getMessage() != null)
                     Log.e("ApolloFacilityQuery", e.getMessage());
 
-                ConnectionQuality cq = ConnectionClassManager.getInstance().getCurrentBandwidthQuality();
-                if (cq.equals(ConnectionQuality.UNKNOWN)) {
-                    getSupportFragmentManager().beginTransaction().replace(R.id.content, EmptyOfflineFragment.newInstance()).commitAllowingStateLoss();
-                }
+                runOnUiThread(() -> {
+                    mLoading.setVisibility(View.GONE);
+
+                    ConnectionQuality cq = ConnectionClassManager.getInstance().getCurrentBandwidthQuality();
+                    if (cq.equals(ConnectionQuality.UNKNOWN)) {
+                        getSupportFragmentManager().beginTransaction().replace(R.id.no_connection, EmptyOfflineFragment.newInstance()).commitAllowingStateLoss();
+                    }
+                });
             }
         });
     }
@@ -231,9 +263,19 @@ public class FacilityActivity extends AppCompatActivity implements OnMapReadyCal
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.action_share) {
+
+            if (facility == null) return false;
+
+            ShareCompat.IntentBuilder.from(this)
+                    .setType("text/plain")
+                    .setChooserTitle(R.string.menu_share)
+                    .setText(getString(R.string.website_url, facility._id()))
+                    .startChooser();
+
             return true;
         }
         if (id == R.id.action_feedback) {
+            FeedbackDialog.newInstance(facility._id()).show(getSupportFragmentManager(), "DIALOG_FEEDBACK");
             return true;
         }
         if (id == android.R.id.home) {
@@ -242,11 +284,6 @@ public class FacilityActivity extends AppCompatActivity implements OnMapReadyCal
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    @OnClick(R.id.fab)
-    public void onFab() {
-
     }
 
     @Override
@@ -313,5 +350,10 @@ public class FacilityActivity extends AppCompatActivity implements OnMapReadyCal
                 + facility.location().coordinates().longitude() + "?q=" + facility.location().coordinates().latitude()
                 + "," + facility.location().coordinates().longitude();
         startActivity(new Intent(android.content.Intent.ACTION_VIEW, Uri.parse(uri)));
+    }
+
+    @Override
+    public void onRetryConnection() {
+        query(itemID);
     }
 }
