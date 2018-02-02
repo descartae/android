@@ -279,7 +279,10 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
     @Override
     public void onDestroy() {
         super.onDestroy();
-        mFusedLocationClient.removeLocationUpdates(mLocationCallback);
+
+        if (mLocationCallback != null) {
+            mFusedLocationClient.removeLocationUpdates(mLocationCallback);
+        }
     }
 
     private void query(List<String> filterTypesID) {

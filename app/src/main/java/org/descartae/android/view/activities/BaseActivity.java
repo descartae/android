@@ -6,6 +6,9 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
+
 import org.descartae.android.interfaces.RequestPermissionView;
 
 /**
@@ -14,9 +17,20 @@ import org.descartae.android.interfaces.RequestPermissionView;
 public abstract class BaseActivity extends AppCompatActivity implements RequestPermissionView {
 
     private static final int PERMISSIONS_REQUEST = 0x01;
+    private static final int RQ_GPSERVICE = 0x02;
 
     abstract void permissionNotGranted();
     abstract void permissionGranted();
+
+    public void onResume() {
+        super.onResume();
+
+        GoogleApiAvailability instance = GoogleApiAvailability.getInstance();
+        int googlePlayServicesAvailable = instance.isGooglePlayServicesAvailable(this);
+        if (googlePlayServicesAvailable != ConnectionResult.SUCCESS) {
+            instance.getErrorDialog(this, googlePlayServicesAvailable, RQ_GPSERVICE);
+        }
+    }
 
     protected void init() {
         int permFineLocation = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);

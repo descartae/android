@@ -11,6 +11,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 
 import org.descartae.android.R;
+import org.descartae.android.preferences.DescartaePreferences;
 import org.descartae.android.view.fragments.intro.IntroFragment;
 
 import butterknife.BindView;
@@ -28,13 +29,18 @@ public class Intro extends BaseActivity implements IntroFragment.IntroListener {
     CircleIndicator indicator;
 
     private boolean isPermissionGranted;
-    private boolean introAlreadyViewed;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_intro);
         ButterKnife.bind(this);
+
+        if (DescartaePreferences.getInstance(this).getBooleanValue(DescartaePreferences.INTRO_OK)) {
+            startActivity(new Intent(this, Home.class));
+            finish();
+            return;
+        }
 
         init();
 
@@ -61,7 +67,7 @@ public class Intro extends BaseActivity implements IntroFragment.IntroListener {
             return;
         }
 
-        introAlreadyViewed = true;
+        DescartaePreferences.getInstance(this).setBooleanValue(DescartaePreferences.INTRO_OK, true);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this)
                 .setTitle(R.string.permission_gps_title)
@@ -87,7 +93,7 @@ public class Intro extends BaseActivity implements IntroFragment.IntroListener {
     void permissionGranted() {
         isPermissionGranted = true;
 
-        if (introAlreadyViewed) {
+        if (DescartaePreferences.getInstance(this).getBooleanValue(DescartaePreferences.INTRO_OK)) {
             startActivity(new Intent(this, Home.class));
             finish();
         }

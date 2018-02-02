@@ -7,4 +7,5 @@
     <dimen name="text_regular">18sp</dimen>
     <dimen name="text_medium">16sp</dimen>
     <dimen name="intro_image">180dp</dimen>
+    <dimen name="type_waste_height">50dp</dimen>
 </resources>

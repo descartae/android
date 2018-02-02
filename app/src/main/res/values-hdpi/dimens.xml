@@ -7,4 +7,5 @@
     <dimen name="text_large">20sp</dimen>
     <dimen name="margin_top">28dp</dimen>
     <dimen name="intro_image">150dp</dimen>
+    <dimen name="type_waste_height">40dp</dimen>
 </resources>
