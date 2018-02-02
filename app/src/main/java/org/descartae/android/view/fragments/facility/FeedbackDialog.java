@@ -129,14 +129,14 @@ public class FeedbackDialog extends DialogFragment {
                             mSubTitle.setText(R.string.feedback_facility_desc_success);
                         }
                     } else {
-                        Snackbar.make(getView(), R.string.feedback_error, Snackbar.LENGTH_SHORT).show();
+                        Snackbar.make(mFeedback, R.string.feedback_error, Snackbar.LENGTH_SHORT).show();
                     }
                 });
             }
 
             @Override
             public void onFailure(@Nonnull ApolloException e) {
-                Snackbar.make(getView(), R.string.feedback_error, Snackbar.LENGTH_SHORT).show();
+                Snackbar.make(mFeedback, R.string.feedback_error, Snackbar.LENGTH_SHORT).show();
             }
         });
     }

@@ -90,7 +90,7 @@ public class RegionWaitListDialog extends DialogFragment {
         String email = mEmail.getText().toString();
 
         if (email == null || email.length() <= 0) {
-            Snackbar.make(getView(), R.string.wait_list_no_message_error, Snackbar.LENGTH_SHORT).show();
+            Snackbar.make(mEmail, R.string.wait_list_no_message_error, Snackbar.LENGTH_SHORT).show();
             return;
         }
 
@@ -129,14 +129,14 @@ public class RegionWaitListDialog extends DialogFragment {
                         mSubTitle.setText(R.string.wait_list_desc_success);
 
                     } else {
-                        Snackbar.make(getView(), R.string.wait_list_error, Snackbar.LENGTH_SHORT).show();
+                        Snackbar.make(mEmail, R.string.wait_list_error, Snackbar.LENGTH_SHORT).show();
                     }
                 });
             }
 
             @Override
             public void onFailure(@Nonnull ApolloException e) {
-                Snackbar.make(getView(), R.string.wait_list_error, Snackbar.LENGTH_SHORT).show();
+                Snackbar.make(mEmail, R.string.wait_list_error, Snackbar.LENGTH_SHORT).show();
             }
         });
     }

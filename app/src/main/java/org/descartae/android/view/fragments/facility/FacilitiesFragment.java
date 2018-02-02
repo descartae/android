@@ -316,8 +316,8 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
                 if (getActivity() == null || getActivity().isDestroyed()) return;
 
                 getActivity().runOnUiThread(() -> {
-                    facilityListAdapter.setCenters(dataResponse.data().facilities().items());
-                    facilityListAdapter.setCurrentLocation(currentLocation);
+                    //facilityListAdapter.setCenters(dataResponse.data().facilities().items());
+                    //facilityListAdapter.setCurrentLocation(currentLocation);
                     facilityListAdapter.notifyDataSetChanged();
 
                     if (facilityListAdapter.getItemCount() <= 0 && selectedTypesIndices.length > 0) {
