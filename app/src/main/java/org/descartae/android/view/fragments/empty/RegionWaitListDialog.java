@@ -1,4 +1,4 @@
-package org.descartae.android.view.fragments.facility;
+package org.descartae.android.view.fragments.empty;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -17,6 +17,7 @@ import com.apollographql.apollo.api.Response;
 import com.apollographql.apollo.exception.ApolloException;
 
 import org.descartae.android.AddFeedbackMutation;
+import org.descartae.android.AddToWaitlistMutation;
 import org.descartae.android.R;
 import org.descartae.android.networking.NetworkingConstants;
 
@@ -30,7 +31,7 @@ import butterknife.OnClick;
  * Created by lucasmontano on 09/12/2017.
  */
 
-public class FeedbackDialog extends DialogFragment {
+public class RegionWaitListDialog extends DialogFragment {
 
     @BindView(R.id.title)
     public TextView mTitle;
@@ -38,8 +39,8 @@ public class FeedbackDialog extends DialogFragment {
     @BindView(R.id.subtitle)
     public TextView mSubTitle;
 
-    @BindView(R.id.message)
-    public EditText mFeedback;
+    @BindView(R.id.email)
+    public EditText mEmail;
 
     @BindView(R.id.action_cancel)
     public View mActionCancel;
@@ -50,13 +51,11 @@ public class FeedbackDialog extends DialogFragment {
     @BindView(R.id.action_ok)
     public View mActionOk;
 
-    private String facilityID;
     private AlertDialog.Builder mBuilder;
 
-    public static FeedbackDialog newInstance(String facilityID) {
-        FeedbackDialog frag = new FeedbackDialog();
+    public static RegionWaitListDialog newInstance() {
+        RegionWaitListDialog frag = new RegionWaitListDialog();
         Bundle args = new Bundle();
-        args.putString("facilityID", facilityID);
         frag.setArguments(args);
         return frag;
     }
@@ -64,19 +63,9 @@ public class FeedbackDialog extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
 
-        LinearLayout viewInflated = (LinearLayout) getActivity().getLayoutInflater().inflate(R.layout.dialog_feedback, null);
+        LinearLayout viewInflated = (LinearLayout) getActivity().getLayoutInflater().inflate(R.layout.dialog_wait_list, null);
 
         ButterKnife.bind(this, viewInflated);
-
-        facilityID = getArguments().getString("facilityID");
-
-        if (facilityID == null) {
-            mTitle.setText(R.string.feedback_title);
-            mSubTitle.setText(R.string.feedback_desc);
-        } else {
-            mTitle.setText(R.string.feedback_facility_title);
-            mSubTitle.setText(R.string.feedback_facility_desc);
-        }
 
         mBuilder = new AlertDialog.Builder(new ContextThemeWrapper(getActivity(), R.style.Theme_AppCompat_Light));
         mBuilder.setView(viewInflated);
@@ -87,10 +76,10 @@ public class FeedbackDialog extends DialogFragment {
     @OnClick(R.id.action_send)
     public void onSend() {
 
-        String feedback = mFeedback.getText().toString();
+        String email = mEmail.getText().toString();
 
-        if (feedback == null || feedback.length() <= 0) {
-            Snackbar.make(getView(), R.string.feedback_no_message_error, Snackbar.LENGTH_SHORT).show();
+        if (email == null || email.length() <= 0) {
+            Snackbar.make(getView(), R.string.wait_list_no_message_error, Snackbar.LENGTH_SHORT).show();
             return;
         }
 
@@ -98,15 +87,14 @@ public class FeedbackDialog extends DialogFragment {
                 .serverUrl(NetworkingConstants.BASE_URL)
                 .build();
 
-        AddFeedbackMutation.Builder builder = AddFeedbackMutation.builder();
-        builder.facilityId(facilityID);
-        builder.feedback(feedback);
+        AddToWaitlistMutation.Builder builder = AddToWaitlistMutation.builder();
+        builder.email(email);
 
-        AddFeedbackMutation build = builder.build();
-        apolloClient.mutate(build).enqueue(new ApolloCall.Callback<AddFeedbackMutation.Data>() {
+        AddToWaitlistMutation build = builder.build();
+        apolloClient.mutate(build).enqueue(new ApolloCall.Callback<AddToWaitlistMutation.Data>() {
 
             @Override
-            public void onResponse(@Nonnull Response<AddFeedbackMutation.Data> response) {
+            public void onResponse(@Nonnull Response<AddToWaitlistMutation.Data> response) {
 
                 if (response == null) return;
                 if (response.data() == null) return;
@@ -114,29 +102,25 @@ public class FeedbackDialog extends DialogFragment {
 
                 getActivity().runOnUiThread(() -> {
 
-                    if (response.data().addFeedback().success()) {
+                    if (response.data().addWaitingUser().success()) {
                         mActionCancel.setVisibility(View.GONE);
                         mActionSend.setVisibility(View.GONE);
                         mActionOk.setVisibility(View.VISIBLE);
 
-                        mFeedback.setVisibility(View.GONE);
+                        mEmail.setVisibility(View.GONE);
 
-                        if (facilityID == null) {
-                            mTitle.setText(R.string.feedback_title_success);
-                            mSubTitle.setText(R.string.feedback_desc_success);
-                        } else {
-                            mTitle.setText(R.string.feedback_facility_title_success);
-                            mSubTitle.setText(R.string.feedback_facility_desc_success);
-                        }
+                        mTitle.setText(R.string.wait_list_title_success);
+                        mSubTitle.setText(R.string.wait_list_desc_success);
+
                     } else {
-                        Snackbar.make(getView(), R.string.feedback_error, Snackbar.LENGTH_SHORT).show();
+                        Snackbar.make(getView(), R.string.wait_list_error, Snackbar.LENGTH_SHORT).show();
                     }
                 });
             }
 
             @Override
             public void onFailure(@Nonnull ApolloException e) {
-                Snackbar.make(getView(), R.string.feedback_error, Snackbar.LENGTH_SHORT).show();
+                Snackbar.make(getView(), R.string.wait_list_error, Snackbar.LENGTH_SHORT).show();
             }
         });
     }

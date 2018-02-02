@@ -78,4 +78,13 @@
     <string name="feedback_facility_title_success">Obrigado por nos ajudar a melhorar!</string>
     <string name="feedback_facility_desc_success">Nossos voluntários irão analisar e endereçar sua reclamação.</string>
     <string name="website_url">https://descartae.com/%1$s</string>
+    <string name="empty_region_title">Ainda não chegamos em sua região</string>
+    <string name="empty_region_desc">Nossos voluntários trabalham duro para mapear todas as cidades, mas infelizmente ainda não chegamos em sua região. Quer ser avisado quando chegarmos?</string>
+    <string name="call_me">Me avise</string>
+    <string name="unsupported_region_title">E-mail</string>
+    <string name="unsupported_region_desc">Informe seu e-mail para avisarmos\\nsobre o mapeamento da sua região!</string>
+    <string name="wait_list_error">Não foi possível cadastrar seu e-mail, tente novamente mais tarde.</string>
+    <string name="wait_list_title_success">Agradecemos o seu interesse pela causa</string>
+    <string name="wait_list_desc_success">Nossos voluntários estão trabalhando muito para expandir, esperamos poder lhe atender muito em breve!</string>
+    <string name="wait_list_no_message_error">Informe o seu e-mail :)</string>
 </resources>

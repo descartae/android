@@ -10,15 +10,12 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.CoordinatorLayout;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -55,11 +52,11 @@ import org.descartae.android.TypeOfWasteQuery;
 import org.descartae.android.adapters.FacilityListAdapter;
 import org.descartae.android.networking.NetworkingConstants;
 import org.descartae.android.view.activities.FacilityActivity;
+import org.descartae.android.view.fragments.empty.RegionWaitListDialog;
 import org.descartae.android.view.utils.SimpleDividerItemDecoration;
 import org.descartae.android.view.viewholder.FacilityViewHolder;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.annotation.Nonnull;
@@ -69,8 +66,6 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 public class FacilitiesFragment extends Fragment implements ConnectionClassManager.ConnectionClassStateChangeListener, OnMapReadyCallback, OnSuccessListener<Location> {
-
-    private static final String REQUESTING_LOCATION_UPDATES_KEY = "REQUESTING_LOCATION_UPDATES_KEY";
 
     private OnListFacilitiesListener mListener;
     private FacilityListAdapter facilityListAdapter;
@@ -89,6 +84,9 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
 
     @BindView(R.id.loading)
     public View mLoading;
+
+    @BindView(R.id.region_unsupported)
+    public View mRegionUnsupported;
 
     @BindView(R.id.filter_empty)
     public View mFilterEmpty;
@@ -322,11 +320,19 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
                     facilityListAdapter.setCurrentLocation(currentLocation);
                     facilityListAdapter.notifyDataSetChanged();
 
-                    /**
-                     * If no facilities return with filter
-                     */
                     if (facilityListAdapter.getItemCount() <= 0 && selectedTypesIndices.length > 0) {
+
+                        /**
+                         * If no facilities return with filter
+                         */
                         mFilterEmpty.setVisibility(View.VISIBLE);
+
+                    } else if (facilityListAdapter.getItemCount() <= 0 ) {
+
+                        /**
+                         * If no facilities return without filter
+                         */
+                        mRegionUnsupported.setVisibility(View.VISIBLE);
                     }
 
                     mLoading.setVisibility(View.GONE);
@@ -557,6 +563,11 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
         mLoading.setVisibility(View.VISIBLE);
 
         query(null);
+    }
+
+    @OnClick(R.id.action_notify_me)
+    public void onNotifyMe() {
+        RegionWaitListDialog.newInstance().show(getActivity().getSupportFragmentManager(), "DIALOG_WAIT_LIST");
     }
 
     public interface OnListFacilitiesListener {
