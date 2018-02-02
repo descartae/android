@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
@@ -129,6 +130,15 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
         switch (item.getItemId()) {
 
             case R.id.action_filter:
+
+                if (currentLocation == null) {
+                    return false;
+                }
+
+                if (mRegionUnsupported.getVisibility() == View.VISIBLE) {
+                    Snackbar.make(mRegionUnsupported, R.string.filter_unsupport_region, Snackbar.LENGTH_SHORT).show();
+                    return false;
+                }
 
                 if (typesOfWasteTitle == null || typesOfWasteTitle.length <= 0) {
                     Log.d("Filter", "No Types");
@@ -316,8 +326,8 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
                 if (getActivity() == null || getActivity().isDestroyed()) return;
 
                 getActivity().runOnUiThread(() -> {
-                    //facilityListAdapter.setCenters(dataResponse.data().facilities().items());
-                    //facilityListAdapter.setCurrentLocation(currentLocation);
+                    facilityListAdapter.setCenters(dataResponse.data().facilities().items());
+                    facilityListAdapter.setCurrentLocation(currentLocation);
                     facilityListAdapter.notifyDataSetChanged();
 
                     if (facilityListAdapter.getItemCount() <= 0 && selectedTypesIndices.length > 0) {

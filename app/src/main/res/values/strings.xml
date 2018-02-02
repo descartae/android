@@ -87,4 +87,5 @@
     <string name="wait_list_title_success">Agradecemos o seu interesse pela causa</string>
     <string name="wait_list_desc_success">Nossos voluntários estão trabalhando muito para expandir, esperamos poder lhe atender muito em breve!</string>
     <string name="wait_list_no_message_error">Informe o seu e-mail :)</string>
+    <string name="filter_unsupport_region">Ainda não chegamos em sua região :(</string>
 </resources>
