@@ -13,5 +13,5 @@
     <dimen name="app_bar_height">220dp</dimen>
     <dimen name="margin_left_big">58dp</dimen>
     <dimen name="height_open_hour_list">300dp</dimen>
-    <dimen name="type_waste_height">42dp</dimen>
+    <dimen name="type_waste_height">32dp</dimen>
 </resources>

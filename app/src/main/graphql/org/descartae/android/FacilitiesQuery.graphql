@@ -16,6 +16,7 @@ query FacilitiesQuery($latitude: Float!, $longitude: Float!, $typesOfWasteToFilt
       typesOfWaste {
         icons {
           androidSmallURL
+          androidMediumURL
         }
       }
     }

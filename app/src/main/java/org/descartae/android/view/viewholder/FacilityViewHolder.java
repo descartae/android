@@ -71,11 +71,11 @@ public class FacilityViewHolder extends RecyclerView.ViewHolder {
 
             // More Icons
             if (mTypes.getChildCount() == 4) {
-                Picasso.with(mView.getContext()).load(R.drawable.ic_waste_more).into(ii);
+                Picasso.with(mView.getContext()).load(R.drawable.ic_waste_more).resizeDimen(R.dimen.type_waste_height, R.dimen.type_waste_height).into(ii);
                 mTypes.addView(ii);
                 break;
             } else {
-                Picasso.with(mView.getContext()).load(typesOfWaste.icons().androidSmallURL()).placeholder(R.drawable.ic_placeholder).into(ii);
+                Picasso.with(mView.getContext()).load(typesOfWaste.icons().androidMediumURL()).resizeDimen(R.dimen.type_waste_height, R.dimen.type_waste_height).placeholder(R.drawable.ic_placeholder).into(ii);
                 mTypes.addView(ii);
             }
         }

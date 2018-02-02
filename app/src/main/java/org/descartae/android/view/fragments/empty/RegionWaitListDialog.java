@@ -33,6 +33,9 @@ import butterknife.OnClick;
 
 public class RegionWaitListDialog extends DialogFragment {
 
+    private static final String ARG_LATITUDE = "ARG_LATITUDE";
+    private static final String ARG_LONGITUDE = "ARG_LONGITUDE";
+
     @BindView(R.id.title)
     public TextView mTitle;
 
@@ -53,9 +56,14 @@ public class RegionWaitListDialog extends DialogFragment {
 
     private AlertDialog.Builder mBuilder;
 
-    public static RegionWaitListDialog newInstance() {
+    private double mLatitude;
+    private double mLongitude;
+
+    public static RegionWaitListDialog newInstance(double latitude, double longitude) {
         RegionWaitListDialog frag = new RegionWaitListDialog();
         Bundle args = new Bundle();
+        args.putDouble(ARG_LATITUDE, latitude);
+        args.putDouble(ARG_LONGITUDE, longitude);
         frag.setArguments(args);
         return frag;
     }
@@ -69,6 +77,9 @@ public class RegionWaitListDialog extends DialogFragment {
 
         mBuilder = new AlertDialog.Builder(new ContextThemeWrapper(getActivity(), R.style.Theme_AppCompat_Light));
         mBuilder.setView(viewInflated);
+
+        mLatitude = getArguments().getDouble(ARG_LATITUDE);
+        mLongitude = getArguments().getDouble(ARG_LONGITUDE);
 
         return mBuilder.create();
     }
@@ -89,6 +100,11 @@ public class RegionWaitListDialog extends DialogFragment {
 
         AddToWaitlistMutation.Builder builder = AddToWaitlistMutation.builder();
         builder.email(email);
+
+        if (mLatitude != 0 && mLongitude != 0) {
+            builder.latitude(mLatitude);
+            builder.longitude(mLongitude);
+        }
 
         AddToWaitlistMutation build = builder.build();
         apolloClient.mutate(build).enqueue(new ApolloCall.Callback<AddToWaitlistMutation.Data>() {

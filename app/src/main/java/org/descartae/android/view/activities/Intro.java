@@ -61,13 +61,13 @@ public class Intro extends BaseActivity implements IntroFragment.IntroListener {
     @Override
     public void onStartApp() {
 
+        DescartaePreferences.getInstance(this).setBooleanValue(DescartaePreferences.INTRO_OK, true);
+
         if (isPermissionGranted) {
             startActivity(new Intent(this, Home.class));
             finish();
             return;
         }
-
-        DescartaePreferences.getInstance(this).setBooleanValue(DescartaePreferences.INTRO_OK, true);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this)
                 .setTitle(R.string.permission_gps_title)
