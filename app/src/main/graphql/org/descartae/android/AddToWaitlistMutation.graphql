@@ -1,0 +1,11 @@
+mutation AddToWaitlist($email: String!, $latitude: Float!, $longitude: Float!) {
+    addWaitingUser(user:{
+               email: $email
+               coordinates: {
+               latitude: $latitude
+               longitude: $longitude
+               }
+           }) {
+        success
+    }
+}

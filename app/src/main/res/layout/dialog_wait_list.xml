@@ -35,7 +35,7 @@
         android:layout_height="wrap_content">
 
         <EditText
-            android:id="@+id/message"
+            android:id="@+id/email"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/activity_horizontal_margin"
@@ -43,7 +43,7 @@
             android:layout_marginTop="@dimen/activity_horizontal_margin"
             android:background="@android:color/transparent"
             android:fontFamily="sans-serif"
-            android:inputType="textMultiLine"
+            android:inputType="textWebEmailAddress"
             android:textColor="@color/title_gray"
             android:textSize="15dp">
 

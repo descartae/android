@@ -13,6 +13,8 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.google.android.gms.common.GoogleApiAvailability;
+
 import org.descartae.android.BuildConfig;
 import org.descartae.android.R;
 import org.descartae.android.interfaces.RetryConnectionView;

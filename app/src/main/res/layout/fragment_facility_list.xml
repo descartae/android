@@ -129,5 +129,6 @@
     </android.support.design.widget.CoordinatorLayout>
 
     <include layout="@layout/filter_empty_view"></include>
+    <include layout="@layout/region_unsupported_empty"></include>
 
 </RelativeLayout>

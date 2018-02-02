@@ -59,7 +59,7 @@ public class FacilityViewHolder extends RecyclerView.ViewHolder {
 
         for (FacilitiesQuery.TypesOfWaste typesOfWaste: mItem.typesOfWaste()) {
             ImageView ii = new ImageView(mView.getContext());
-            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.MATCH_PARENT);
 
             if (mTypes.getChildCount() == 0) {
                 lp.setMargins(0, 0, 10, 0);
@@ -71,11 +71,11 @@ public class FacilityViewHolder extends RecyclerView.ViewHolder {
 
             // More Icons
             if (mTypes.getChildCount() == 4) {
-                Picasso.with(mView.getContext()).load(R.drawable.ic_waste_more).resize(60, 60).centerInside().into(ii);
+                Picasso.with(mView.getContext()).load(R.drawable.ic_waste_more).resizeDimen(R.dimen.type_waste_height, R.dimen.type_waste_height).into(ii);
                 mTypes.addView(ii);
                 break;
             } else {
-                Picasso.with(mView.getContext()).load(typesOfWaste.icons().androidSmallURL()).resize(60, 60).placeholder(R.drawable.ic_placeholder).centerInside().into(ii);
+                Picasso.with(mView.getContext()).load(typesOfWaste.icons().androidMediumURL()).resizeDimen(R.dimen.type_waste_height, R.dimen.type_waste_height).placeholder(R.drawable.ic_placeholder).into(ii);
                 mTypes.addView(ii);
             }
         }

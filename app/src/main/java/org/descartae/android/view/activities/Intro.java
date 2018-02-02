@@ -1,20 +1,24 @@
 package org.descartae.android.view.activities;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AppCompatActivity;
 
 import org.descartae.android.R;
+import org.descartae.android.preferences.DescartaePreferences;
 import org.descartae.android.view.fragments.intro.IntroFragment;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import me.relex.circleindicator.CircleIndicator;
 
-public class Intro extends BaseActivity {
+public class Intro extends BaseActivity implements IntroFragment.IntroListener {
 
     private ScreenSlidePagerAdapter mPagerAdapter;
 
@@ -24,25 +28,25 @@ public class Intro extends BaseActivity {
     @BindView(R.id.indicator)
     CircleIndicator indicator;
 
-    @Override
-    void permissionNotGranted() {
-        mPagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager());
-        mPager.setAdapter(mPagerAdapter);
-        indicator.setViewPager(mPager);
-    }
-
-    @Override
-    void permissionGranted() {
-        startActivity(new Intent(this, Home.class));
-        finish();
-    }
+    private boolean isPermissionGranted;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_intro);
         ButterKnife.bind(this);
+
+        if (DescartaePreferences.getInstance(this).getBooleanValue(DescartaePreferences.INTRO_OK)) {
+            startActivity(new Intent(this, Home.class));
+            finish();
+            return;
+        }
+
         init();
+
+        mPagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager());
+        mPager.setAdapter(mPagerAdapter);
+        indicator.setViewPager(mPager);
     }
 
     @Override
@@ -54,6 +58,46 @@ public class Intro extends BaseActivity {
         }
     }
 
+    @Override
+    public void onStartApp() {
+
+        DescartaePreferences.getInstance(this).setBooleanValue(DescartaePreferences.INTRO_OK, true);
+
+        if (isPermissionGranted) {
+            startActivity(new Intent(this, Home.class));
+            finish();
+            return;
+        }
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this)
+                .setTitle(R.string.permission_gps_title)
+                .setMessage(R.string.permission_gps_message)
+                .setPositiveButton(R.string.action_continue, (DialogInterface dialogInterface, int i) -> {
+                    onAcceptPermission();
+                    dialogInterface.dismiss();
+                })
+                .setNegativeButton(R.string.cancel, (dialogInterface, i) -> {
+                    startActivity(new Intent(this, Home.class));
+                    finish();
+                    dialogInterface.dismiss();
+                });
+        builder.create().show();
+    }
+
+    @Override
+    void permissionNotGranted() {
+        isPermissionGranted = false;
+    }
+
+    @Override
+    void permissionGranted() {
+        isPermissionGranted = true;
+
+        if (DescartaePreferences.getInstance(this).getBooleanValue(DescartaePreferences.INTRO_OK)) {
+            startActivity(new Intent(this, Home.class));
+            finish();
+        }
+    }
 
     private class ScreenSlidePagerAdapter extends FragmentStatePagerAdapter {
         public ScreenSlidePagerAdapter(FragmentManager fm) {

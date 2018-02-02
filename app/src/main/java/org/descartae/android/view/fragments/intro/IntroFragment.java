@@ -40,7 +40,11 @@ public class IntroFragment extends Fragment {
     @BindView(R.id.action_start)
     Button mStart;
 
-    private RequestPermissionView mListener;
+    private IntroListener mListener;
+
+    public interface IntroListener {
+        void onStartApp();
+    }
 
     public IntroFragment() {
     }
@@ -108,10 +112,10 @@ public class IntroFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof RequestPermissionView) {
-            mListener = (RequestPermissionView) context;
+        if (context instanceof IntroListener) {
+            mListener = (IntroListener) context;
         } else {
-            throw new RuntimeException(context.toString() + " must implement RequestPermissionView");
+            throw new RuntimeException(context.toString() + " must implement IntroListener");
         }
     }
 
@@ -123,17 +127,6 @@ public class IntroFragment extends Fragment {
 
     @OnClick(R.id.action_start)
     public void onActionStart() {
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
-                .setTitle(R.string.permission_gps_title)
-                .setMessage(R.string.permission_gps_message)
-                .setPositiveButton(R.string.action_continue, (DialogInterface dialogInterface, int i) -> {
-                    mListener.onAcceptPermission();
-                    dialogInterface.dismiss();
-                })
-                .setNegativeButton(R.string.cancel, (dialogInterface, i) -> {
-                    dialogInterface.dismiss();
-                });
-        builder.create().show();
+        mListener.onStartApp();
     }
 }
