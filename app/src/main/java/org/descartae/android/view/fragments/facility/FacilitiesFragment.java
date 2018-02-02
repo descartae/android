@@ -43,6 +43,7 @@ import com.facebook.network.connectionclass.DeviceBandwidthSampler;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 
 import org.descartae.android.FacilitiesQuery;
@@ -65,7 +66,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class FacilitiesFragment extends Fragment implements ConnectionClassManager.ConnectionClassStateChangeListener, OnMapReadyCallback, OnSuccessListener<Location> {
+public class FacilitiesFragment extends Fragment implements ConnectionClassManager.ConnectionClassStateChangeListener, OnMapReadyCallback, OnSuccessListener<Location>, OnFailureListener {
 
     private OnListFacilitiesListener mListener;
     private FacilityListAdapter facilityListAdapter;
@@ -178,6 +179,7 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
 
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(getActivity());
         mFusedLocationClient.getLastLocation().addOnSuccessListener(this);
+        mFusedLocationClient.getLastLocation().addOnFailureListener(this);
 
         /**
          * Load Type of Waste in order to be fetched before click on filter option
@@ -191,39 +193,41 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
 
         if (currentLocation != null) {
             afterGetLocation();
-
         } else {
+            requestLocation();
+        }
+    }
 
-            int permissionCheck = ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION);
-            if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
-                return;
+    private void requestLocation() {
+        int permissionCheck = ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION);
+        if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+
+        mLocationCallback = new LocationCallback() {
+
+            @Override
+            public void onLocationResult(LocationResult locationResult) {
+
+                /**
+                 * If fused location has not return the last location
+                 */
+                if (currentLocation == null) {
+                    currentLocation = locationResult.getLastLocation();
+                    afterGetLocation();
+                }
             }
 
-            mLocationCallback = new LocationCallback() {
+            ;
+        };
+        LocationRequest mRequestingLocationUpdates = new LocationRequest();
+        mRequestingLocationUpdates.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        mRequestingLocationUpdates.setInterval(60000);
 
-                @Override
-                public void onLocationResult(LocationResult locationResult) {
+        // Update Location Once
+        mRequestingLocationUpdates.setNumUpdates(1);
 
-                    /**
-                     * If fused location has not return the last location
-                     */
-                    if (currentLocation == null) {
-                        currentLocation = locationResult.getLastLocation();
-                        afterGetLocation();
-                    }
-                }
-
-                ;
-            };
-            LocationRequest mRequestingLocationUpdates = new LocationRequest();
-            mRequestingLocationUpdates.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-            mRequestingLocationUpdates.setInterval(60000);
-
-            // Update Location Once
-            mRequestingLocationUpdates.setNumUpdates(1);
-
-            mFusedLocationClient.requestLocationUpdates(mRequestingLocationUpdates, mLocationCallback, null /* Looper */);
-        }
+        mFusedLocationClient.requestLocationUpdates(mRequestingLocationUpdates, mLocationCallback, null /* Looper */);
     }
 
     private void queryTypeOfWastes() {
@@ -280,6 +284,13 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
 
     private void query(List<String> filterTypesID) {
 
+        Log.d("Facilities", "query");
+
+        if (currentLocation == null) {
+            Log.d("Facilities", "location not ready");
+            return;
+        }
+
         // Clear Map Pins
         if (mMap != null)
             mMap.clear();
@@ -291,13 +302,10 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
         FacilitiesQuery.Builder builder = FacilitiesQuery.builder();
 
         // IF location is loaded, fetch by near facilities
-        if (currentLocation != null) {
+        Log.d("Query Facility", "Nearby: " + currentLocation.getLatitude() + ", " + currentLocation.getLongitude());
 
-            Log.d("Query Facility", "Nearby: " + currentLocation.getLatitude() + ", " + currentLocation.getLongitude());
-
-            builder.latitude(currentLocation.getLatitude());
-            builder.longitude(currentLocation.getLongitude());
-        }
+        builder.latitude(currentLocation.getLatitude());
+        builder.longitude(currentLocation.getLongitude());
 
         // IF wast pass type of waste filter
         if (filterTypesID != null) {
@@ -568,6 +576,16 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
     @OnClick(R.id.action_notify_me)
     public void onNotifyMe() {
         RegionWaitListDialog.newInstance().show(getActivity().getSupportFragmentManager(), "DIALOG_WAIT_LIST");
+    }
+
+    @Override
+    public void onFailure(@NonNull Exception e) {
+        Log.e("Location Failure", e.getMessage());
+
+        /**
+         * If get last location failed, request the current one
+         */
+        requestLocation();
     }
 
     public interface OnListFacilitiesListener {

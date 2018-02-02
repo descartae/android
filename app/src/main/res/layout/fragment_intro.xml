@@ -43,7 +43,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:layout_marginTop="@dimen/margin_btn_top"
+            android:layout_marginTop="@dimen/padding"
             style="@style/Widget.AppCompat.Button.Colored"
             android:minWidth="125dp"
             android:padding="@dimen/activity_horizontal_margin"

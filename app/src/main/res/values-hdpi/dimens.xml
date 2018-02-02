@@ -1,0 +1,10 @@
+<resources>
+    <dimen name="dialog_margin">18dp</dimen>
+    <dimen name="text_margin">16dp</dimen>
+    <dimen name="text_small">13sp</dimen>
+    <dimen name="text_regular">16sp</dimen>
+    <dimen name="text_medium">14sp</dimen>
+    <dimen name="text_large">20sp</dimen>
+    <dimen name="margin_top">28dp</dimen>
+    <dimen name="intro_image">150dp</dimen>
+</resources>
