@@ -1,0 +1,59 @@
+apply plugin: 'com.android.application'
+apply plugin: 'com.apollographql.android'
+
+apollo {
+    customTypeMapping['Time'] = "java.lang.String"
+}
+
+android {
+    compileSdkVersion 27
+    defaultConfig {
+        applicationId "com.descartae"
+        minSdkVersion 22
+        targetSdkVersion 27
+        versionCode 1
+        versionName "1.0-alpha"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        vectorDrawables.useSupportLibrary = true
+        buildConfigField "String", "MOBILE_API_URL", project.MOBILE_API_DEBUG
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            buildConfigField "String", "MOBILE_API_URL", project.MOBILE_API_RELEASE
+        }
+    }
+    compileOptions {
+        targetCompatibility 1.8
+        sourceCompatibility 1.8
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'com.android.support:appcompat-v7:27.0.2'
+    implementation 'com.android.support:design:27.0.2'
+    implementation 'com.android.support:support-v4:27.0.2'
+    implementation 'com.android.support:recyclerview-v7:27.0.2'
+    implementation 'com.android.support.constraint:constraint-layout:1.0.2'
+    implementation 'com.android.support:support-vector-drawable:27.0.2'
+    implementation 'com.google.android.gms:play-services-maps:11.6.2'
+    implementation 'com.google.android.gms:play-services-location:11.6.2'
+
+    implementation 'com.jakewharton:butterknife:8.8.1'
+    annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
+    implementation 'com.google.code.gson:gson:2.4'
+
+    implementation 'com.squareup.picasso:picasso:2.5.2'
+    compile 'me.relex:circleindicator:1.2.2@aar'
+    compile 'com.facebook.network.connectionclass:connectionclass:1.0.1'
+
+    implementation 'com.afollestad.material-dialogs:core:0.9.6.0'
+    
+    implementation 'com.apollographql.apollo:apollo-runtime:0.4.2'
+
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'com.android.support.test:runner:1.0.1'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
+}

@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingBottom="@dimen/padding"
+    android:paddingTop="@dimen/activity_horizontal_margin">
+
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/activity_horizontal_margin"
+        android:layout_marginRight="@dimen/activity_horizontal_margin"
+        android:fontFamily="sans-serif"
+        android:textStyle="bold"
+        android:text="@string/unsupported_region_title"
+        android:textColor="@color/title_gray"
+        android:textSize="@dimen/text_regular" />
+
+    <TextView
+        android:id="@+id/subtitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/padding"
+        android:layout_marginLeft="@dimen/activity_horizontal_margin"
+        android:layout_marginRight="@dimen/activity_horizontal_margin"
+        android:fontFamily="sans-serif"
+        android:text="@string/unsupported_region_desc"
+        android:textColor="@color/title_gray"
+        android:textSize="@dimen/text_small" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <EditText
+            android:id="@+id/email"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/activity_horizontal_margin"
+            android:layout_marginRight="@dimen/activity_horizontal_margin"
+            android:layout_marginTop="@dimen/activity_horizontal_margin"
+            android:background="@android:color/transparent"
+            android:fontFamily="sans-serif"
+            android:inputType="textWebEmailAddress"
+            android:textColor="@color/title_gray"
+            android:textSize="15dp">
+
+            <requestFocus></requestFocus>
+        </EditText>
+
+        <ProgressBar
+            android:id="@+id/loading"
+            style="@style/Base.Widget.AppCompat.ProgressBar"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:visibility="gone"
+            android:layout_gravity="center"
+             />
+    </FrameLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/activity_horizontal_margin"
+        android:gravity="right"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/action_cancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:foreground="?selectableItemBackground"
+            android:text="@string/cancel"
+            android:textAllCaps="false" />
+
+        <Button
+            android:id="@+id/action_send"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:foreground="?selectableItemBackground"
+            android:text="@string/send"
+            android:textAllCaps="false" />
+
+        <Button
+            android:id="@+id/action_ok"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:foreground="?selectableItemBackground"
+            android:text="@string/ok"
+            android:visibility="gone"
+            android:textAllCaps="false" />
+
+    </LinearLayout>
+
+</LinearLayout>

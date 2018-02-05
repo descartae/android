@@ -1,0 +1,24 @@
+query FacilitiesQuery($latitude: Float!, $longitude: Float!, $typesOfWasteToFilter: [ID]) {
+  facilities(filters: {hasTypesOfWaste: $typesOfWasteToFilter, cursor: {quantity: 100}, location: {near: {latitude: $latitude, longitude: $longitude}}}) {
+    items {
+      _id
+      name
+      location {
+        address
+        municipality
+        state
+        zip
+        coordinates {
+            latitude
+            longitude
+        }
+      }
+      typesOfWaste {
+        icons {
+          androidSmallURL
+          androidMediumURL
+        }
+      }
+    }
+  }
+}

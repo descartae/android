@@ -1,0 +1,91 @@
+<resources>
+    <string name="app_name">Descartaê</string>
+    <string name="title_home">Home</string>
+    <string name="title_dashboard">Dashboard</string>
+    <string name="title_notifications">Notifications</string>
+    <string name="title_more">Mais</string>
+    <string name="title_time">Hotários</string>
+    <string name="title_colect">Coletas</string>
+    <string name="facilities_point">Pontos de coleta</string>
+    <string name="title_activity_home">Pontos de coleta</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_settings">Settings</string>
+    <string name="onboard_title_1">Pontos de coleta</string>
+    <string name="onboard_subtitle_1">Finalmente você contrará onde descatar lixos como eletrônicos, pilhas e móveis nos pontos mais próximos de onde você está.</string>
+    <string name="onboard_title_2">Que horas passa?</string>
+    <string name="onboard_subtitle_2">Fique por dentro dos dias e horários que passam a coleta de lixo domiciliar e seco de onde você está.</string>
+    <string name="onboard_title_3">Feito na Biblioteca!</string>
+    <string name="onboard_subtitle_3">Isso mesmo! Os dados do Descartaê  são alimentados pelos bibliotecários  de cada cidade.</string>
+    <string name="onboard_title_4">Junte-se a nós!</string>
+    <string name="onboard_subtitle_4">Clique no botão abaixo para começar a deixar sua vida mais fácil e green.</string>
+    <string name="start">Começar</string>
+    <string name="permission_gps_title">Localização</string>
+    <string name="permission_gps_message">É necessário permitir o uso da sua localização para podermos encontrar os pontos de coleta mais próximos de você</string>
+    <string name="allow">Permitir</string>
+    <string name="cancel">Cancelar</string>
+    <string name="action_continue">Continuar</string>
+    <string name="menu_about">Sobre o projeto</string>
+    <string name="menu_feedback">Enviar feedback</string>
+    <string name="menu_rate">Avaliar o aplicativo</string>
+    <string name="menu_share">Compartilhar o Descartaê</string>
+    <string name="menu_blog">Conheça nosso blog</string>
+    <string name="action_info">Informação</string>
+    <string name="action_filter">Filtrar</string>
+    <string name="share">Compartilhe o %1$s</string>
+    <string name="app_share">market://details?id=%1$s</string>
+    <string name="enable_location">Habilitar localização</string>
+    <string name="enable_location_desc">É necessário permitir o uso da sua localização para podermos encontrar os pontos de coleta mais próximos de você</string>
+    <string name="offline">Offline</string>
+    <string name="offline_desc">Parece que você está sem conexão.  Clique no botão abaixo para atualizar.</string>
+    <string name="try_again">Tentar novamente</string>
+    <string name="detail">Detalhes do local</string>
+    <string name="drive">Rotas</string>
+    <string name="time">%1$s - %2$s</string>
+    <string name="time_desc">Aberto das %1$sh às %2$sh</string>
+    <string name="close">Fechar</string>
+
+    <string name="closed">Fechado</string>
+    <string name="no_open_hour_today">Horários de hoje indisponíveis</string>
+    <string name="distance">%1$.2f Km</string>
+
+    <string-array name="day_of_week">
+        <item>Domingo</item>
+        <item>Segunda-feira</item>
+        <item>Terça-feira</item>
+        <item>Quarta-feira</item>
+        <item>Quinta-feira</item>
+        <item>Sexta-feira</item>
+        <item>Sábado</item>
+    </string-array>
+    <string name="title_activity_type_of_waste">Legendas</string>
+    <string name="title_filter">Selecione os tipos desejados</string>
+    <string name="title_filter_empty">Ops, nada encontrado</string>
+    <string name="desc_filter_empty">Não encontramos nenhum ponto de coleta próximo de você que recolha os tipos de resíduo escolhidos.</string>
+    <string name="clear_filter">Limpar filtros</string>
+    <string name="send">Enviar</string>
+    <string name="feedback_title">Solta o verbo</string>
+    <string name="feedback_desc">O que ta achando do Descartaê? \nNos conta aí!</string>
+    <string name="feedback_error">Ops! Ocorreu um erro ao enviar o feedback :(</string>
+    <string name="feedback_facility_title">Reportar um problema</string>
+    <string name="feedback_facility_desc">Encontrou algum problema com este ponto de coleta? Nos conte!</string>
+    <string name="feedback_no_message_error">O campo de texto está vazio.</string>
+    <string name="ok">Ok</string>
+    <string name="feedback_title_success">Obrigado por nos contar!</string>
+    <string name="feedback_desc_success">Ah, não esquece de nos avaliar na Google Play! :)</string>
+    <string name="feedback_facility_title_success">Obrigado por nos ajudar a melhorar!</string>
+    <string name="feedback_facility_desc_success">Nossos voluntários irão analisar e endereçar sua reclamação.</string>
+    <string name="website_url">https://descartae.com/%1$s</string>
+    <string name="empty_region_title">Ainda não chegamos em sua região</string>
+    <string name="empty_region_desc">Nossos voluntários trabalham duro para mapear todas as cidades, mas infelizmente ainda não chegamos em sua região. Quer ser avisado quando chegarmos?</string>
+    <string name="call_me">Me avise</string>
+    <string name="unsupported_region_title">E-mail</string>
+    <string name="unsupported_region_desc">Informe seu e-mail para avisarmos sobre o mapeamento da sua região!</string>
+    <string name="wait_list_error">Não foi possível cadastrar seu e-mail, tente novamente mais tarde.</string>
+    <string name="wait_list_title_success">Agradecemos o seu interesse pela causa</string>
+    <string name="wait_list_desc_success">Nossos voluntários estão trabalhando muito para expandir, esperamos poder lhe atender muito em breve!</string>
+    <string name="wait_list_no_message_error">Informe o seu e-mail :)</string>
+    <string name="filter_unsupport_region">Ainda não chegamos em sua região :(</string>
+</resources>

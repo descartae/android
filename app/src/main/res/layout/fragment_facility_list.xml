@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <android.support.design.widget.CoordinatorLayout
+        android:id="@+id/container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context="org.descartae.android.view.activities.Home">
+
+        <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/map"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+
+        <android.support.v4.widget.NestedScrollView
+            android:id="@+id/bottom_sheet"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:color/white"
+            android:clipToPadding="true"
+            android:elevation="1dp"
+            app:layout_behavior="android.support.design.widget.BottomSheetBehavior">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <android.support.v7.widget.RecyclerView xmlns:android="http://schemas.android.com/apk/res/android"
+                    xmlns:app="http://schemas.android.com/apk/res-auto"
+                    xmlns:tools="http://schemas.android.com/tools"
+                    android:id="@+id/list"
+                    android:name="org.descartae.android.view.facility.FacilityFragment"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    app:layoutManager="LinearLayoutManager"
+                    tools:context="org.descartae.android.view.fragments.facility.FacilitiesFragment"
+                    tools:listitem="@layout/fragment_facility" />
+
+                <ProgressBar
+                    android:id="@+id/loading"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:layout_marginBottom="@dimen/margin_left_big"
+                    android:layout_marginTop="@dimen/margin_left_big"
+                    android:indeterminate="true"
+                    android:indeterminateOnly="true"
+                    android:visibility="gone" />
+
+            </RelativeLayout>
+
+        </android.support.v4.widget.NestedScrollView>
+
+        <android.support.v4.widget.NestedScrollView
+            android:id="@+id/bottom_sheet_detail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:color/white"
+            android:clipToPadding="true"
+            android:elevation="1dp"
+            android:visibility="gone"
+            app:layout_behavior="android.support.design.widget.BottomSheetBehavior">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@android:color/white"
+                android:foreground="?selectableItemBackgroundBorderless"
+                android:orientation="vertical">
+
+                <include
+                    layout="@layout/fragment_facility"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:background="@color/bg_light"
+                    android:orientation="horizontal"
+                    android:paddingLeft="@dimen/activity_horizontal_margin"
+                    android:paddingRight="@dimen/activity_horizontal_margin">
+
+                    <Button
+                        android:id="@+id/action_detail"
+                        style="@style/Base.Widget.AppCompat.Button"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginRight="@dimen/activity_horizontal_margin"
+                        android:layout_weight="1"
+                        android:background="@android:color/transparent"
+                        android:foreground="?selectableItemBackgroundBorderless"
+                        android:gravity="left|center_vertical"
+                        android:text="@string/detail"
+                        android:textAllCaps="true"
+                        android:textColor="@color/button_gray"
+                        android:textStyle="normal" />
+
+                    <Button
+                        android:id="@+id/action_go"
+                        style="@style/Base.Widget.AppCompat.Button.Colored"
+                        android:layout_width="wrap_content"
+                        android:layout_height="32dp"
+                        android:layout_gravity="center_vertical"
+                        android:background="@color/colorPrimary"
+                        android:drawableLeft="@drawable/ic_action_navigation"
+                        android:drawablePadding="@dimen/padding"
+                        android:foreground="?selectableItemBackgroundBorderless"
+                        android:minWidth="100dp"
+                        android:paddingLeft="@dimen/padding"
+                        android:paddingRight="@dimen/padding"
+                        android:text="@string/drive"
+                        android:textColor="@android:color/white"
+                        android:textStyle="normal" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+
+        </android.support.v4.widget.NestedScrollView>
+
+    </android.support.design.widget.CoordinatorLayout>
+
+    <include layout="@layout/filter_empty_view"></include>
+    <include layout="@layout/region_unsupported_empty"></include>
+
+</RelativeLayout>
