@@ -586,8 +586,11 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
     @Override
     public void onSuccess(Location location) {
         currentLocation = location;
-        Log.d("Location", "Lat: " + currentLocation.getLatitude() + " Long: " + currentLocation.getLongitude());
-        afterGetLocation();
+
+        if (currentLocation != null) {
+            Log.d("Location", "Lat: " + currentLocation.getLatitude() + " Long: " + currentLocation.getLongitude());
+            afterGetLocation();
+        }
     }
 
     public interface OnListFacilitiesListener {

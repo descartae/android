@@ -204,7 +204,7 @@ public class FacilityActivity extends AppCompatActivity implements OnMapReadyCal
 
                     String time = null;
                     for (FacilityQuery.OpenHour openHour : facility.openHours()) {
-                        if (openHour.dayOfWeek().ordinal() == Calendar.getInstance().get(Calendar.DAY_OF_WEEK)) {
+                        if ((openHour.dayOfWeek().ordinal() + 1) == Calendar.getInstance().get(Calendar.DAY_OF_WEEK)) {
                             time = getString(R.string.time, "Hoje", getString(R.string.time_desc, String.valueOf(openHour.startTime()), String.valueOf(openHour.endTime())));
                             mTime.setText(time);
                             break;
