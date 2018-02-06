@@ -38,6 +38,8 @@ public class Home extends BaseActivity
     @BindView(R.id.nav_view)
     NavigationView navigationView;
 
+    private FacilitiesFragment facilitiesFragment;
+
     @Override
     void permissionNotGranted() {
         getSupportFragmentManager().beginTransaction().replace(R.id.content, EmptyLocationPermissionFragment.newInstance()).commitAllowingStateLoss();
@@ -45,7 +47,8 @@ public class Home extends BaseActivity
 
     @Override
     void permissionGranted() {
-        getSupportFragmentManager().beginTransaction().replace(R.id.content, FacilitiesFragment.newInstance()).commitAllowingStateLoss();
+        facilitiesFragment = FacilitiesFragment.newInstance();
+        getSupportFragmentManager().beginTransaction().replace(R.id.content, facilitiesFragment).commitAllowingStateLoss();
     }
 
     @Override
@@ -69,8 +72,19 @@ public class Home extends BaseActivity
 
     @Override
     public void onBackPressed() {
+
         if (drawer.isDrawerOpen(GravityCompat.START)) {
+
             drawer.closeDrawer(GravityCompat.START);
+
+        } else if (facilitiesFragment != null && facilitiesFragment.isAdded()) {
+
+            if (facilitiesFragment.isBottomSheetOpen()) {
+                facilitiesFragment.closeBottomSheet();
+            } else {
+                super.onBackPressed();
+            }
+
         } else {
             super.onBackPressed();
         }

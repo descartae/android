@@ -600,4 +600,12 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
     public interface OnFacilityListener {
         void onListFacilityInteraction(FacilitiesQuery.Item facility);
     }
+
+    public boolean isBottomSheetOpen() {
+        return behaviorDetail.getState() == BottomSheetBehavior.STATE_EXPANDED;
+    }
+
+    public void closeBottomSheet() {
+        behaviorDetail.setState(BottomSheetBehavior.STATE_HIDDEN);
+    }
 }
