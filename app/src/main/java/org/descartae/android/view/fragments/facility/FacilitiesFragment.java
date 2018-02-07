@@ -228,6 +228,8 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
                 Log.d("Update Location", "Lat: " + currentLocation.getLatitude() + " Long: " + currentLocation.getLongitude());
 
                 afterGetLocation();
+
+                mFusedLocationClient.flushLocations();
             }
         };
         LocationRequest mRequestingLocationUpdates = new LocationRequest();
@@ -236,7 +238,7 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
         mRequestingLocationUpdates.setFastestInterval(FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS);
 
         // Update Location Once
-        // mRequestingLocationUpdates.setNumUpdates(1);
+        mRequestingLocationUpdates.setNumUpdates(1);
 
         mFusedLocationClient.requestLocationUpdates(mRequestingLocationUpdates, mLocationCallback, null /* Looper */);
         mFusedLocationClient.getLastLocation().addOnSuccessListener(this);
