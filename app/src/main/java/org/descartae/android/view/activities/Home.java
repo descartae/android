@@ -2,6 +2,7 @@ package org.descartae.android.view.activities;
 
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
@@ -13,11 +14,10 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.google.android.gms.common.GoogleApiAvailability;
-
 import org.descartae.android.BuildConfig;
 import org.descartae.android.R;
 import org.descartae.android.interfaces.RetryConnectionView;
+import org.descartae.android.view.fragments.empty.EmptyGPSOfflineFragment;
 import org.descartae.android.view.fragments.empty.EmptyLocationPermissionFragment;
 import org.descartae.android.view.fragments.empty.EmptyOfflineFragment;
 import org.descartae.android.view.fragments.facility.FacilitiesFragment;
@@ -47,8 +47,23 @@ public class Home extends BaseActivity
 
     @Override
     void permissionGranted() {
-        facilitiesFragment = FacilitiesFragment.newInstance();
-        getSupportFragmentManager().beginTransaction().replace(R.id.content, facilitiesFragment).commitAllowingStateLoss();
+
+        /**
+         * Ok, the permission is granted but we need to check if the location is enabled :)
+         */
+        LocationManager lm = (LocationManager) getSystemService(LOCATION_SERVICE);
+        boolean gps_enabled = false;
+
+        try {
+            gps_enabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        } catch(Exception ex) {}
+
+        if (gps_enabled) {
+            facilitiesFragment = FacilitiesFragment.newInstance();
+            getSupportFragmentManager().beginTransaction().replace(R.id.content, facilitiesFragment).commitAllowingStateLoss();
+        } else {
+            getSupportFragmentManager().beginTransaction().replace(R.id.content, EmptyGPSOfflineFragment.newInstance()).commitAllowingStateLoss();
+        }
     }
 
     @Override
@@ -66,8 +81,6 @@ public class Home extends BaseActivity
         toggle.syncState();
 
         navigationView.setNavigationItemSelectedListener(this);
-
-        init();
     }
 
     @Override
