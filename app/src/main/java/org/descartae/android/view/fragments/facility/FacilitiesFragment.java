@@ -44,7 +44,6 @@ import com.facebook.network.connectionclass.DeviceBandwidthSampler;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 
 import org.descartae.android.FacilitiesQuery;
@@ -68,6 +67,18 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 public class FacilitiesFragment extends Fragment implements ConnectionClassManager.ConnectionClassStateChangeListener, OnMapReadyCallback, OnSuccessListener<Location> {
+
+    /**
+     * The desired interval for location updates. Inexact. Updates may be more or less frequent.
+     */
+    public static final long UPDATE_INTERVAL_IN_MILLISECONDS = 10000;
+
+    /**
+     * The fastest rate for active location updates. Exact. Updates will never be more frequent
+     * than this value.
+     */
+    public static final long FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS =
+            UPDATE_INTERVAL_IN_MILLISECONDS / 2;
 
     private OnListFacilitiesListener mListener;
     private FacilityListAdapter facilityListAdapter;
@@ -221,10 +232,11 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
         };
         LocationRequest mRequestingLocationUpdates = new LocationRequest();
         mRequestingLocationUpdates.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        mRequestingLocationUpdates.setInterval(60000);
+        mRequestingLocationUpdates.setInterval(UPDATE_INTERVAL_IN_MILLISECONDS);
+        mRequestingLocationUpdates.setFastestInterval(FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS);
 
         // Update Location Once
-        mRequestingLocationUpdates.setNumUpdates(1);
+        // mRequestingLocationUpdates.setNumUpdates(1);
 
         mFusedLocationClient.requestLocationUpdates(mRequestingLocationUpdates, mLocationCallback, null /* Looper */);
         mFusedLocationClient.getLastLocation().addOnSuccessListener(this);
@@ -282,6 +294,7 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
         super.onDestroy();
 
         if (mLocationCallback != null) {
+            Log.d("Location", "Remove Callback Update");
             mFusedLocationClient.removeLocationUpdates(mLocationCallback);
         }
     }
