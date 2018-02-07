@@ -590,15 +590,9 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
         if (currentLocation != null) {
             Log.d("Location", "Lat: " + currentLocation.getLatitude() + " Long: " + currentLocation.getLongitude());
             afterGetLocation();
+        } else {
+            Log.d("Location", "Last Location not available");
         }
-    }
-
-    public interface OnListFacilitiesListener {
-        void onNoConnection();
-    }
-
-    public interface OnFacilityListener {
-        void onListFacilityInteraction(FacilitiesQuery.Item facility);
     }
 
     public boolean isBottomSheetOpen() {
@@ -607,5 +601,13 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
 
     public void closeBottomSheet() {
         behaviorDetail.setState(BottomSheetBehavior.STATE_HIDDEN);
+    }
+
+    public interface OnListFacilitiesListener {
+        void onNoConnection();
+    }
+
+    public interface OnFacilityListener {
+        void onListFacilityInteraction(FacilitiesQuery.Item facility);
     }
 }

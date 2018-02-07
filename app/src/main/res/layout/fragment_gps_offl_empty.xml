@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_margin="@dimen/activity_horizontal_margin"
+        android:orientation="vertical">
+
+        <ImageView
+            android:layout_width="@dimen/intro_image"
+            android:layout_height="@dimen/intro_image"
+            android:src="@drawable/ic_localize"
+            android:layout_gravity="center_horizontal" />
+
+        <TextView
+            android:id="@+id/intro_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/activity_horizontal_margin"
+            android:gravity="center_horizontal"
+            android:text="@string/enable_location"
+            android:textColor="@color/title_gray"
+            android:textSize="@dimen/text_large"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/intro_subtitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:lineSpacingExtra="2dp"
+            android:padding="@dimen/activity_horizontal_margin"
+            android:text="@string/gps_off_empty_desc"
+            android:textColor="@color/title_gray"
+            android:textSize="@dimen/text_regular" />
+
+        <Button
+            android:id="@+id/action_try"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="@dimen/margin_btn_top"
+            style="@style/Widget.AppCompat.Button.Colored"
+            android:minWidth="125dp"
+            android:padding="@dimen/activity_horizontal_margin"
+            android:text="@string/done"
+            android:textColor="@android:color/white" />
+
+    </LinearLayout>
+
+</RelativeLayout>
