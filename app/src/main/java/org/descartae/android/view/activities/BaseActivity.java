@@ -30,6 +30,8 @@ public abstract class BaseActivity extends AppCompatActivity implements RequestP
         if (googlePlayServicesAvailable != ConnectionResult.SUCCESS) {
             instance.getErrorDialog(this, googlePlayServicesAvailable, RQ_GPSERVICE);
         }
+
+        init();
     }
 
     protected void init() {

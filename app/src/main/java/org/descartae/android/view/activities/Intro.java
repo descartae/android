@@ -28,7 +28,7 @@ public class Intro extends BaseActivity implements IntroFragment.IntroListener {
     @BindView(R.id.indicator)
     CircleIndicator indicator;
 
-    private boolean isPermissionGranted;
+    private boolean isPermissionGranted = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,6 +75,9 @@ public class Intro extends BaseActivity implements IntroFragment.IntroListener {
                 .setPositiveButton(R.string.action_continue, (DialogInterface dialogInterface, int i) -> {
                     onAcceptPermission();
                     dialogInterface.dismiss();
+
+                    // Do not block user If denies permission after agree
+                    isPermissionGranted = true;
                 })
                 .setNegativeButton(R.string.cancel, (dialogInterface, i) -> {
                     startActivity(new Intent(this, Home.class));
@@ -86,7 +89,11 @@ public class Intro extends BaseActivity implements IntroFragment.IntroListener {
 
     @Override
     void permissionNotGranted() {
-        isPermissionGranted = false;
+
+        // Do not block user If denies permission after agree
+        if (isPermissionGranted) {
+            permissionGranted();
+        }
     }
 
     @Override

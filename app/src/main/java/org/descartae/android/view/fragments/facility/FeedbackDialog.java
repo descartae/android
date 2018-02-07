@@ -90,7 +90,7 @@ public class FeedbackDialog extends DialogFragment {
         String feedback = mFeedback.getText().toString();
 
         if (feedback == null || feedback.length() <= 0) {
-            Snackbar.make(getView(), R.string.feedback_no_message_error, Snackbar.LENGTH_SHORT).show();
+            Snackbar.make(mFeedback, R.string.feedback_no_message_error, Snackbar.LENGTH_SHORT).show();
             return;
         }
 

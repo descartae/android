@@ -14,7 +14,7 @@
 
     <string name="action_settings">Settings</string>
     <string name="onboard_title_1">Pontos de coleta</string>
-    <string name="onboard_subtitle_1">Finalmente você contrará onde descatar lixos como eletrônicos, pilhas e móveis nos pontos mais próximos de onde você está.</string>
+    <string name="onboard_subtitle_1">Finalmente você encontrará onde descartar lixos como eletrônicos, pilhas e móveis nos pontos mais próximos de onde você está.</string>
     <string name="onboard_title_2">Que horas passa?</string>
     <string name="onboard_subtitle_2">Fique por dentro dos dias e horários que passam a coleta de lixo domiciliar e seco de onde você está.</string>
     <string name="onboard_title_3">Feito na Biblioteca!</string>
@@ -37,7 +37,7 @@
     <string name="share">Compartilhe o %1$s</string>
     <string name="app_share">market://details?id=%1$s</string>
     <string name="enable_location">Habilitar localização</string>
-    <string name="enable_location_desc">É necessário permitir o uso da sua localização para podermos encontrar os pontos de coleta mais próximos de você</string>
+    <string name="enable_location_desc">É necessário permitir o uso da sua localização para podermos encontrar os pontos de coleta mais próximos de você.</string>
     <string name="offline">Offline</string>
     <string name="offline_desc">Parece que você está sem conexão.  Clique no botão abaixo para atualizar.</string>
     <string name="try_again">Tentar novamente</string>
@@ -88,4 +88,6 @@
     <string name="wait_list_desc_success">Nossos voluntários estão trabalhando muito para expandir, esperamos poder lhe atender muito em breve!</string>
     <string name="wait_list_no_message_error">Informe o seu e-mail :)</string>
     <string name="filter_unsupport_region">Ainda não chegamos em sua região :(</string>
+    <string name="done">Pronto!</string>
+    <string name="gps_off_empty_desc">Por favor, habilite sua localização para podermos encontrar os pontos de coleta mais próximos de você.</string>
 </resources>
