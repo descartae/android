@@ -341,23 +341,29 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
                 if (getActivity() == null || getActivity().isDestroyed()) return;
 
                 getActivity().runOnUiThread(() -> {
-                    facilityListAdapter.setCenters(dataResponse.data().facilities().items());
-                    facilityListAdapter.setCurrentLocation(currentLocation);
-                    facilityListAdapter.notifyDataSetChanged();
+                    FacilitiesQuery.Facilities facilities = dataResponse.data().facilities();
 
-                    if (facilityListAdapter.getItemCount() <= 0 && selectedTypesIndices.length > 0) {
+                    if ((facilities == null || facilityListAdapter.getItemCount() <= 0) && selectedTypesIndices.length > 0) {
 
                         /**
                          * If no facilities return with filter
                          */
                         mFilterEmpty.setVisibility(View.VISIBLE);
 
-                    } else if (facilityListAdapter.getItemCount() <= 0 ) {
+                    } else if (facilities == null || facilityListAdapter.getItemCount() <= 0) {
 
                         /**
                          * If no facilities return without filter
                          */
                         mRegionUnsupported.setVisibility(View.VISIBLE);
+                    } else {
+
+                        /**
+                         * If have facilities
+                         */
+                        facilityListAdapter.setCenters(facilities.items());
+                        facilityListAdapter.setCurrentLocation(currentLocation);
+                        facilityListAdapter.notifyDataSetChanged();
                     }
 
                     mLoading.setVisibility(View.GONE);

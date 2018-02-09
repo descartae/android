@@ -112,26 +112,37 @@ public class RegionWaitListDialog extends DialogFragment {
             @Override
             public void onResponse(@Nonnull Response<AddToWaitlistMutation.Data> response) {
 
-                if (response == null) return;
-                if (response.data() == null) return;
                 if (getActivity() == null || getActivity().isDestroyed()) return;
+                if (response == null) return;
 
-                getActivity().runOnUiThread(() -> {
+                if (response.data() == null) {
 
-                    if (response.data().addWaitingUser().success()) {
-                        mActionCancel.setVisibility(View.GONE);
-                        mActionSend.setVisibility(View.GONE);
-                        mActionOk.setVisibility(View.VISIBLE);
+                    if (response.hasErrors()) {
+                        if (response.errors().size() < 0) {
+                            if (response.errors().get(0).message().equals("DUPLICATED_EMAIL")) {
 
-                        mEmail.setVisibility(View.GONE);
-
-                        mTitle.setText(R.string.wait_list_title_success);
-                        mSubTitle.setText(R.string.wait_list_desc_success);
-
-                    } else {
-                        Snackbar.make(mEmail, R.string.wait_list_error, Snackbar.LENGTH_SHORT).show();
+                                /**
+                                 * If user already optin, confirm the success message ;)
+                                 */
+                                onSuccess();
+                                return;
+                            }
+                        }
                     }
-                });
+
+                    Snackbar.make(mEmail, R.string.wait_list_error, Snackbar.LENGTH_SHORT).show();
+
+                } else {
+
+                    getActivity().runOnUiThread(() -> {
+
+                        if (response.data().addWaitingUser().success()) {
+                            onSuccess();
+                        } else {
+                            Snackbar.make(mEmail, R.string.wait_list_error, Snackbar.LENGTH_SHORT).show();
+                        }
+                    });
+                }
             }
 
             @Override
@@ -139,6 +150,25 @@ public class RegionWaitListDialog extends DialogFragment {
                 Snackbar.make(mEmail, R.string.wait_list_error, Snackbar.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private void onSuccess() {
+        mActionCancel.setVisibility(View.GONE);
+        mActionSend.setVisibility(View.GONE);
+        mActionOk.setVisibility(View.VISIBLE);
+
+        mEmail.setVisibility(View.GONE);
+
+        mTitle.setText(R.string.wait_list_title_success);
+        mSubTitle.setText(R.string.wait_list_desc_success);
+    }
+
+    private void showLoad() {
+        
+    }
+
+    private void hideLoad() {
+
     }
 
     @OnClick({R.id.action_cancel, R.id.action_ok})
