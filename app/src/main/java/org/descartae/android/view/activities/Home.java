@@ -6,7 +6,6 @@ import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.ShareCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -19,12 +18,15 @@ import android.widget.FrameLayout;
 import org.descartae.android.BuildConfig;
 import org.descartae.android.R;
 import org.descartae.android.interfaces.RetryConnectionView;
+import org.descartae.android.networking.apollo.errors.ConnectionError;
 import org.descartae.android.view.fragments.empty.EmptyGPSOfflineFragment;
 import org.descartae.android.view.fragments.empty.EmptyLocationPermissionFragment;
 import org.descartae.android.view.fragments.empty.EmptyOfflineFragment;
 import org.descartae.android.view.fragments.empty.RegionWaitListDialog;
 import org.descartae.android.view.fragments.facility.FacilitiesFragment;
 import org.descartae.android.view.fragments.facility.FeedbackDialog;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -182,8 +184,8 @@ public class Home extends BaseActivity
         return true;
     }
 
-    @Override
-    public void onNoConnection() {
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void showNoConnectionEmptyState(ConnectionError error) {
         getSupportFragmentManager().beginTransaction().replace(R.id.content, EmptyOfflineFragment.newInstance()).commitAllowingStateLoss();
     }
 
