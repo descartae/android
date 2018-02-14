@@ -2,13 +2,14 @@ package org.descartae.android.view.fragments.empty;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Context;
 import android.os.Bundle;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.DialogFragment;
 import android.view.ContextThemeWrapper;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.apollographql.apollo.ApolloCall;
@@ -16,10 +17,10 @@ import com.apollographql.apollo.ApolloClient;
 import com.apollographql.apollo.api.Response;
 import com.apollographql.apollo.exception.ApolloException;
 
-import org.descartae.android.AddFeedbackMutation;
 import org.descartae.android.AddToWaitlistMutation;
 import org.descartae.android.R;
 import org.descartae.android.networking.NetworkingConstants;
+import org.descartae.android.view.fragments.facility.FacilitiesFragment;
 
 import javax.annotation.Nonnull;
 
@@ -35,6 +36,12 @@ public class RegionWaitListDialog extends DialogFragment {
 
     private static final String ARG_LATITUDE = "ARG_LATITUDE";
     private static final String ARG_LONGITUDE = "ARG_LONGITUDE";
+
+    @BindView(R.id.linear_form)
+    LinearLayout linearForm;
+
+    @BindView(R.id.loading)
+    ProgressBar loading;
 
     @BindView(R.id.title)
     public TextView mTitle;
@@ -56,8 +63,9 @@ public class RegionWaitListDialog extends DialogFragment {
 
     private AlertDialog.Builder mBuilder;
 
-    private double mLatitude;
-    private double mLongitude;
+    private double latitude;
+    private double longitude;
+    private RegionWaitListListener mListener;
 
     public static RegionWaitListDialog newInstance(double latitude, double longitude) {
         RegionWaitListDialog frag = new RegionWaitListDialog();
@@ -66,6 +74,16 @@ public class RegionWaitListDialog extends DialogFragment {
         args.putDouble(ARG_LONGITUDE, longitude);
         frag.setArguments(args);
         return frag;
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof FacilitiesFragment.OnListFacilitiesListener) {
+            mListener = (RegionWaitListListener) context;
+        } else {
+            throw new RuntimeException(context.toString() + " must implement RegionWaitListListener");
+        }
     }
 
     @Override
@@ -78,8 +96,8 @@ public class RegionWaitListDialog extends DialogFragment {
         mBuilder = new AlertDialog.Builder(new ContextThemeWrapper(getActivity(), R.style.Theme_AppCompat_Light));
         mBuilder.setView(viewInflated);
 
-        mLatitude = getArguments().getDouble(ARG_LATITUDE);
-        mLongitude = getArguments().getDouble(ARG_LONGITUDE);
+        latitude = getArguments().getDouble(ARG_LATITUDE);
+        longitude = getArguments().getDouble(ARG_LONGITUDE);
 
         return mBuilder.create();
     }
@@ -90,7 +108,7 @@ public class RegionWaitListDialog extends DialogFragment {
         String email = mEmail.getText().toString();
 
         if (email == null || email.length() <= 0) {
-            Snackbar.make(mEmail, R.string.wait_list_no_message_error, Snackbar.LENGTH_SHORT).show();
+            mListener.onWaitListEmailInvalidError();
             return;
         }
 
@@ -101,10 +119,12 @@ public class RegionWaitListDialog extends DialogFragment {
         AddToWaitlistMutation.Builder builder = AddToWaitlistMutation.builder();
         builder.email(email);
 
-        if (mLatitude != 0 && mLongitude != 0) {
-            builder.latitude(mLatitude);
-            builder.longitude(mLongitude);
+        if (latitude != 0 && longitude != 0) {
+            builder.latitude(latitude);
+            builder.longitude(longitude);
         }
+
+        showLoad();
 
         AddToWaitlistMutation build = builder.build();
         apolloClient.mutate(build).enqueue(new ApolloCall.Callback<AddToWaitlistMutation.Data>() {
@@ -114,6 +134,8 @@ public class RegionWaitListDialog extends DialogFragment {
 
                 if (getActivity() == null || getActivity().isDestroyed()) return;
                 if (response == null) return;
+
+                hideLoad();
 
                 if (response.data() == null) {
 
@@ -130,7 +152,7 @@ public class RegionWaitListDialog extends DialogFragment {
                         }
                     }
 
-                    Snackbar.make(mEmail, R.string.wait_list_error, Snackbar.LENGTH_SHORT).show();
+                    mListener.onWaitListError();
 
                 } else {
 
@@ -139,7 +161,7 @@ public class RegionWaitListDialog extends DialogFragment {
                         if (response.data().addWaitingUser().success()) {
                             onSuccess();
                         } else {
-                            Snackbar.make(mEmail, R.string.wait_list_error, Snackbar.LENGTH_SHORT).show();
+                            mListener.onWaitListError();
                         }
                     });
                 }
@@ -147,7 +169,8 @@ public class RegionWaitListDialog extends DialogFragment {
 
             @Override
             public void onFailure(@Nonnull ApolloException e) {
-                Snackbar.make(mEmail, R.string.wait_list_error, Snackbar.LENGTH_SHORT).show();
+                hideLoad();
+                mListener.onWaitListError();
             }
         });
     }
@@ -164,15 +187,24 @@ public class RegionWaitListDialog extends DialogFragment {
     }
 
     private void showLoad() {
-        
+        linearForm.setVisibility(View.GONE);
+        loading.setVisibility(View.VISIBLE);
     }
 
     private void hideLoad() {
-
+        loading.setVisibility(View.GONE);
+        linearForm.setVisibility(View.VISIBLE);
     }
 
     @OnClick({R.id.action_cancel, R.id.action_ok})
     public void onClose() {
         dismiss();
     }
+
+    public interface RegionWaitListListener {
+
+        void onWaitListError();
+        void onWaitListEmailInvalidError();
+    }
+
 }

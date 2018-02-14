@@ -6,6 +6,7 @@ import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ShareCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -13,6 +14,7 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.FrameLayout;
 
 import org.descartae.android.BuildConfig;
 import org.descartae.android.R;
@@ -20,6 +22,7 @@ import org.descartae.android.interfaces.RetryConnectionView;
 import org.descartae.android.view.fragments.empty.EmptyGPSOfflineFragment;
 import org.descartae.android.view.fragments.empty.EmptyLocationPermissionFragment;
 import org.descartae.android.view.fragments.empty.EmptyOfflineFragment;
+import org.descartae.android.view.fragments.empty.RegionWaitListDialog;
 import org.descartae.android.view.fragments.facility.FacilitiesFragment;
 import org.descartae.android.view.fragments.facility.FeedbackDialog;
 
@@ -27,7 +30,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class Home extends BaseActivity
-        implements NavigationView.OnNavigationItemSelectedListener, FacilitiesFragment.OnListFacilitiesListener, RetryConnectionView {
+        implements NavigationView.OnNavigationItemSelectedListener, RegionWaitListDialog.RegionWaitListListener, FacilitiesFragment.OnListFacilitiesListener, RetryConnectionView {
 
     @BindView(R.id.toolbar)
     Toolbar toolbar;
@@ -37,6 +40,9 @@ public class Home extends BaseActivity
 
     @BindView(R.id.nav_view)
     NavigationView navigationView;
+
+    @BindView(R.id.content)
+    FrameLayout content;
 
     private FacilitiesFragment facilitiesFragment;
 
@@ -182,7 +188,23 @@ public class Home extends BaseActivity
     }
 
     @Override
+    public void onNoRegionSupported(double latitude, double longitude) {
+        RegionWaitListDialog.newInstance(latitude, longitude).show(getSupportFragmentManager(), "DIALOG_WAIT_LIST");
+    }
+
+    @Override
+    public void onWaitListError() {
+        Snackbar.make(content, R.string.wait_list_error, Snackbar.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onWaitListEmailInvalidError() {
+        Snackbar.make(content, R.string.wait_list_no_message_error, Snackbar.LENGTH_SHORT).show();
+    }
+
+    @Override
     public void onRetryConnection() {
         permissionGranted();
     }
+
 }

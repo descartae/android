@@ -601,7 +601,7 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
         double latitude = (currentLocation != null) ? currentLocation.getLatitude() : 0;
         double longitude = (currentLocation != null) ? currentLocation.getLongitude() : 0;
 
-        RegionWaitListDialog.newInstance(latitude, longitude).show(getActivity().getSupportFragmentManager(), "DIALOG_WAIT_LIST");
+        mListener.onNoRegionSupported(latitude, longitude);
     }
 
     @Override
@@ -626,6 +626,7 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
 
     public interface OnListFacilitiesListener {
         void onNoConnection();
+        void onNoRegionSupported(double latitude, double longitude);
     }
 
     public interface OnFacilityListener {
