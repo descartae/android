@@ -2,7 +2,6 @@ package org.descartae.android.view.fragments.empty;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.view.ContextThemeWrapper;
@@ -14,13 +13,17 @@ import android.widget.TextView;
 
 import com.apollographql.apollo.ApolloCall;
 import com.apollographql.apollo.ApolloClient;
+import com.apollographql.apollo.api.Error;
 import com.apollographql.apollo.api.Response;
 import com.apollographql.apollo.exception.ApolloException;
 
 import org.descartae.android.AddToWaitlistMutation;
 import org.descartae.android.R;
+import org.descartae.android.networking.apollo.ApolloApiErrorHandler;
 import org.descartae.android.networking.NetworkingConstants;
-import org.descartae.android.view.fragments.facility.FacilitiesFragment;
+import org.descartae.android.networking.apollo.errors.DuplicatedEmailError;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import javax.annotation.Nonnull;
 
@@ -65,7 +68,6 @@ public class RegionWaitListDialog extends DialogFragment {
 
     private double latitude;
     private double longitude;
-    private RegionWaitListListener mListener;
 
     public static RegionWaitListDialog newInstance(double latitude, double longitude) {
         RegionWaitListDialog frag = new RegionWaitListDialog();
@@ -74,16 +76,6 @@ public class RegionWaitListDialog extends DialogFragment {
         args.putDouble(ARG_LONGITUDE, longitude);
         frag.setArguments(args);
         return frag;
-    }
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if (context instanceof FacilitiesFragment.OnListFacilitiesListener) {
-            mListener = (RegionWaitListListener) context;
-        } else {
-            throw new RuntimeException(context.toString() + " must implement RegionWaitListListener");
-        }
     }
 
     @Override
@@ -108,7 +100,7 @@ public class RegionWaitListDialog extends DialogFragment {
         String email = mEmail.getText().toString();
 
         if (email == null || email.length() <= 0) {
-            mListener.onWaitListEmailInvalidError();
+            new ApolloApiErrorHandler(getString(R.string.wait_list_no_email_error));
             return;
         }
 
@@ -140,19 +132,10 @@ public class RegionWaitListDialog extends DialogFragment {
                 if (response.data() == null) {
 
                     if (response.hasErrors()) {
-                        if (response.errors().size() < 0) {
-                            if (response.errors().get(0).message().equals("DUPLICATED_EMAIL")) {
-
-                                /**
-                                 * If user already optin, confirm the success message ;)
-                                 */
-                                onSuccess();
-                                return;
-                            }
-                        }
+                        for (Error error : response.errors()) new ApolloApiErrorHandler(error);
+                    } else {
+                        new ApolloApiErrorHandler(getString(R.string.wait_list_error));
                     }
-
-                    mListener.onWaitListError();
 
                 } else {
 
@@ -161,7 +144,7 @@ public class RegionWaitListDialog extends DialogFragment {
                         if (response.data().addWaitingUser().success()) {
                             onSuccess();
                         } else {
-                            mListener.onWaitListError();
+                            new ApolloApiErrorHandler(getString(R.string.wait_list_error));
                         }
                     });
                 }
@@ -170,7 +153,7 @@ public class RegionWaitListDialog extends DialogFragment {
             @Override
             public void onFailure(@Nonnull ApolloException e) {
                 hideLoad();
-                mListener.onWaitListError();
+                new ApolloApiErrorHandler(getString(R.string.wait_list_error));
             }
         });
     }
@@ -196,15 +179,15 @@ public class RegionWaitListDialog extends DialogFragment {
         linearForm.setVisibility(View.VISIBLE);
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onDuplicatedEmailError(DuplicatedEmailError duplicatedEmailError) {
+        // If user is already registred in wait list, just confirm with positive message
+        onSuccess();
+    }
+
     @OnClick({R.id.action_cancel, R.id.action_ok})
     public void onClose() {
         dismiss();
-    }
-
-    public interface RegionWaitListListener {
-
-        void onWaitListError();
-        void onWaitListEmailInvalidError();
     }
 
 }

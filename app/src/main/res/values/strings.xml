@@ -86,7 +86,7 @@
     <string name="wait_list_error">Não foi possível cadastrar seu e-mail, tente novamente mais tarde.</string>
     <string name="wait_list_title_success">Agradecemos o seu interesse pela causa</string>
     <string name="wait_list_desc_success">Nossos voluntários estão trabalhando muito para expandir, esperamos poder lhe atender muito em breve!</string>
-    <string name="wait_list_no_message_error">Informe o seu e-mail :)</string>
+    <string name="wait_list_no_email_error">Informe o seu e-mail :)</string>
     <string name="filter_unsupport_region">Ainda não chegamos em sua região :(</string>
     <string name="done">Pronto!</string>
     <string name="gps_off_empty_desc">Por favor, habilite sua localização para podermos encontrar os pontos de coleta mais próximos de você.</string>

@@ -30,7 +30,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class Home extends BaseActivity
-        implements NavigationView.OnNavigationItemSelectedListener, RegionWaitListDialog.RegionWaitListListener, FacilitiesFragment.OnListFacilitiesListener, RetryConnectionView {
+        implements NavigationView.OnNavigationItemSelectedListener, FacilitiesFragment.OnListFacilitiesListener, RetryConnectionView {
 
     @BindView(R.id.toolbar)
     Toolbar toolbar;
@@ -188,18 +188,8 @@ public class Home extends BaseActivity
     }
 
     @Override
-    public void onNoRegionSupported(double latitude, double longitude) {
+    public void showWaitListDialog(double latitude, double longitude) {
         RegionWaitListDialog.newInstance(latitude, longitude).show(getSupportFragmentManager(), "DIALOG_WAIT_LIST");
-    }
-
-    @Override
-    public void onWaitListError() {
-        Snackbar.make(content, R.string.wait_list_error, Snackbar.LENGTH_SHORT).show();
-    }
-
-    @Override
-    public void onWaitListEmailInvalidError() {
-        Snackbar.make(content, R.string.wait_list_no_message_error, Snackbar.LENGTH_SHORT).show();
     }
 
     @Override

@@ -2,6 +2,7 @@ package org.descartae.android.view.activities;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -10,6 +11,10 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 
 import org.descartae.android.interfaces.RequestPermissionView;
+import org.descartae.android.networking.apollo.ApolloApiErrorHandler;
+import org.descartae.android.networking.apollo.errors.GeneralError;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 /**
  * Created by lucasmontano on 05/12/2017.
@@ -61,5 +66,10 @@ public abstract class BaseActivity extends AppCompatActivity implements RequestP
                 return;
             }
         }
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onError(GeneralError error) {
+        Snackbar.make(getCurrentFocus(), error.getMessage(), Snackbar.LENGTH_SHORT).show();
     }
 }

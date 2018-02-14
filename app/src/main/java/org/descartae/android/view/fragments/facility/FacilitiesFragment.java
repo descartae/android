@@ -53,7 +53,6 @@ import org.descartae.android.TypeOfWasteQuery;
 import org.descartae.android.adapters.FacilityListAdapter;
 import org.descartae.android.networking.NetworkingConstants;
 import org.descartae.android.view.activities.FacilityActivity;
-import org.descartae.android.view.fragments.empty.RegionWaitListDialog;
 import org.descartae.android.view.utils.SimpleDividerItemDecoration;
 import org.descartae.android.view.viewholder.FacilityViewHolder;
 
@@ -601,7 +600,7 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
         double latitude = (currentLocation != null) ? currentLocation.getLatitude() : 0;
         double longitude = (currentLocation != null) ? currentLocation.getLongitude() : 0;
 
-        mListener.onNoRegionSupported(latitude, longitude);
+        mListener.showWaitListDialog(latitude, longitude);
     }
 
     @Override
@@ -626,7 +625,7 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
 
     public interface OnListFacilitiesListener {
         void onNoConnection();
-        void onNoRegionSupported(double latitude, double longitude);
+        void showWaitListDialog(double latitude, double longitude);
     }
 
     public interface OnFacilityListener {
