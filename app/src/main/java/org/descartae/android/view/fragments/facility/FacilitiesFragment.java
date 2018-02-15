@@ -10,7 +10,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.CoordinatorLayout;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
@@ -55,13 +54,11 @@ import org.descartae.android.adapters.FacilityListAdapter;
 import org.descartae.android.networking.NetworkingConstants;
 import org.descartae.android.networking.apollo.ApolloApiErrorHandler;
 import org.descartae.android.networking.apollo.errors.ConnectionError;
-import org.descartae.android.networking.apollo.errors.RegionNotSupportedError;
+import org.descartae.android.preferences.DescartaePreferences;
 import org.descartae.android.view.activities.FacilityActivity;
 import org.descartae.android.view.utils.SimpleDividerItemDecoration;
 import org.descartae.android.view.viewholder.FacilityViewHolder;
 import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -103,9 +100,6 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
 
     @BindView(R.id.loading)
     public View mLoading;
-
-    @BindView(R.id.region_unsupported)
-    public View mRegionUnsupported;
 
     @BindView(R.id.filter_empty)
     public View mFilterEmpty;
@@ -149,11 +143,6 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
             case R.id.action_filter:
 
                 if (currentLocation == null) {
-                    return false;
-                }
-
-                if (mRegionUnsupported.getVisibility() == View.VISIBLE) {
-                    Snackbar.make(mRegionUnsupported, R.string.filter_unsupport_region, Snackbar.LENGTH_SHORT).show();
                     return false;
                 }
 
@@ -314,6 +303,16 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
             return;
         }
 
+        // Save Last Location Queried
+        DescartaePreferences.getInstance(getActivity()).setValue(
+                DescartaePreferences.PREF_LAST_LOCATION_LAT,
+                currentLocation.getLatitude()
+        );
+        DescartaePreferences.getInstance(getActivity()).setValue(
+                DescartaePreferences.PREF_LAST_LOCATION_LNG,
+                currentLocation.getLongitude())
+        ;
+
         // Clear Map Pins
         if (mMap != null)
             mMap.clear();
@@ -345,7 +344,9 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
                 if (getActivity() == null || getActivity().isDestroyed()) return;
                 if (dataResponse == null) return;
 
-                mLoading.setVisibility(View.GONE);
+                getActivity().runOnUiThread(() -> {
+                    mLoading.setVisibility(View.GONE);
+                });
 
                 if (dataResponse.data() == null) {
 
@@ -602,14 +603,6 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
         query(null);
     }
 
-    @OnClick(R.id.action_notify_me)
-    public void onNotifyMe() {
-        double latitude = (currentLocation != null) ? currentLocation.getLatitude() : 0;
-        double longitude = (currentLocation != null) ? currentLocation.getLongitude() : 0;
-
-        mListener.showWaitListDialog(latitude, longitude);
-    }
-
     @Override
     public void onSuccess(Location location) {
         currentLocation = location;
@@ -622,11 +615,6 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
         }
     }
 
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onRegionNotSupported(RegionNotSupportedError error) {
-        mRegionUnsupported.setVisibility(View.VISIBLE);
-    }
-
     public boolean isBottomSheetOpen() {
         return behaviorDetail.getState() == BottomSheetBehavior.STATE_EXPANDED;
     }
@@ -635,11 +623,5 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
         behaviorDetail.setState(BottomSheetBehavior.STATE_HIDDEN);
     }
 
-    public interface OnListFacilitiesListener {
-        void showWaitListDialog(double latitude, double longitude);
-    }
-
-    public interface OnFacilityListener {
-        void onListFacilityInteraction(FacilitiesQuery.Item facility);
-    }
+    public interface OnListFacilitiesListener {}
 }

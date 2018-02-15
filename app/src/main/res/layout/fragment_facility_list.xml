@@ -34,7 +34,7 @@
                     xmlns:app="http://schemas.android.com/apk/res-auto"
                     xmlns:tools="http://schemas.android.com/tools"
                     android:id="@+id/list"
-                    android:name="org.descartae.android.view.facility.FacilityFragment"
+                    android:name="org.descartae.android.view.fragments.facility.FacilitiesFragment"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     app:layoutManager="LinearLayoutManager"
@@ -129,6 +129,5 @@
     </android.support.design.widget.CoordinatorLayout>
 
     <include layout="@layout/filter_empty_view"></include>
-    <include layout="@layout/region_unsupported_empty"></include>
 
 </RelativeLayout>
