@@ -11,8 +11,8 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 
 import org.descartae.android.interfaces.RequestPermissionView;
-import org.descartae.android.networking.apollo.ApolloApiErrorHandler;
 import org.descartae.android.networking.apollo.errors.GeneralError;
+import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
@@ -26,6 +26,18 @@ public abstract class BaseActivity extends AppCompatActivity implements RequestP
 
     abstract void permissionNotGranted();
     abstract void permissionGranted();
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        EventBus.getDefault().unregister(this);
+    }
 
     public void onResume() {
         super.onResume();
@@ -70,6 +82,7 @@ public abstract class BaseActivity extends AppCompatActivity implements RequestP
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onError(GeneralError error) {
-        Snackbar.make(getCurrentFocus(), error.getMessage(), Snackbar.LENGTH_SHORT).show();
+        if (error.getMessage() != null)
+            Snackbar.make(getCurrentFocus(), error.getMessage(), Snackbar.LENGTH_SHORT).show();
     }
 }

@@ -9,6 +9,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.apollographql.apollo.ApolloCall;
@@ -81,7 +82,7 @@ public class RegionWaitListDialog extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
 
-        LinearLayout viewInflated = (LinearLayout) getActivity().getLayoutInflater().inflate(R.layout.dialog_wait_list, null);
+        RelativeLayout viewInflated = (RelativeLayout) getActivity().getLayoutInflater().inflate(R.layout.dialog_wait_list, null);
 
         ButterKnife.bind(this, viewInflated);
 
@@ -127,16 +128,13 @@ public class RegionWaitListDialog extends DialogFragment {
                 if (getActivity() == null || getActivity().isDestroyed()) return;
                 if (response == null) return;
 
-                hideLoad();
+                getActivity().runOnUiThread(() -> {
+                    hideLoad();
+                });
 
-                if (response.data() == null) {
-
-                    if (response.hasErrors()) {
-                        for (Error error : response.errors()) new ApolloApiErrorHandler(error);
-                    } else {
-                        new ApolloApiErrorHandler(getString(R.string.wait_list_error));
-                    }
-
+                if (response.hasErrors()) {
+                    for (Error error : response.errors()) new ApolloApiErrorHandler(error);
+                    dismiss();
                 } else {
 
                     getActivity().runOnUiThread(() -> {
@@ -145,6 +143,7 @@ public class RegionWaitListDialog extends DialogFragment {
                             onSuccess();
                         } else {
                             new ApolloApiErrorHandler(getString(R.string.wait_list_error));
+                            dismiss();
                         }
                     });
                 }
@@ -152,8 +151,14 @@ public class RegionWaitListDialog extends DialogFragment {
 
             @Override
             public void onFailure(@Nonnull ApolloException e) {
-                hideLoad();
+
+                getActivity().runOnUiThread(() -> {
+                    hideLoad();
+                });
+
                 new ApolloApiErrorHandler(getString(R.string.wait_list_error));
+
+                dismiss();
             }
         });
     }

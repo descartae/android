@@ -54,6 +54,7 @@ import org.descartae.android.adapters.FacilityListAdapter;
 import org.descartae.android.networking.NetworkingConstants;
 import org.descartae.android.networking.apollo.ApolloApiErrorHandler;
 import org.descartae.android.networking.apollo.errors.ConnectionError;
+import org.descartae.android.networking.apollo.errors.RegionNotSupportedError;
 import org.descartae.android.preferences.DescartaePreferences;
 import org.descartae.android.view.activities.FacilityActivity;
 import org.descartae.android.view.utils.SimpleDividerItemDecoration;
@@ -348,12 +349,8 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
                     mLoading.setVisibility(View.GONE);
                 });
 
-                if (dataResponse.data() == null) {
-
-                    if (dataResponse.hasErrors()) {
-                        for (Error error : dataResponse.errors()) new ApolloApiErrorHandler(error);
-                    }
-
+                if (dataResponse.hasErrors()) {
+                    for (Error error : dataResponse.errors()) new ApolloApiErrorHandler(error);
                 } else {
 
                     getActivity().runOnUiThread(() -> {
@@ -366,7 +363,7 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
                              */
                             mFilterEmpty.setVisibility(View.VISIBLE);
 
-                        } else {
+                        } else if (facilities != null) {
 
                             /**
                              * If have facilities
@@ -374,9 +371,12 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
                             facilityListAdapter.setCenters(facilities.items());
                             facilityListAdapter.setCurrentLocation(currentLocation);
                             facilityListAdapter.notifyDataSetChanged();
-                        }
 
-                        mMapFragment.getMapAsync(FacilitiesFragment.this);
+                            mMapFragment.getMapAsync(FacilitiesFragment.this);
+
+                        } else {
+                            EventBus.getDefault().post(new RegionNotSupportedError());
+                        }
                     });
                 }
             }
@@ -391,7 +391,9 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
                     return;
                 }
 
-                mLoading.setVisibility(View.GONE);
+                getActivity().runOnUiThread(() -> {
+                    mLoading.setVisibility(View.GONE);
+                });
 
                 ConnectionQuality cq = ConnectionClassManager.getInstance().getCurrentBandwidthQuality();
                 if (cq.equals(ConnectionQuality.UNKNOWN)) {
