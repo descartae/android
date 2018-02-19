@@ -13,21 +13,29 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.FrameLayout;
 
 import org.descartae.android.BuildConfig;
 import org.descartae.android.R;
 import org.descartae.android.interfaces.RetryConnectionView;
+import org.descartae.android.networking.apollo.errors.ConnectionError;
+import org.descartae.android.networking.apollo.errors.RegionNotSupportedError;
+import org.descartae.android.preferences.DescartaePreferences;
 import org.descartae.android.view.fragments.empty.EmptyGPSOfflineFragment;
 import org.descartae.android.view.fragments.empty.EmptyLocationPermissionFragment;
 import org.descartae.android.view.fragments.empty.EmptyOfflineFragment;
+import org.descartae.android.view.fragments.empty.EmptyRegionUnsupportedFragment;
+import org.descartae.android.view.fragments.empty.RegionWaitListDialog;
 import org.descartae.android.view.fragments.facility.FacilitiesFragment;
 import org.descartae.android.view.fragments.facility.FeedbackDialog;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class Home extends BaseActivity
-        implements NavigationView.OnNavigationItemSelectedListener, FacilitiesFragment.OnListFacilitiesListener, RetryConnectionView {
+        implements NavigationView.OnNavigationItemSelectedListener, FacilitiesFragment.OnListFacilitiesListener, RetryConnectionView, EmptyRegionUnsupportedFragment.Listener {
 
     @BindView(R.id.toolbar)
     Toolbar toolbar;
@@ -37,6 +45,9 @@ public class Home extends BaseActivity
 
     @BindView(R.id.nav_view)
     NavigationView navigationView;
+
+    @BindView(R.id.content)
+    FrameLayout content;
 
     private FacilitiesFragment facilitiesFragment;
 
@@ -56,11 +67,18 @@ public class Home extends BaseActivity
 
         try {
             gps_enabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
-        } catch(Exception ex) {}
+        } catch (Exception ex) {
+        }
 
         if (gps_enabled) {
-            facilitiesFragment = FacilitiesFragment.newInstance();
-            getSupportFragmentManager().beginTransaction().replace(R.id.content, facilitiesFragment).commitAllowingStateLoss();
+
+            /**
+             * Do not override the current facilities fragment
+             */
+            if (facilitiesFragment == null || ! facilitiesFragment.isAdded()) {
+                facilitiesFragment = FacilitiesFragment.newInstance();
+                getSupportFragmentManager().beginTransaction().replace(R.id.content, facilitiesFragment).commitAllowingStateLoss();
+            }
         } else {
             getSupportFragmentManager().beginTransaction().replace(R.id.content, EmptyGPSOfflineFragment.newInstance()).commitAllowingStateLoss();
         }
@@ -176,13 +194,36 @@ public class Home extends BaseActivity
         return true;
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void showNoConnectionEmptyState(ConnectionError error) {
+        getSupportFragmentManager().beginTransaction().replace(
+                R.id.content,
+                EmptyOfflineFragment.newInstance()
+        ).commitAllowingStateLoss();
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void showRegionNotSupported(RegionNotSupportedError error) {
+
+        DescartaePreferences preferences = DescartaePreferences.getInstance(this);
+
+        getSupportFragmentManager().beginTransaction().replace(
+                R.id.content,
+                EmptyRegionUnsupportedFragment.newInstance(
+                        preferences.getDoubleValue(DescartaePreferences.PREF_LAST_LOCATION_LAT),
+                        preferences.getDoubleValue(DescartaePreferences.PREF_LAST_LOCATION_LNG)
+                )
+        ).commitAllowingStateLoss();
+    }
+
     @Override
-    public void onNoConnection() {
-        getSupportFragmentManager().beginTransaction().replace(R.id.content, EmptyOfflineFragment.newInstance()).commitAllowingStateLoss();
+    public void showWaitListDialog(double latitude, double longitude) {
+        RegionWaitListDialog.newInstance(latitude, longitude).show(getSupportFragmentManager(), "DIALOG_WAIT_LIST");
     }
 
     @Override
     public void onRetryConnection() {
         permissionGranted();
     }
+
 }

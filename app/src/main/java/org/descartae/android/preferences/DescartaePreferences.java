@@ -16,6 +16,8 @@ public class DescartaePreferences {
     public Gson gson;
 
     public final static String INTRO_OK = "intro_ok";
+    public static final String PREF_LAST_LOCATION_LAT = "PREF_LAST_LOCATION_LAT";
+    public static final String PREF_LAST_LOCATION_LNG = "PREF_LAST_LOCATION_LNG";
 
     public DescartaePreferences(Activity context) {
         mSharedPreferences = context.getPreferences(Context.MODE_PRIVATE);
@@ -38,5 +40,16 @@ public class DescartaePreferences {
 
     public boolean getBooleanValue(String key) {
         return mSharedPreferences.getBoolean(key, false);
+    }
+
+    public void setValue(String key, double value) {
+        SharedPreferences.Editor editor = mSharedPreferences.edit();
+        editor.putFloat(key, (float) value);
+        editor.commit();
+        editor.apply();
+    }
+
+    public Double getDoubleValue(String key) {
+        return (double) mSharedPreferences.getFloat(key, 0F);
     }
 }

@@ -3,23 +3,28 @@ package org.descartae.android.view.fragments.empty;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.os.Bundle;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.DialogFragment;
 import android.view.ContextThemeWrapper;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.apollographql.apollo.ApolloCall;
 import com.apollographql.apollo.ApolloClient;
+import com.apollographql.apollo.api.Error;
 import com.apollographql.apollo.api.Response;
 import com.apollographql.apollo.exception.ApolloException;
 
-import org.descartae.android.AddFeedbackMutation;
 import org.descartae.android.AddToWaitlistMutation;
 import org.descartae.android.R;
+import org.descartae.android.networking.apollo.ApolloApiErrorHandler;
 import org.descartae.android.networking.NetworkingConstants;
+import org.descartae.android.networking.apollo.errors.DuplicatedEmailError;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import javax.annotation.Nonnull;
 
@@ -35,6 +40,12 @@ public class RegionWaitListDialog extends DialogFragment {
 
     private static final String ARG_LATITUDE = "ARG_LATITUDE";
     private static final String ARG_LONGITUDE = "ARG_LONGITUDE";
+
+    @BindView(R.id.linear_form)
+    LinearLayout linearForm;
+
+    @BindView(R.id.loading)
+    ProgressBar loading;
 
     @BindView(R.id.title)
     public TextView mTitle;
@@ -56,8 +67,8 @@ public class RegionWaitListDialog extends DialogFragment {
 
     private AlertDialog.Builder mBuilder;
 
-    private double mLatitude;
-    private double mLongitude;
+    private double latitude;
+    private double longitude;
 
     public static RegionWaitListDialog newInstance(double latitude, double longitude) {
         RegionWaitListDialog frag = new RegionWaitListDialog();
@@ -71,15 +82,15 @@ public class RegionWaitListDialog extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
 
-        LinearLayout viewInflated = (LinearLayout) getActivity().getLayoutInflater().inflate(R.layout.dialog_wait_list, null);
+        RelativeLayout viewInflated = (RelativeLayout) getActivity().getLayoutInflater().inflate(R.layout.dialog_wait_list, null);
 
         ButterKnife.bind(this, viewInflated);
 
         mBuilder = new AlertDialog.Builder(new ContextThemeWrapper(getActivity(), R.style.Theme_AppCompat_Light));
         mBuilder.setView(viewInflated);
 
-        mLatitude = getArguments().getDouble(ARG_LATITUDE);
-        mLongitude = getArguments().getDouble(ARG_LONGITUDE);
+        latitude = getArguments().getDouble(ARG_LATITUDE);
+        longitude = getArguments().getDouble(ARG_LONGITUDE);
 
         return mBuilder.create();
     }
@@ -90,7 +101,7 @@ public class RegionWaitListDialog extends DialogFragment {
         String email = mEmail.getText().toString();
 
         if (email == null || email.length() <= 0) {
-            Snackbar.make(mEmail, R.string.wait_list_no_message_error, Snackbar.LENGTH_SHORT).show();
+            new ApolloApiErrorHandler(getString(R.string.wait_list_no_email_error));
             return;
         }
 
@@ -101,10 +112,12 @@ public class RegionWaitListDialog extends DialogFragment {
         AddToWaitlistMutation.Builder builder = AddToWaitlistMutation.builder();
         builder.email(email);
 
-        if (mLatitude != 0 && mLongitude != 0) {
-            builder.latitude(mLatitude);
-            builder.longitude(mLongitude);
+        if (latitude != 0 && longitude != 0) {
+            builder.latitude(latitude);
+            builder.longitude(longitude);
         }
+
+        showLoad();
 
         AddToWaitlistMutation build = builder.build();
         apolloClient.mutate(build).enqueue(new ApolloCall.Callback<AddToWaitlistMutation.Data>() {
@@ -112,37 +125,74 @@ public class RegionWaitListDialog extends DialogFragment {
             @Override
             public void onResponse(@Nonnull Response<AddToWaitlistMutation.Data> response) {
 
-                if (response == null) return;
-                if (response.data() == null) return;
                 if (getActivity() == null || getActivity().isDestroyed()) return;
+                if (response == null) return;
 
                 getActivity().runOnUiThread(() -> {
-
-                    if (response.data().addWaitingUser().success()) {
-                        mActionCancel.setVisibility(View.GONE);
-                        mActionSend.setVisibility(View.GONE);
-                        mActionOk.setVisibility(View.VISIBLE);
-
-                        mEmail.setVisibility(View.GONE);
-
-                        mTitle.setText(R.string.wait_list_title_success);
-                        mSubTitle.setText(R.string.wait_list_desc_success);
-
-                    } else {
-                        Snackbar.make(mEmail, R.string.wait_list_error, Snackbar.LENGTH_SHORT).show();
-                    }
+                    hideLoad();
                 });
+
+                if (response.hasErrors()) {
+                    for (Error error : response.errors()) new ApolloApiErrorHandler(error);
+                    dismiss();
+                } else {
+
+                    getActivity().runOnUiThread(() -> {
+
+                        if (response.data().addWaitingUser().success()) {
+                            onSuccess();
+                        } else {
+                            new ApolloApiErrorHandler(getString(R.string.wait_list_error));
+                            dismiss();
+                        }
+                    });
+                }
             }
 
             @Override
             public void onFailure(@Nonnull ApolloException e) {
-                Snackbar.make(mEmail, R.string.wait_list_error, Snackbar.LENGTH_SHORT).show();
+
+                getActivity().runOnUiThread(() -> {
+                    hideLoad();
+                });
+
+                new ApolloApiErrorHandler(getString(R.string.wait_list_error));
+
+                dismiss();
             }
         });
+    }
+
+    private void onSuccess() {
+        mActionCancel.setVisibility(View.GONE);
+        mActionSend.setVisibility(View.GONE);
+        mActionOk.setVisibility(View.VISIBLE);
+
+        mEmail.setVisibility(View.GONE);
+
+        mTitle.setText(R.string.wait_list_title_success);
+        mSubTitle.setText(R.string.wait_list_desc_success);
+    }
+
+    private void showLoad() {
+        linearForm.setVisibility(View.GONE);
+        loading.setVisibility(View.VISIBLE);
+    }
+
+    private void hideLoad() {
+        loading.setVisibility(View.GONE);
+        linearForm.setVisibility(View.VISIBLE);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onDuplicatedEmailError(DuplicatedEmailError duplicatedEmailError) {
+        // If user is already registred in wait list, just confirm with positive message
+        onSuccess();
     }
 
     @OnClick({R.id.action_cancel, R.id.action_ok})
     public void onClose() {
         dismiss();
     }
+
 }

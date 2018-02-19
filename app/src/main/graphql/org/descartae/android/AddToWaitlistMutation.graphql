@@ -1,5 +1,5 @@
 mutation AddToWaitlist($email: String!, $latitude: Float!, $longitude: Float!) {
-    addWaitingUser(user:{
+    addWaitingUser(input:{
                email: $email
                coordinates: {
                latitude: $latitude
