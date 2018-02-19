@@ -6,6 +6,7 @@ import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ShareCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -19,6 +20,7 @@ import org.descartae.android.BuildConfig;
 import org.descartae.android.R;
 import org.descartae.android.interfaces.RetryConnectionView;
 import org.descartae.android.networking.apollo.errors.ConnectionError;
+import org.descartae.android.networking.apollo.errors.DuplicatedEmailError;
 import org.descartae.android.networking.apollo.errors.RegionNotSupportedError;
 import org.descartae.android.preferences.DescartaePreferences;
 import org.descartae.android.view.fragments.empty.EmptyGPSOfflineFragment;
@@ -214,6 +216,11 @@ public class Home extends BaseActivity
                         preferences.getDoubleValue(DescartaePreferences.PREF_LAST_LOCATION_LNG)
                 )
         ).commitAllowingStateLoss();
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onDuplicatedEmailError(DuplicatedEmailError duplicatedEmailError) {
+        Snackbar.make(content, R.string.wait_list_double_error, Snackbar.LENGTH_LONG).show();
     }
 
     @Override
