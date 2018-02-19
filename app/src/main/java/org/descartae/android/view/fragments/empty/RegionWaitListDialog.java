@@ -100,7 +100,7 @@ public class RegionWaitListDialog extends DialogFragment {
 
         String email = mEmail.getText().toString();
 
-        if (email == null || email.length() <= 0) {
+        if (email == null || email.length() <= 0 || ! email.contains("@")) {
             new ApolloApiErrorHandler(getString(R.string.wait_list_no_email_error));
             return;
         }
@@ -133,6 +133,10 @@ public class RegionWaitListDialog extends DialogFragment {
                 });
 
                 if (response.hasErrors()) {
+
+                    // Default message error
+                    ApolloApiErrorHandler.setGenericErrorMessage(getString(R.string.wait_list_error));
+
                     for (Error error : response.errors()) new ApolloApiErrorHandler(error);
                     dismiss();
                 } else {
@@ -182,12 +186,6 @@ public class RegionWaitListDialog extends DialogFragment {
     private void hideLoad() {
         loading.setVisibility(View.GONE);
         linearForm.setVisibility(View.VISIBLE);
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onDuplicatedEmailError(DuplicatedEmailError duplicatedEmailError) {
-        // If user is already registred in wait list, just confirm with positive message
-        onSuccess();
     }
 
     @OnClick({R.id.action_cancel, R.id.action_ok})
