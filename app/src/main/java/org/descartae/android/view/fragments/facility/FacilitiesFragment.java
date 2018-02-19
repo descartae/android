@@ -10,7 +10,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.CoordinatorLayout;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
@@ -21,6 +20,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.apollographql.apollo.api.Error;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
@@ -52,10 +52,14 @@ import org.descartae.android.R;
 import org.descartae.android.TypeOfWasteQuery;
 import org.descartae.android.adapters.FacilityListAdapter;
 import org.descartae.android.networking.NetworkingConstants;
+import org.descartae.android.networking.apollo.ApolloApiErrorHandler;
+import org.descartae.android.networking.apollo.errors.ConnectionError;
+import org.descartae.android.networking.apollo.errors.RegionNotSupportedError;
+import org.descartae.android.preferences.DescartaePreferences;
 import org.descartae.android.view.activities.FacilityActivity;
-import org.descartae.android.view.fragments.empty.RegionWaitListDialog;
 import org.descartae.android.view.utils.SimpleDividerItemDecoration;
 import org.descartae.android.view.viewholder.FacilityViewHolder;
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -97,9 +101,6 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
 
     @BindView(R.id.loading)
     public View mLoading;
-
-    @BindView(R.id.region_unsupported)
-    public View mRegionUnsupported;
 
     @BindView(R.id.filter_empty)
     public View mFilterEmpty;
@@ -143,11 +144,6 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
             case R.id.action_filter:
 
                 if (currentLocation == null) {
-                    return false;
-                }
-
-                if (mRegionUnsupported.getVisibility() == View.VISIBLE) {
-                    Snackbar.make(mRegionUnsupported, R.string.filter_unsupport_region, Snackbar.LENGTH_SHORT).show();
                     return false;
                 }
 
@@ -308,6 +304,16 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
             return;
         }
 
+        // Save Last Location Queried
+        DescartaePreferences.getInstance(getActivity()).setValue(
+                DescartaePreferences.PREF_LAST_LOCATION_LAT,
+                currentLocation.getLatitude()
+        );
+        DescartaePreferences.getInstance(getActivity()).setValue(
+                DescartaePreferences.PREF_LAST_LOCATION_LNG,
+                currentLocation.getLongitude())
+        ;
+
         // Clear Map Pins
         if (mMap != null)
             mMap.clear();
@@ -336,34 +342,43 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
             @Override
             public void onResponse(@Nonnull final Response<FacilitiesQuery.Data> dataResponse) {
 
-                if (dataResponse == null) return;
-                if (dataResponse.data() == null) return;
                 if (getActivity() == null || getActivity().isDestroyed()) return;
+                if (dataResponse == null) return;
 
                 getActivity().runOnUiThread(() -> {
-                    facilityListAdapter.setCenters(dataResponse.data().facilities().items());
-                    facilityListAdapter.setCurrentLocation(currentLocation);
-                    facilityListAdapter.notifyDataSetChanged();
-
-                    if (facilityListAdapter.getItemCount() <= 0 && selectedTypesIndices.length > 0) {
-
-                        /**
-                         * If no facilities return with filter
-                         */
-                        mFilterEmpty.setVisibility(View.VISIBLE);
-
-                    } else if (facilityListAdapter.getItemCount() <= 0 ) {
-
-                        /**
-                         * If no facilities return without filter
-                         */
-                        mRegionUnsupported.setVisibility(View.VISIBLE);
-                    }
-
                     mLoading.setVisibility(View.GONE);
-
-                    mMapFragment.getMapAsync(FacilitiesFragment.this);
                 });
+
+                if (dataResponse.hasErrors()) {
+                    for (Error error : dataResponse.errors()) new ApolloApiErrorHandler(error);
+                } else {
+
+                    getActivity().runOnUiThread(() -> {
+                        FacilitiesQuery.Facilities facilities = dataResponse.data().facilities();
+
+                        if ((facilities == null || facilityListAdapter.getItemCount() <= 0) && selectedTypesIndices.length > 0) {
+
+                            /**
+                             * If no facilities return with filter
+                             */
+                            mFilterEmpty.setVisibility(View.VISIBLE);
+
+                        } else if (facilities != null) {
+
+                            /**
+                             * If have facilities
+                             */
+                            facilityListAdapter.setCenters(facilities.items());
+                            facilityListAdapter.setCurrentLocation(currentLocation);
+                            facilityListAdapter.notifyDataSetChanged();
+
+                            mMapFragment.getMapAsync(FacilitiesFragment.this);
+
+                        } else {
+                            EventBus.getDefault().post(new RegionNotSupportedError());
+                        }
+                    });
+                }
             }
 
             @Override
@@ -376,13 +391,13 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
                     return;
                 }
 
+                getActivity().runOnUiThread(() -> {
+                    mLoading.setVisibility(View.GONE);
+                });
+
                 ConnectionQuality cq = ConnectionClassManager.getInstance().getCurrentBandwidthQuality();
                 if (cq.equals(ConnectionQuality.UNKNOWN)) {
-
-                    getActivity().runOnUiThread(() -> {
-                        mListener.onNoConnection();
-                        mLoading.setVisibility(View.GONE);
-                    });
+                    EventBus.getDefault().post(new ConnectionError());
                 }
             }
         });
@@ -495,7 +510,7 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
     @Override
     public void onBandwidthStateChange(ConnectionQuality bandwidthState) {
         if (bandwidthState.equals(ConnectionQuality.UNKNOWN)) {
-            mListener.onNoConnection();
+            EventBus.getDefault().post(new ConnectionError());
         }
     }
 
@@ -590,14 +605,6 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
         query(null);
     }
 
-    @OnClick(R.id.action_notify_me)
-    public void onNotifyMe() {
-        double latitude = (currentLocation != null) ? currentLocation.getLatitude() : 0;
-        double longitude = (currentLocation != null) ? currentLocation.getLongitude() : 0;
-
-        RegionWaitListDialog.newInstance(latitude, longitude).show(getActivity().getSupportFragmentManager(), "DIALOG_WAIT_LIST");
-    }
-
     @Override
     public void onSuccess(Location location) {
         currentLocation = location;
@@ -618,11 +625,5 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
         behaviorDetail.setState(BottomSheetBehavior.STATE_HIDDEN);
     }
 
-    public interface OnListFacilitiesListener {
-        void onNoConnection();
-    }
-
-    public interface OnFacilityListener {
-        void onListFacilityInteraction(FacilitiesQuery.Item facility);
-    }
+    public interface OnListFacilitiesListener {}
 }

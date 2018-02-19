@@ -1441,7 +1441,7 @@
               "description": "",
               "args": [
                 {
-                  "name": "user",
+                  "name": "input",
                   "description": "",
                   "type": {
                     "kind": "NON_NULL",

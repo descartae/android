@@ -17,11 +17,11 @@ import java.util.List;
 public class FacilityListAdapter extends RecyclerView.Adapter<FacilityViewHolder> {
 
     private List<FacilitiesQuery.Item> mFacilities;
-    private final FacilitiesFragment.OnFacilityListener mListener;
+    private final OnFacilityListener mListener;
     private Context mContext;
     private Location currentLocation;
 
-    public FacilityListAdapter(Context context, FacilitiesFragment.OnFacilityListener listener) {
+    public FacilityListAdapter(Context context, OnFacilityListener listener) {
         mListener = listener;
         mContext = context;
     }
@@ -61,5 +61,9 @@ public class FacilityListAdapter extends RecyclerView.Adapter<FacilityViewHolder
 
     public List<FacilitiesQuery.Item> getCenters() {
         return mFacilities;
+    }
+
+    public interface OnFacilityListener {
+        void onListFacilityInteraction(FacilitiesQuery.Item facility);
     }
 }
