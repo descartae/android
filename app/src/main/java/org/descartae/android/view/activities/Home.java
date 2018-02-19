@@ -71,8 +71,14 @@ public class Home extends BaseActivity
         }
 
         if (gps_enabled) {
-            facilitiesFragment = FacilitiesFragment.newInstance();
-            getSupportFragmentManager().beginTransaction().replace(R.id.content, facilitiesFragment).commitAllowingStateLoss();
+
+            /**
+             * Do not override the current facilities fragment
+             */
+            if (facilitiesFragment == null || ! facilitiesFragment.isAdded()) {
+                facilitiesFragment = FacilitiesFragment.newInstance();
+                getSupportFragmentManager().beginTransaction().replace(R.id.content, facilitiesFragment).commitAllowingStateLoss();
+            }
         } else {
             getSupportFragmentManager().beginTransaction().replace(R.id.content, EmptyGPSOfflineFragment.newInstance()).commitAllowingStateLoss();
         }
