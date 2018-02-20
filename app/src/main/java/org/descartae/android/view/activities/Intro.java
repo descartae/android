@@ -31,7 +31,7 @@ public class Intro extends BaseActivity implements IntroFragment.IntroListener {
     private boolean isPermissionGranted = false;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_intro);
         ButterKnife.bind(this);

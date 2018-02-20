@@ -5,6 +5,7 @@ import android.content.Context;
 
 import org.descartae.android.di.components.AppComponent;
 import org.descartae.android.di.components.DaggerAppComponent;
+import org.descartae.android.di.modules.AppModule;
 import org.greenrobot.eventbus.EventBus;
 
 /**
@@ -16,7 +17,9 @@ public class DescartaeApp extends Application {
     private AppComponent component;
 
     protected AppComponent createComponent() {
-        return DaggerAppComponent.builder().build();
+        return DaggerAppComponent.builder()
+                .appModule(new AppModule(this))
+                .build();
     }
 
     public AppComponent getAppComponent() {

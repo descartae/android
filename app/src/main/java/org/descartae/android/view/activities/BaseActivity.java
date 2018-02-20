@@ -2,6 +2,7 @@ package org.descartae.android.view.activities;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -10,11 +11,14 @@ import android.support.v7.app.AppCompatActivity;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 
+import org.descartae.android.DescartaeApp;
 import org.descartae.android.interfaces.RequestPermissionView;
 import org.descartae.android.networking.apollo.errors.GeneralError;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+
+import javax.inject.Inject;
 
 /**
  * Created by lucasmontano on 05/12/2017.
@@ -24,19 +28,32 @@ public abstract class BaseActivity extends AppCompatActivity implements RequestP
     private static final int PERMISSIONS_REQUEST = 0x01;
     private static final int RQ_GPSERVICE = 0x02;
 
+    @Inject EventBus eventBus;
+
     abstract void permissionNotGranted();
     abstract void permissionGranted();
+
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        /**
+         * Init Dagger
+         */
+        DescartaeApp.getInstance(this)
+                .getAppComponent()
+                .inject(this);
+    }
 
     @Override
     public void onStart() {
         super.onStart();
-        EventBus.getDefault().register(this);
+        eventBus.register(this);
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        EventBus.getDefault().unregister(this);
+        eventBus.unregister(this);
     }
 
     public void onResume() {

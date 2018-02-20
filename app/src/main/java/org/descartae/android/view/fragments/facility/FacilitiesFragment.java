@@ -91,8 +91,9 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
     private OnListFacilitiesListener mListener;
     private FacilityListAdapter facilityListAdapter;
 
-    @Inject
-    FacilityListPresenter presenter;
+    @Inject FacilityListPresenter presenter;
+
+    @Inject EventBus eventBus;
 
     @BindView(R.id.container)
     public CoordinatorLayout coordinatorLayout;
@@ -176,7 +177,12 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
 
                             mLoading.setVisibility(View.VISIBLE);
 
-                            query(selected);
+                            // Clear Map Pins
+                            if (mMap != null)
+                                mMap.clear();
+
+                            presenter.setFilterTypesID(selected);
+                            presenter.observeFacilities();
 
                             return true;
                         })
@@ -219,6 +225,18 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
         queryTypeOfWastes();
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        eventBus.register(this);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        eventBus.unregister(this);
+    }
+
     private void requestLocation() {
 
         int permissionCheck = ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION);
@@ -235,10 +253,7 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
             @Override
             public void onLocationResult(LocationResult locationResult) {
                 currentLocation = locationResult.getLastLocation();
-                Log.d("Update Location", "Lat: " + currentLocation.getLatitude() + " Long: " + currentLocation.getLongitude());
-
                 afterGetLocation();
-
                 mFusedLocationClient.flushLocations();
             }
         };
@@ -294,8 +309,11 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
         ConnectionClassManager.getInstance().register(FacilitiesFragment.this);
         DeviceBandwidthSampler.getInstance().startSampling();
 
-        // Request nearby facilities
-        query(null);
+        // Clear Map Pins
+        if (mMap != null)
+            mMap.clear();
+
+        presenter.observeFacilities();
 
         // Stop Test Connection Quality
         DeviceBandwidthSampler.getInstance().stopSampling();
@@ -313,7 +331,7 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onLoadFacilities(FacilitiesQuery.Facilities facilities) {
-        
+
         if ((facilities == null || facilityListAdapter.getItemCount() <= 0) && selectedTypesIndices.length > 0) {
 
             /**
@@ -331,114 +349,7 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
             facilityListAdapter.notifyDataSetChanged();
 
             mMapFragment.getMapAsync(FacilitiesFragment.this);
-
         }
-    }
-
-    private void query(List<String> filterTypesID) {
-
-        if (currentLocation == null) {
-            Log.d("FacilitiesQuery", "Location not available");
-            return;
-        }
-
-        // Save Last Location Queried
-        DescartaePreferences.getInstance(getActivity()).setValue(
-                DescartaePreferences.PREF_LAST_LOCATION_LAT,
-                currentLocation.getLatitude()
-        );
-        DescartaePreferences.getInstance(getActivity()).setValue(
-                DescartaePreferences.PREF_LAST_LOCATION_LNG,
-                currentLocation.getLongitude())
-        ;
-
-        // Clear Map Pins
-        if (mMap != null)
-            mMap.clear();
-
-        ApolloClient apolloClient = ApolloClient.builder()
-                .serverUrl(NetworkingConstants.BASE_URL)
-                .build();
-
-        FacilitiesQuery.Builder builder = FacilitiesQuery.builder();
-
-        // IF location is loaded, fetch by near facilities
-        Log.d("Query Facility", "Nearby: " + currentLocation.getLatitude() + ", " + currentLocation.getLongitude());
-
-        builder.latitude(currentLocation.getLatitude());
-        builder.longitude(currentLocation.getLongitude());
-
-        // IF wast pass type of waste filter
-        if (filterTypesID != null) {
-            builder.typesOfWasteToFilter(filterTypesID);
-        }
-
-        FacilitiesQuery facilityQuery = builder.build();
-
-        apolloClient.query(facilityQuery).enqueue(new ApolloCall.Callback<FacilitiesQuery.Data>() {
-
-            @Override
-            public void onResponse(@Nonnull final Response<FacilitiesQuery.Data> dataResponse) {
-
-                if (getActivity() == null || getActivity().isDestroyed()) return;
-                if (dataResponse == null) return;
-
-                getActivity().runOnUiThread(() -> {
-                    mLoading.setVisibility(View.GONE);
-                });
-
-                if (dataResponse.hasErrors()) {
-                    //for (Error error : dataResponse.errors()) new ApolloApiErrorHandler(error);
-                } else {
-
-                    getActivity().runOnUiThread(() -> {
-                        FacilitiesQuery.Facilities facilities = dataResponse.data().facilities();
-
-                        if ((facilities == null || facilityListAdapter.getItemCount() <= 0) && selectedTypesIndices.length > 0) {
-
-                            /**
-                             * If no facilities return with filter
-                             */
-                            mFilterEmpty.setVisibility(View.VISIBLE);
-
-                        } else if (facilities != null) {
-
-                            /**
-                             * If have facilities
-                             */
-                            facilityListAdapter.setCenters(facilities.items());
-                            facilityListAdapter.setCurrentLocation(currentLocation);
-                            facilityListAdapter.notifyDataSetChanged();
-
-                            mMapFragment.getMapAsync(FacilitiesFragment.this);
-
-                        } else {
-                            EventBus.getDefault().post(new RegionNotSupportedError());
-                        }
-                    });
-                }
-            }
-
-            @Override
-            public void onFailure(@Nonnull ApolloException e) {
-
-                if (e != null && e.getMessage() != null)
-                    Log.e("ApolloFacilityQuery", e.getMessage());
-
-                if (getActivity() == null || getActivity().isDestroyed() || getActivity().isFinishing()) {
-                    return;
-                }
-
-                getActivity().runOnUiThread(() -> {
-                    mLoading.setVisibility(View.GONE);
-                });
-
-                ConnectionQuality cq = ConnectionClassManager.getInstance().getCurrentBandwidthQuality();
-                if (cq.equals(ConnectionQuality.UNKNOWN)) {
-                    EventBus.getDefault().post(new ConnectionError());
-                }
-            }
-        });
     }
 
     @Override
@@ -640,7 +551,8 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
         mFilterEmpty.setVisibility(View.GONE);
         mLoading.setVisibility(View.VISIBLE);
 
-        query(null);
+        presenter.setFilterTypesID(null);
+        presenter.observeFacilities();
     }
 
     @Override
@@ -648,7 +560,7 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
         currentLocation = location;
 
         if (currentLocation != null) {
-            Log.d("Location", "Lat: " + currentLocation.getLatitude() + " Long: " + currentLocation.getLongitude());
+            presenter.setCurrentLocation(currentLocation);
             afterGetLocation();
         } else {
             Log.d("Location", "Last Location not available");
