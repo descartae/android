@@ -11,16 +11,15 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.apollographql.apollo.ApolloCall;
-import com.apollographql.apollo.ApolloClient;
-import com.apollographql.apollo.api.Response;
-import com.apollographql.apollo.exception.ApolloException;
-
 import org.descartae.android.AddFeedbackMutation;
+import org.descartae.android.DescartaeApp;
 import org.descartae.android.R;
-import org.descartae.android.networking.NetworkingConstants;
+import org.descartae.android.presenter.feedback.FeedbackPresenter;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
-import javax.annotation.Nonnull;
+import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -29,8 +28,11 @@ import butterknife.OnClick;
 /**
  * Created by lucasmontano on 09/12/2017.
  */
-
 public class FeedbackDialog extends DialogFragment {
+
+    @Inject FeedbackPresenter presenter;
+
+    @Inject EventBus eventBus;
 
     @BindView(R.id.title)
     public TextView mTitle;
@@ -61,6 +63,19 @@ public class FeedbackDialog extends DialogFragment {
         return frag;
     }
 
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        /*
+         * Init Dagger
+         */
+        DescartaeApp.getInstance(getActivity())
+                .getAppComponent()
+                .inject(this);
+
+        presenter.setFacilityId(facilityID);
+    }
+
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
 
@@ -84,6 +99,18 @@ public class FeedbackDialog extends DialogFragment {
         return mBuilder.create();
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        eventBus.register(this);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        eventBus.unregister(this);
+    }
+
     @OnClick(R.id.action_send)
     public void onSend() {
 
@@ -94,51 +121,28 @@ public class FeedbackDialog extends DialogFragment {
             return;
         }
 
-        ApolloClient apolloClient = ApolloClient.builder()
-                .serverUrl(NetworkingConstants.BASE_URL)
-                .build();
+        presenter.sendFeedback(feedback);
+    }
 
-        AddFeedbackMutation.Builder builder = AddFeedbackMutation.builder();
-        builder.facilityId(facilityID);
-        builder.feedback(feedback);
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onFeedbackResult(AddFeedbackMutation.Data data) {
+        if (data.addFeedback().success()) {
+            mActionCancel.setVisibility(View.GONE);
+            mActionSend.setVisibility(View.GONE);
+            mActionOk.setVisibility(View.VISIBLE);
 
-        AddFeedbackMutation build = builder.build();
-        apolloClient.mutate(build).enqueue(new ApolloCall.Callback<AddFeedbackMutation.Data>() {
+            mFeedback.setVisibility(View.GONE);
 
-            @Override
-            public void onResponse(@Nonnull Response<AddFeedbackMutation.Data> response) {
-
-                if (response == null) return;
-                if (response.data() == null) return;
-                if (getActivity() == null || getActivity().isDestroyed()) return;
-
-                getActivity().runOnUiThread(() -> {
-
-                    if (response.data().addFeedback().success()) {
-                        mActionCancel.setVisibility(View.GONE);
-                        mActionSend.setVisibility(View.GONE);
-                        mActionOk.setVisibility(View.VISIBLE);
-
-                        mFeedback.setVisibility(View.GONE);
-
-                        if (facilityID == null) {
-                            mTitle.setText(R.string.feedback_title_success);
-                            mSubTitle.setText(R.string.feedback_desc_success);
-                        } else {
-                            mTitle.setText(R.string.feedback_facility_title_success);
-                            mSubTitle.setText(R.string.feedback_facility_desc_success);
-                        }
-                    } else {
-                        Snackbar.make(mFeedback, R.string.feedback_error, Snackbar.LENGTH_SHORT).show();
-                    }
-                });
+            if (facilityID == null) {
+                mTitle.setText(R.string.feedback_title_success);
+                mSubTitle.setText(R.string.feedback_desc_success);
+            } else {
+                mTitle.setText(R.string.feedback_facility_title_success);
+                mSubTitle.setText(R.string.feedback_facility_desc_success);
             }
-
-            @Override
-            public void onFailure(@Nonnull ApolloException e) {
-                Snackbar.make(mFeedback, R.string.feedback_error, Snackbar.LENGTH_SHORT).show();
-            }
-        });
+        } else {
+            Snackbar.make(mFeedback, R.string.feedback_error, Snackbar.LENGTH_SHORT).show();
+        }
     }
 
     @OnClick({R.id.action_cancel, R.id.action_ok})

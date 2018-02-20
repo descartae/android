@@ -6,6 +6,7 @@ import org.descartae.android.view.activities.FacilityActivity;
 import org.descartae.android.view.activities.LegendTypeOfWasteActivity;
 import org.descartae.android.view.fragments.empty.RegionWaitListDialog;
 import org.descartae.android.view.fragments.facility.FacilitiesFragment;
+import org.descartae.android.view.fragments.facility.FeedbackDialog;
 
 import javax.inject.Singleton;
 
@@ -26,4 +27,5 @@ public interface AppComponent {
     void inject(RegionWaitListDialog regionWaitListDialog);
     void inject(LegendTypeOfWasteActivity legendTypeOfWasteActivity);
     void inject(FacilityActivity facilityActivity);
+    void inject(FeedbackDialog feedbackDialog);
 }
