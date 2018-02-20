@@ -46,6 +46,7 @@ import com.google.android.gms.location.LocationServices;
 
 import com.google.android.gms.tasks.OnSuccessListener;
 
+import org.descartae.android.DescartaeApp;
 import org.descartae.android.FacilitiesQuery;
 import org.descartae.android.R;
 
@@ -56,6 +57,7 @@ import org.descartae.android.networking.apollo.ApolloApiErrorHandler;
 import org.descartae.android.networking.apollo.errors.ConnectionError;
 import org.descartae.android.networking.apollo.errors.RegionNotSupportedError;
 import org.descartae.android.preferences.DescartaePreferences;
+import org.descartae.android.presenter.facility.FacilityListPresenter;
 import org.descartae.android.view.activities.FacilityActivity;
 import org.descartae.android.view.utils.SimpleDividerItemDecoration;
 import org.descartae.android.view.viewholder.FacilityViewHolder;
@@ -65,6 +67,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Nonnull;
+import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -86,6 +89,9 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
 
     private OnListFacilitiesListener mListener;
     private FacilityListAdapter facilityListAdapter;
+
+    @Inject
+    FacilityListPresenter presenter;
 
     @BindView(R.id.container)
     public CoordinatorLayout coordinatorLayout;
@@ -183,6 +189,13 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
 
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+
+        /**
+         * Init Dagger
+         */
+        DescartaeApp.getInstance(getActivity())
+                .getAppComponent()
+                .inject(this);
 
         mLoading.setVisibility(View.VISIBLE);
 
