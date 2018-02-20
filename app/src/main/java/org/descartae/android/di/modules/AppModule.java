@@ -1,5 +1,8 @@
 package org.descartae.android.di.modules;
 
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+
 import org.descartae.android.DescartaeApp;
 import org.descartae.android.networking.apollo.ApolloApiErrorHandler;
 import org.descartae.android.preferences.DescartaePreferences;
@@ -30,6 +33,11 @@ public class AppModule {
         return EventBus.builder().build();
     }
 
+    @Provides
+    FusedLocationProviderClient provideFusedLocationProviderClient() {
+        return LocationServices.getFusedLocationProviderClient(app.getApplicationContext());
+    }
+
     @Provides @Singleton
     DescartaePreferences provideDescartaePreferences() {
         return new DescartaePreferences(app.getApplicationContext());
@@ -41,7 +49,7 @@ public class AppModule {
     }
 
     @Provides
-    FacilityListPresenter provideFacilityListPresenter(EventBus bus, DescartaePreferences preferences, ApolloApiErrorHandler apiErrorHandler) {
-        return new FacilityListPresenter(bus, preferences, apiErrorHandler);
+    FacilityListPresenter provideFacilityListPresenter(EventBus bus, DescartaePreferences preferences, ApolloApiErrorHandler apiErrorHandler, FusedLocationProviderClient fusedLocationClient) {
+        return new FacilityListPresenter(bus, preferences, apiErrorHandler, fusedLocationClient);
     }
 }

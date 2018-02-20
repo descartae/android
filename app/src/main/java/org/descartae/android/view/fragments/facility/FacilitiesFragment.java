@@ -1,9 +1,7 @@
 package org.descartae.android.view.fragments.facility;
 
-import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
@@ -11,7 +9,6 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -20,9 +17,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.google.android.gms.location.LocationCallback;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationResult;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -37,13 +31,6 @@ import com.apollographql.apollo.ApolloCall;
 import com.apollographql.apollo.ApolloClient;
 import com.apollographql.apollo.api.Response;
 import com.apollographql.apollo.exception.ApolloException;
-import com.facebook.network.connectionclass.ConnectionClassManager;
-import com.facebook.network.connectionclass.ConnectionQuality;
-import com.facebook.network.connectionclass.DeviceBandwidthSampler;
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationServices;
-
-import com.google.android.gms.tasks.OnSuccessListener;
 
 import org.descartae.android.DescartaeApp;
 import org.descartae.android.FacilitiesQuery;
@@ -52,12 +39,11 @@ import org.descartae.android.R;
 import org.descartae.android.TypeOfWasteQuery;
 import org.descartae.android.adapters.FacilityListAdapter;
 import org.descartae.android.networking.NetworkingConstants;
-import org.descartae.android.networking.apollo.ApolloApiErrorHandler;
-import org.descartae.android.networking.apollo.errors.ConnectionError;
 import org.descartae.android.networking.apollo.errors.RegionNotSupportedError;
-import org.descartae.android.preferences.DescartaePreferences;
 import org.descartae.android.presenter.facility.FacilityListPresenter;
 import org.descartae.android.view.activities.FacilityActivity;
+import org.descartae.android.view.events.EventHideLoading;
+import org.descartae.android.view.events.EventShowLoading;
 import org.descartae.android.view.utils.SimpleDividerItemDecoration;
 import org.descartae.android.view.viewholder.FacilityViewHolder;
 import org.greenrobot.eventbus.EventBus;
@@ -74,21 +60,8 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class FacilitiesFragment extends Fragment implements ConnectionClassManager.ConnectionClassStateChangeListener, OnMapReadyCallback, OnSuccessListener<Location> {
+public class FacilitiesFragment extends Fragment implements OnMapReadyCallback {
 
-    /**
-     * The desired interval for location updates. Inexact. Updates may be more or less frequent.
-     */
-    public static final long UPDATE_INTERVAL_IN_MILLISECONDS = 10000;
-
-    /**
-     * The fastest rate for active location updates. Exact. Updates will never be more frequent
-     * than this value.
-     */
-    public static final long FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS =
-            UPDATE_INTERVAL_IN_MILLISECONDS / 2;
-
-    private OnListFacilitiesListener mListener;
     private FacilityListAdapter facilityListAdapter;
 
     @Inject FacilityListPresenter presenter;
@@ -118,11 +91,9 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
     private BottomSheetBehavior<View> behaviorDetail;
     private BottomSheetBehavior<View> behaviorList;
     private FacilitiesQuery.Item mItemSelected;
-    private FusedLocationProviderClient mFusedLocationClient;
-    private Location currentLocation;
+
     private MapFragment mMapFragment;
     private GoogleMap mMap;
-    private LocationCallback mLocationCallback;
 
     private List<TypeOfWasteQuery.TypesOfWaste> typesOfWasteData;
     private String[] typesOfWasteTitle;
@@ -151,7 +122,7 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
 
             case R.id.action_filter:
 
-                if (currentLocation == null) {
+                if ( ! presenter.haveCurrentLocation()) {
                     return false;
                 }
 
@@ -163,29 +134,7 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
                 new MaterialDialog.Builder(getActivity())
                         .title(R.string.title_filter)
                         .items(typesOfWasteTitle)
-                        .itemsCallbackMultiChoice(selectedTypesIndices, (MaterialDialog dialog, Integer[] which, CharSequence[] text) -> {
-
-                            selectedTypesIndices = which;
-
-                            List<String> selected = new ArrayList<>();
-                            for (Integer index : which) {
-                                selected.add(typesOfWasteData.get(index)._id());
-                            }
-
-                            facilityListAdapter.setCenters(null);
-                            facilityListAdapter.notifyDataSetChanged();
-
-                            mLoading.setVisibility(View.VISIBLE);
-
-                            // Clear Map Pins
-                            if (mMap != null)
-                                mMap.clear();
-
-                            presenter.setFilterTypesID(selected);
-                            presenter.observeFacilities();
-
-                            return true;
-                        })
+                        .itemsCallbackMultiChoice(selectedTypesIndices, getCallbackMultiChoiceFilter())
                         .positiveText(R.string.action_filter)
                         .show();
 
@@ -204,21 +153,6 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
                 .getAppComponent()
                 .inject(this);
 
-        mLoading.setVisibility(View.VISIBLE);
-
-        /**
-         * Init Location Service: the facility query is called automatic after got the current location
-         */
-        int permissionCheck = ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION);
-        if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
-            return;
-        }
-
-        /**
-         * Get Current Location
-         */
-        requestLocation();
-
         /**
          * Load Type of Waste in order to be fetched before click on filter option
          */
@@ -235,38 +169,6 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
     public void onStop() {
         super.onStop();
         eventBus.unregister(this);
-    }
-
-    private void requestLocation() {
-
-        int permissionCheck = ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION);
-        if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
-            return;
-        }
-
-        Log.d("Location", "Requesting");
-
-        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(getActivity());
-
-        mLocationCallback = new LocationCallback() {
-
-            @Override
-            public void onLocationResult(LocationResult locationResult) {
-                currentLocation = locationResult.getLastLocation();
-                afterGetLocation();
-                mFusedLocationClient.flushLocations();
-            }
-        };
-        LocationRequest mRequestingLocationUpdates = new LocationRequest();
-        mRequestingLocationUpdates.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        mRequestingLocationUpdates.setInterval(UPDATE_INTERVAL_IN_MILLISECONDS);
-        mRequestingLocationUpdates.setFastestInterval(FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS);
-
-        // Update Location Once
-        mRequestingLocationUpdates.setNumUpdates(1);
-
-        mFusedLocationClient.requestLocationUpdates(mRequestingLocationUpdates, mLocationCallback, null /* Looper */);
-        mFusedLocationClient.getLastLocation().addOnSuccessListener(this);
     }
 
     private void queryTypeOfWastes() {
@@ -300,65 +202,12 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
         });
     }
 
-    private void afterGetLocation() {
-
-        // Move Map
-        moveMapCamera();
-
-        // Start Test Connection Quality
-        ConnectionClassManager.getInstance().register(FacilitiesFragment.this);
-        DeviceBandwidthSampler.getInstance().startSampling();
-
-        // Clear Map Pins
-        if (mMap != null)
-            mMap.clear();
-
-        presenter.observeFacilities();
-
-        // Stop Test Connection Quality
-        DeviceBandwidthSampler.getInstance().stopSampling();
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-
-        if (mLocationCallback != null) {
-            Log.d("Location", "Remove Callback Update");
-            mFusedLocationClient.removeLocationUpdates(mLocationCallback);
-        }
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onLoadFacilities(FacilitiesQuery.Facilities facilities) {
-
-        if ((facilities == null || facilityListAdapter.getItemCount() <= 0) && selectedTypesIndices.length > 0) {
-
-            /**
-             * If no facilities return with filter
-             */
-            mFilterEmpty.setVisibility(View.VISIBLE);
-
-        } else if (facilities != null) {
-
-            /**
-             * If have facilities
-             */
-            facilityListAdapter.setCenters(facilities.items());
-            facilityListAdapter.setCurrentLocation(currentLocation);
-            facilityListAdapter.notifyDataSetChanged();
-
-            mMapFragment.getMapAsync(FacilitiesFragment.this);
-        }
-    }
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_facility_list, container, false);
 
         ButterKnife.bind(this, view);
 
-        // Butterknife sucks for Fragment
         mMapFragment = MapFragment.newInstance();
         getActivity().getFragmentManager().beginTransaction().replace(R.id.map, mMapFragment).commitAllowingStateLoss();
 
@@ -378,28 +227,7 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
         behaviorList.setPeekHeight(getResources().getDimensionPixelOffset(R.dimen.facilities_peek_height));
 
         behaviorDetail = BottomSheetBehavior.from(bottomSheetDetail);
-        behaviorDetail.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
-            @Override
-            public void onStateChanged(@NonNull View bottomSheet, int newState) {
-
-                if (newState == BottomSheetBehavior.STATE_HIDDEN) {
-
-                    // List VISIBLE and Expand
-                    bottomSheetList.setVisibility(View.VISIBLE);
-                    behaviorList.setState(BottomSheetBehavior.STATE_EXPANDED);
-
-                    mItemSelected = null;
-
-                    // Reset Map Pins
-                    fillMapMarkers();
-                }
-            }
-
-            @Override
-            public void onSlide(@NonNull View bottomSheet, float slideOffset) {
-                // React to dragging events
-            }
-        });
+        behaviorDetail.setBottomSheetCallback(getCallbackBottomSheet());
         behaviorDetail.setHideable(true);
 
         return view;
@@ -410,7 +238,7 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
         // Fill Item Detail
         facilityViewHolder = new FacilityViewHolder(bottomSheetDetail);
         facilityViewHolder.mItem = center;
-        facilityViewHolder.setCurrentLocation(currentLocation);
+        facilityViewHolder.setCurrentLocation(presenter.getCurrentLocation());
         facilityViewHolder.fill();
 
         // Show BottomSheetDetail
@@ -441,50 +269,6 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
     }
 
     @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if (context instanceof OnListFacilitiesListener) {
-            mListener = (OnListFacilitiesListener) context;
-        } else {
-            throw new RuntimeException(context.toString() + " must implement OnListFacilitiesListener");
-        }
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        mListener = null;
-    }
-
-    @Override
-    public void onBandwidthStateChange(ConnectionQuality bandwidthState) {
-        if (bandwidthState.equals(ConnectionQuality.UNKNOWN)) {
-            EventBus.getDefault().post(new ConnectionError());
-        }
-    }
-
-    @OnClick(R.id.action_detail)
-    public void onActionDetail() {
-
-        if (mItemSelected == null) return;
-
-        Intent intent = new Intent(getActivity(), FacilityActivity.class);
-        intent.putExtra(FacilityActivity.ARG_ID, mItemSelected._id());
-        startActivity(intent);
-    }
-
-    @OnClick(R.id.action_go)
-    public void onActionGo() {
-
-        if (mItemSelected == null) return;
-
-        String uri = "geo:" + mItemSelected.location().coordinates().latitude() + ","
-                + mItemSelected.location().coordinates().longitude() + "?q=" + mItemSelected.location().coordinates().latitude()
-                + "," + mItemSelected.location().coordinates().longitude();
-        startActivity(new Intent(android.content.Intent.ACTION_VIEW, Uri.parse(uri)));
-    }
-
-    @Override
     public void onMapReady(GoogleMap googleMap) {
 
         mMap = googleMap;
@@ -500,11 +284,13 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
 
     private void selectFacility(String name) {
         List<FacilitiesQuery.Item> centers = facilityListAdapter.getCenters();
-        for (FacilitiesQuery.Item facility : centers) {
-            if (facility.name().equals(name)) {
-                mItemSelected = facility;
-                selectFacility(facility);
-                break;
+        if (centers != null && centers.size() > 0) {
+            for (FacilitiesQuery.Item facility : centers) {
+                if (facility.name().equals(name)) {
+                    mItemSelected = facility;
+                    selectFacility(facility);
+                    break;
+                }
             }
         }
     }
@@ -529,19 +315,85 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
             }
         }
 
-        moveMapCamera();
-    }
-
-    private void moveMapCamera() {
-
         // Move camera
+        Location currentLocation = presenter.getCurrentLocation();
+
         if (currentLocation != null && mMap != null) {
-
-            Log.d("Move map to: ", "Lat: " + currentLocation.getLatitude() + ", long:" + currentLocation.getLongitude());
-
             LatLng latlng = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latlng, 13));
         }
+    }
+
+    @NonNull
+    private MaterialDialog.ListCallbackMultiChoice getCallbackMultiChoiceFilter() {
+        return (MaterialDialog dialog, Integer[] which, CharSequence[] text) -> {
+
+            selectedTypesIndices = which;
+
+            List<String> selected = new ArrayList<>();
+            for (Integer index : which) {
+                selected.add(typesOfWasteData.get(index)._id());
+            }
+
+            // Clear List
+            facilityListAdapter.setCenters(null);
+            facilityListAdapter.notifyDataSetChanged();
+
+            // Refresh MapMarkers
+            fillMapMarkers();
+
+            presenter.setFilterTypesID(selected);
+            presenter.requestFacilities();
+
+            return true;
+        };
+    }
+
+    @NonNull
+    private BottomSheetBehavior.BottomSheetCallback getCallbackBottomSheet() {
+        return new BottomSheetBehavior.BottomSheetCallback() {
+            @Override
+            public void onStateChanged(@NonNull View bottomSheet, int newState) {
+
+                if (newState == BottomSheetBehavior.STATE_HIDDEN) {
+
+                    // List VISIBLE and Expand
+                    bottomSheetList.setVisibility(View.VISIBLE);
+                    behaviorList.setState(BottomSheetBehavior.STATE_EXPANDED);
+
+                    mItemSelected = null;
+
+                    // Reset Map Pins
+                    fillMapMarkers();
+                }
+            }
+
+            @Override
+            public void onSlide(@NonNull View bottomSheet, float slideOffset) {
+                // React to dragging events
+            }
+        };
+    }
+
+    @OnClick(R.id.action_detail)
+    public void onActionDetail() {
+
+        if (mItemSelected == null) return;
+
+        Intent intent = new Intent(getActivity(), FacilityActivity.class);
+        intent.putExtra(FacilityActivity.ARG_ID, mItemSelected._id());
+        startActivity(intent);
+    }
+
+    @OnClick(R.id.action_go)
+    public void onActionGo() {
+
+        if (mItemSelected == null) return;
+
+        String uri = "geo:" + mItemSelected.location().coordinates().latitude() + ","
+                + mItemSelected.location().coordinates().longitude() + "?q=" + mItemSelected.location().coordinates().latitude()
+                + "," + mItemSelected.location().coordinates().longitude();
+        startActivity(new Intent(android.content.Intent.ACTION_VIEW, Uri.parse(uri)));
     }
 
     @OnClick(R.id.action_clear_filter)
@@ -549,21 +401,55 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
         selectedTypesIndices = new Integer[]{};
 
         mFilterEmpty.setVisibility(View.GONE);
-        mLoading.setVisibility(View.VISIBLE);
+
+        // Clear List
+        facilityListAdapter.setCenters(null);
+        facilityListAdapter.notifyDataSetChanged();
+
+        // Refresh MapMarkers
+        fillMapMarkers();
 
         presenter.setFilterTypesID(null);
-        presenter.observeFacilities();
+        presenter.requestFacilities();
     }
 
-    @Override
-    public void onSuccess(Location location) {
-        currentLocation = location;
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void eventHideLoading(EventHideLoading event) {
+        mLoading.setVisibility(View.GONE);
+    }
 
-        if (currentLocation != null) {
-            presenter.setCurrentLocation(currentLocation);
-            afterGetLocation();
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void eventShowLoading(EventShowLoading event) {
+        mLoading.setVisibility(View.VISIBLE);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void renderFacilities(FacilitiesQuery.Facilities facilities) {
+
+        if (facilities == null && presenter.hasFilterType()) {
+
+            /**
+             * If no facilities return with filter
+             */
+            mFilterEmpty.setVisibility(View.VISIBLE);
+
+        } else if (facilities != null) {
+
+            /**
+             * If have facilities
+             */
+            facilityListAdapter.setCenters(facilities.items());
+            facilityListAdapter.setCurrentLocation(presenter.getCurrentLocation());
+            facilityListAdapter.notifyDataSetChanged();
+
+            mMapFragment.getMapAsync(FacilitiesFragment.this);
         } else {
-            Log.d("Location", "Last Location not available");
+
+            /**
+             * If no facilities and no filter
+             * @deprecated the server is already checkin this situation as Error
+             */
+            eventBus.post(new RegionNotSupportedError());
         }
     }
 
@@ -575,5 +461,4 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
         behaviorDetail.setState(BottomSheetBehavior.STATE_HIDDEN);
     }
 
-    public interface OnListFacilitiesListener {}
 }

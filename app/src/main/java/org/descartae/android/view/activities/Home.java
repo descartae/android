@@ -37,7 +37,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class Home extends BaseActivity
-        implements NavigationView.OnNavigationItemSelectedListener, FacilitiesFragment.OnListFacilitiesListener, RetryConnectionView, EmptyRegionUnsupportedFragment.Listener {
+        implements NavigationView.OnNavigationItemSelectedListener, RetryConnectionView, EmptyRegionUnsupportedFragment.Listener {
 
     @BindView(R.id.toolbar)
     Toolbar toolbar;
