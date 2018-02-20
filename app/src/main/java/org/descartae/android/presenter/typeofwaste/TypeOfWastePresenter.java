@@ -10,6 +10,8 @@ import com.apollographql.apollo.rx2.Rx2Apollo;
 import org.descartae.android.TypeOfWasteQuery;
 import org.descartae.android.networking.NetworkingConstants;
 import org.descartae.android.networking.apollo.ApolloApiErrorHandler;
+import org.descartae.android.view.events.EventHideLoading;
+import org.descartae.android.view.events.EventShowLoading;
 import org.greenrobot.eventbus.EventBus;
 
 import java.util.List;
@@ -30,13 +32,20 @@ public class TypeOfWastePresenter {
     private final ApolloApiErrorHandler apiErrorHandler;
     private List<TypeOfWasteQuery.TypesOfWaste> typesOfWasteData;
     private String[] typesOfWasteTitle;
+    private boolean triggerLoadingEvents;
 
     @Inject public TypeOfWastePresenter(EventBus eventBus, ApolloApiErrorHandler apiErrorHandler) {
         this.eventBus = eventBus;
         this.apiErrorHandler = apiErrorHandler;
     }
 
+    public void setTriggerLoadingEvents(boolean triggerLoadingEvents) {
+        this.triggerLoadingEvents = triggerLoadingEvents;
+    }
+
     public void requestTypeOfWastes() {
+
+        if (triggerLoadingEvents) eventBus.post(new EventShowLoading());
 
         Rx2Apollo.from(getRequestCall()).subscribe(dataResponse -> {
 
@@ -54,6 +63,10 @@ public class TypeOfWastePresenter {
                     typesOfWasteTitle[i] = type.name();
                     i++;
                 }
+
+                eventBus.post(typesOfWasteData);
+
+                if (triggerLoadingEvents) eventBus.post(new EventHideLoading());
             }
 
         }, throwable -> {

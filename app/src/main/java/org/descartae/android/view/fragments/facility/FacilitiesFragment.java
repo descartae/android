@@ -170,8 +170,7 @@ public class FacilitiesFragment extends Fragment implements OnMapReadyCallback {
 
         mMapFragment = MapFragment.newInstance();
 
-        getActivity().getFragmentManager()
-                .beginTransaction()
+        if (getActivity() != null) getActivity().getFragmentManager().beginTransaction()
                 .replace(R.id.map, mMapFragment)
                 .commitAllowingStateLoss();
 
@@ -390,7 +389,7 @@ public class FacilitiesFragment extends Fragment implements OnMapReadyCallback {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void renderFacilities(FacilitiesQuery.Facilities facilities) {
 
-        boolean hasFacilities = facilities != null || facilities.items() != null || facilities.items().size() > 0;
+        boolean hasFacilities = (facilities != null && facilities.items() != null && facilities.items().size() > 0);
 
         if ( ! hasFacilities && presenter.hasFilterType()) {
 

@@ -16,7 +16,7 @@
         android:theme="@style/AppTheme">
 
         <activity
-            android:name=".view.activities.Home"
+            android:name=".view.activities.HomeActivity"
             android:label="@string/title_activity_home"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
@@ -24,7 +24,7 @@
             android:label="@string/title_activity_type_of_waste"
             android:theme="@style/AppTheme.NoActionBar"></activity>
         <activity
-            android:name=".view.activities.Intro"
+            android:name=".view.activities.IntroActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

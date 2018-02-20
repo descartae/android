@@ -36,7 +36,7 @@ import org.greenrobot.eventbus.ThreadMode;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class Home extends BaseActivity
+public class HomeActivity extends BaseActivity
         implements NavigationView.OnNavigationItemSelectedListener, RetryConnectionView, EmptyRegionUnsupportedFragment.Listener {
 
     @BindView(R.id.toolbar)
