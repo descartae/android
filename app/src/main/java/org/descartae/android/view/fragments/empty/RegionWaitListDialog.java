@@ -19,6 +19,7 @@ import com.apollographql.apollo.api.Response;
 import com.apollographql.apollo.exception.ApolloException;
 
 import org.descartae.android.AddToWaitlistMutation;
+import org.descartae.android.DescartaeApp;
 import org.descartae.android.R;
 import org.descartae.android.networking.apollo.ApolloApiErrorHandler;
 import org.descartae.android.networking.NetworkingConstants;
@@ -27,6 +28,7 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import javax.annotation.Nonnull;
+import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -40,6 +42,8 @@ public class RegionWaitListDialog extends DialogFragment {
 
     private static final String ARG_LATITUDE = "ARG_LATITUDE";
     private static final String ARG_LONGITUDE = "ARG_LONGITUDE";
+
+    @Inject ApolloApiErrorHandler apiErrorHandler;
 
     @BindView(R.id.linear_form)
     LinearLayout linearForm;
@@ -81,6 +85,13 @@ public class RegionWaitListDialog extends DialogFragment {
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
+
+        /**
+         * Init Dagger
+         */
+        DescartaeApp.getInstance(getActivity())
+                .getAppComponent()
+                .inject(this);
 
         RelativeLayout viewInflated = (RelativeLayout) getActivity().getLayoutInflater().inflate(R.layout.dialog_wait_list, null);
 
@@ -137,7 +148,7 @@ public class RegionWaitListDialog extends DialogFragment {
                     // Default message error
                     ApolloApiErrorHandler.setGenericErrorMessage(getString(R.string.wait_list_error));
 
-                    for (Error error : response.errors()) new ApolloApiErrorHandler(error);
+                    for (Error error : response.errors()) apiErrorHandler.throwError(error);
                     dismiss();
                 } else {
 

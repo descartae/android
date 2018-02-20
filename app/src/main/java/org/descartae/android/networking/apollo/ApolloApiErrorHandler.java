@@ -7,14 +7,22 @@ import org.descartae.android.networking.apollo.errors.GeneralError;
 import org.descartae.android.networking.apollo.errors.RegionNotSupportedError;
 import org.greenrobot.eventbus.EventBus;
 
+import javax.inject.Inject;
+
 /**
  * Created by lucasmontano on 14/02/2018.
  */
-public class ApolloApiErrorHandler {
+public final class ApolloApiErrorHandler {
+
+    private EventBus bus;
 
     private static String genericErrorMessage;
 
-    public ApolloApiErrorHandler(Error error) {
+    @Inject public ApolloApiErrorHandler(EventBus bus) {
+        this.bus = bus;
+    }
+
+    public void throwError(Error error) {
 
         if (error == null || error.message().isEmpty()) EventBus.getDefault().post(new GeneralError(genericErrorMessage));
         else if (error.message().equals("DUPLICATED_EMAIL")) EventBus.getDefault().post(new DuplicatedEmailError());

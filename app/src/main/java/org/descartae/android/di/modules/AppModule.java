@@ -1,6 +1,7 @@
 package org.descartae.android.di.modules;
 
 import org.descartae.android.DescartaeApp;
+import org.descartae.android.networking.apollo.ApolloApiErrorHandler;
 import org.descartae.android.preferences.DescartaePreferences;
 import org.descartae.android.presenter.facility.FacilityListPresenter;
 import org.greenrobot.eventbus.EventBus;
@@ -35,7 +36,12 @@ public class AppModule {
     }
 
     @Provides
-    FacilityListPresenter provideFacilityListPresenter(EventBus bus, DescartaePreferences preferences) {
-        return new FacilityListPresenter(bus, preferences);
+    ApolloApiErrorHandler provideApolloApiErrorHandler() {
+        return new ApolloApiErrorHandler(provideEventBus());
+    }
+
+    @Provides
+    FacilityListPresenter provideFacilityListPresenter(EventBus bus, DescartaePreferences preferences, ApolloApiErrorHandler apiErrorHandler) {
+        return new FacilityListPresenter(bus, preferences, apiErrorHandler);
     }
 }

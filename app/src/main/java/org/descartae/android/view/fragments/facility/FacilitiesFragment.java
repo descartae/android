@@ -20,7 +20,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.apollographql.apollo.api.Error;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
@@ -62,6 +61,8 @@ import org.descartae.android.view.activities.FacilityActivity;
 import org.descartae.android.view.utils.SimpleDividerItemDecoration;
 import org.descartae.android.view.viewholder.FacilityViewHolder;
 import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -310,6 +311,30 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
         }
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onLoadFacilities(FacilitiesQuery.Facilities facilities) {
+        
+        if ((facilities == null || facilityListAdapter.getItemCount() <= 0) && selectedTypesIndices.length > 0) {
+
+            /**
+             * If no facilities return with filter
+             */
+            mFilterEmpty.setVisibility(View.VISIBLE);
+
+        } else if (facilities != null) {
+
+            /**
+             * If have facilities
+             */
+            facilityListAdapter.setCenters(facilities.items());
+            facilityListAdapter.setCurrentLocation(currentLocation);
+            facilityListAdapter.notifyDataSetChanged();
+
+            mMapFragment.getMapAsync(FacilitiesFragment.this);
+
+        }
+    }
+
     private void query(List<String> filterTypesID) {
 
         if (currentLocation == null) {
@@ -363,7 +388,7 @@ public class FacilitiesFragment extends Fragment implements ConnectionClassManag
                 });
 
                 if (dataResponse.hasErrors()) {
-                    for (Error error : dataResponse.errors()) new ApolloApiErrorHandler(error);
+                    //for (Error error : dataResponse.errors()) new ApolloApiErrorHandler(error);
                 } else {
 
                     getActivity().runOnUiThread(() -> {
