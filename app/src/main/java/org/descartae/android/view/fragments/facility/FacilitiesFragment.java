@@ -27,20 +27,14 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import com.apollographql.apollo.ApolloCall;
-import com.apollographql.apollo.ApolloClient;
-import com.apollographql.apollo.api.Response;
-import com.apollographql.apollo.exception.ApolloException;
-
 import org.descartae.android.DescartaeApp;
 import org.descartae.android.FacilitiesQuery;
 import org.descartae.android.R;
 
-import org.descartae.android.TypeOfWasteQuery;
 import org.descartae.android.adapters.FacilityListAdapter;
-import org.descartae.android.networking.NetworkingConstants;
 import org.descartae.android.networking.apollo.errors.RegionNotSupportedError;
 import org.descartae.android.presenter.facility.FacilityListPresenter;
+import org.descartae.android.presenter.typeofwaste.TypeOfWastePresenter;
 import org.descartae.android.view.activities.FacilityActivity;
 import org.descartae.android.view.events.EventHideLoading;
 import org.descartae.android.view.events.EventShowLoading;
@@ -53,7 +47,6 @@ import org.greenrobot.eventbus.ThreadMode;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.annotation.Nonnull;
 import javax.inject.Inject;
 
 import butterknife.BindView;
@@ -65,6 +58,8 @@ public class FacilitiesFragment extends Fragment implements OnMapReadyCallback {
     private FacilityListAdapter facilityListAdapter;
 
     @Inject FacilityListPresenter presenter;
+
+    @Inject TypeOfWastePresenter presenterTypeWaste;
 
     @Inject EventBus eventBus;
 
@@ -86,8 +81,6 @@ public class FacilitiesFragment extends Fragment implements OnMapReadyCallback {
     @BindView(R.id.filter_empty)
     public View mFilterEmpty;
 
-    private FacilityViewHolder facilityViewHolder;
-
     private BottomSheetBehavior<View> behaviorDetail;
     private BottomSheetBehavior<View> behaviorList;
     private FacilitiesQuery.Item mItemSelected;
@@ -95,8 +88,6 @@ public class FacilitiesFragment extends Fragment implements OnMapReadyCallback {
     private MapFragment mMapFragment;
     private GoogleMap mMap;
 
-    private List<TypeOfWasteQuery.TypesOfWaste> typesOfWasteData;
-    private String[] typesOfWasteTitle;
     private Integer[] selectedTypesIndices = {};
 
     public FacilitiesFragment() {
@@ -126,14 +117,16 @@ public class FacilitiesFragment extends Fragment implements OnMapReadyCallback {
                     return false;
                 }
 
-                if (typesOfWasteTitle == null || typesOfWasteTitle.length <= 0) {
+                if ( ! presenterTypeWaste.isTypesLoaded()) {
                     Log.d("Filter", "No Types");
                     return false;
                 }
 
+                if (getActivity() == null) return false;
+
                 new MaterialDialog.Builder(getActivity())
                         .title(R.string.title_filter)
-                        .items(typesOfWasteTitle)
+                        .items(presenterTypeWaste.getTypesOfWasteTitle())
                         .itemsCallbackMultiChoice(selectedTypesIndices, getCallbackMultiChoiceFilter())
                         .positiveText(R.string.action_filter)
                         .show();
@@ -146,17 +139,15 @@ public class FacilitiesFragment extends Fragment implements OnMapReadyCallback {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        /**
+        /*
          * Init Dagger
          */
         DescartaeApp.getInstance(getActivity())
                 .getAppComponent()
                 .inject(this);
 
-        /**
-         * Load Type of Waste in order to be fetched before click on filter option
-         */
-        queryTypeOfWastes();
+        presenter.requestLocation();
+        presenterTypeWaste.requestTypeOfWastes();
     }
 
     @Override
@@ -171,45 +162,18 @@ public class FacilitiesFragment extends Fragment implements OnMapReadyCallback {
         eventBus.unregister(this);
     }
 
-    private void queryTypeOfWastes() {
-
-        ApolloClient apolloClient = ApolloClient.builder().serverUrl(NetworkingConstants.BASE_URL).build();
-        TypeOfWasteQuery typeOfWasteQuery = TypeOfWasteQuery.builder().build();
-        apolloClient.query(typeOfWasteQuery).enqueue(new ApolloCall.Callback<TypeOfWasteQuery.Data>() {
-
-            @Override
-            public void onResponse(@Nonnull final Response<TypeOfWasteQuery.Data> dataResponse) {
-
-                if (dataResponse == null) return;
-                if (dataResponse.data() == null) return;
-
-                typesOfWasteData = dataResponse.data().typesOfWaste();
-                typesOfWasteTitle = new String[typesOfWasteData.size()];
-
-                int i = 0;
-                for (TypeOfWasteQuery.TypesOfWaste type : typesOfWasteData) {
-                    typesOfWasteTitle[i] = type.name();
-                    i++;
-                }
-            }
-
-            @Override
-            public void onFailure(@Nonnull ApolloException e) {
-
-                if (e != null && e.getMessage() != null)
-                    Log.e("ApolloFacilityQuery", e.getMessage());
-            }
-        });
-    }
-
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_facility_list, container, false);
 
         ButterKnife.bind(this, view);
 
         mMapFragment = MapFragment.newInstance();
-        getActivity().getFragmentManager().beginTransaction().replace(R.id.map, mMapFragment).commitAllowingStateLoss();
+
+        getActivity().getFragmentManager()
+                .beginTransaction()
+                .replace(R.id.map, mMapFragment)
+                .commitAllowingStateLoss();
 
         Context context = view.getContext();
         recyclerView.addItemDecoration(new SimpleDividerItemDecoration(getActivity()));
@@ -236,7 +200,7 @@ public class FacilitiesFragment extends Fragment implements OnMapReadyCallback {
     private void selectFacility(FacilitiesQuery.Item center) {
 
         // Fill Item Detail
-        facilityViewHolder = new FacilityViewHolder(bottomSheetDetail);
+        FacilityViewHolder facilityViewHolder = new FacilityViewHolder(bottomSheetDetail);
         facilityViewHolder.mItem = center;
         facilityViewHolder.setCurrentLocation(presenter.getCurrentLocation());
         facilityViewHolder.fill();
@@ -332,7 +296,7 @@ public class FacilitiesFragment extends Fragment implements OnMapReadyCallback {
 
             List<String> selected = new ArrayList<>();
             for (Integer index : which) {
-                selected.add(typesOfWasteData.get(index)._id());
+                selected.add(presenterTypeWaste.getTypeId(index));
             }
 
             // Clear List
@@ -428,14 +392,14 @@ public class FacilitiesFragment extends Fragment implements OnMapReadyCallback {
 
         if (facilities == null && presenter.hasFilterType()) {
 
-            /**
+            /*
              * If no facilities return with filter
              */
             mFilterEmpty.setVisibility(View.VISIBLE);
 
         } else if (facilities != null) {
 
-            /**
+            /*
              * If have facilities
              */
             facilityListAdapter.setCenters(facilities.items());
@@ -445,9 +409,9 @@ public class FacilitiesFragment extends Fragment implements OnMapReadyCallback {
             mMapFragment.getMapAsync(FacilitiesFragment.this);
         } else {
 
-            /**
-             * If no facilities and no filter
-             * @deprecated the server is already checkin this situation as Error
+            /*
+              If no facilities and no filter
+              @deprecated the server is already checkin this situation as Error
              */
             eventBus.post(new RegionNotSupportedError());
         }

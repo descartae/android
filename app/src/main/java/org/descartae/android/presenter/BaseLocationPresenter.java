@@ -9,14 +9,9 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.tasks.OnSuccessListener;
 
-import org.greenrobot.eventbus.EventBus;
-
-import javax.inject.Inject;
-
 /**
  * Created by lucasmontano on 2/20/18.
  */
-
 public abstract class BaseLocationPresenter implements OnSuccessListener<Location> {
 
     /**
@@ -46,7 +41,7 @@ public abstract class BaseLocationPresenter implements OnSuccessListener<Locatio
     }
 
     @SuppressLint("MissingPermission")
-    protected void requestLocation() {
+    public void requestLocation() {
 
         LocationCallback mLocationCallback = new LocationCallback() {
 

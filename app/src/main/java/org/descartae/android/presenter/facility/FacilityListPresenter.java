@@ -47,8 +47,6 @@ public class FacilityListPresenter extends BaseLocationPresenter implements Conn
         this.apiErrorHandler = apiErrorHandler;
 
         eventBus.post(new EventShowLoading());
-
-        requestLocation();
     }
 
     protected void updateCurrentLocation(Location currentLocation) {
@@ -93,10 +91,7 @@ public class FacilityListPresenter extends BaseLocationPresenter implements Conn
                 for (Error error : dataResponse.errors()) apiErrorHandler.throwError(error);
 
                 // If no Errors
-            else if (dataResponse.data() != null) {
-                FacilitiesQuery.Facilities facilities = dataResponse.data().facilities();
-                eventBus.post(facilities);
-            }
+            else if (dataResponse.data() != null) eventBus.post(dataResponse.data().facilities());
 
         }, throwable -> {
 
@@ -129,8 +124,11 @@ public class FacilityListPresenter extends BaseLocationPresenter implements Conn
     }
 
     public boolean hasFilterType() {
-        return facilityQuery.variables() != null
-                && facilityQuery.variables().hasTypesOfWaste() != null
-                && facilityQuery.variables().hasTypesOfWaste().size() > 0;
+
+        if (facilityQuery.variables() != null)
+            if (facilityQuery.variables().hasTypesOfWaste() != null)
+                if (facilityQuery.variables().hasTypesOfWaste().size() > 0) return true;
+
+        return false;
     }
 }

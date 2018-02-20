@@ -7,6 +7,7 @@ import org.descartae.android.DescartaeApp;
 import org.descartae.android.networking.apollo.ApolloApiErrorHandler;
 import org.descartae.android.preferences.DescartaePreferences;
 import org.descartae.android.presenter.facility.FacilityListPresenter;
+import org.descartae.android.presenter.typeofwaste.TypeOfWastePresenter;
 import org.greenrobot.eventbus.EventBus;
 
 import javax.inject.Singleton;
@@ -51,5 +52,10 @@ public class AppModule {
     @Provides
     FacilityListPresenter provideFacilityListPresenter(EventBus bus, DescartaePreferences preferences, ApolloApiErrorHandler apiErrorHandler, FusedLocationProviderClient fusedLocationClient) {
         return new FacilityListPresenter(bus, preferences, apiErrorHandler, fusedLocationClient);
+    }
+
+    @Provides
+    TypeOfWastePresenter provideTypeOfWastePresenter(EventBus bus, ApolloApiErrorHandler apiErrorHandler) {
+        return new TypeOfWastePresenter(bus, apiErrorHandler);
     }
 }
