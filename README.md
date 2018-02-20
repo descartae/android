@@ -23,6 +23,6 @@ Compile your project to have Apollo generate the appropriate Java classes with n
 - Go to Run > Run app;
 - Select a device, or create a new one by following the wizard;
 
-**Feature request & Bug report**
+## Feature request & Bug report
 
 You can report via [GitHub issues](https://github.com/descartae/android/issues) o/
