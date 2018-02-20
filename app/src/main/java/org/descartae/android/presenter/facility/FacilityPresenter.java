@@ -1,10 +1,12 @@
 package org.descartae.android.presenter.facility;
 
 import android.location.Location;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.apollographql.apollo.ApolloClient;
 import com.apollographql.apollo.ApolloQueryCall;
+import com.apollographql.apollo.CustomTypeAdapter;
 import com.apollographql.apollo.api.Error;
 import com.apollographql.apollo.rx2.Rx2Apollo;
 import com.facebook.network.connectionclass.ConnectionClassManager;
@@ -12,66 +14,47 @@ import com.facebook.network.connectionclass.ConnectionQuality;
 import com.facebook.network.connectionclass.DeviceBandwidthSampler;
 import com.google.android.gms.location.FusedLocationProviderClient;
 
-import org.descartae.android.FacilitiesQuery;
+import org.descartae.android.FacilityQuery;
 import org.descartae.android.networking.NetworkingConstants;
 import org.descartae.android.networking.apollo.ApolloApiErrorHandler;
 import org.descartae.android.networking.apollo.errors.ConnectionError;
-import org.descartae.android.preferences.DescartaePreferences;
 import org.descartae.android.presenter.BaseLocationPresenter;
+import org.descartae.android.type.CustomType;
 import org.descartae.android.view.events.EventHideLoading;
 import org.descartae.android.view.events.EventShowLoading;
 import org.greenrobot.eventbus.EventBus;
 
-import java.util.List;
-
 import javax.inject.Inject;
 
 /**
- * Created by lucasmontano on 19/02/2018.
+ * Created by lucasmontano on 2/20/18.
  */
-public class FacilityListPresenter extends BaseLocationPresenter implements ConnectionClassManager.ConnectionClassStateChangeListener {
+public class FacilityPresenter extends BaseLocationPresenter implements ConnectionClassManager.ConnectionClassStateChangeListener {
 
-    private static final String TAG_APOLLO_FACILITY_QUERY = "ApolloFacilityQuery";
+    private static final String TAG_APOLLO_FACILITY_QUERY = "FacilityQuery";
 
-    private final DescartaePreferences descartaePreferences;
+    private final EventBus eventBus;
     private final ApolloApiErrorHandler apiErrorHandler;
-    private EventBus eventBus;
 
-    private final FacilitiesQuery.Builder builder = FacilitiesQuery.builder();
-    private FacilitiesQuery facilityQuery;
+    private final FacilityQuery.Builder builder = FacilityQuery.builder();
 
-    @Inject public FacilityListPresenter(EventBus bus, DescartaePreferences preferences, ApolloApiErrorHandler apiErrorHandler, FusedLocationProviderClient fusedLocationClient) {
+    @Inject
+    public FacilityPresenter(EventBus bus, ApolloApiErrorHandler apiErrorHandler, FusedLocationProviderClient fusedLocationClient) {
         super(fusedLocationClient);
-        this.descartaePreferences = preferences;
         this.eventBus = bus;
         this.apiErrorHandler = apiErrorHandler;
-
-        eventBus.post(new EventShowLoading());
     }
 
+    @Override
     protected void updateCurrentLocation(Location currentLocation) {
-        builder.latitude(currentLocation.getLatitude());
-        builder.longitude(currentLocation.getLongitude());
-
-        // Save Last Location Queried
-        descartaePreferences.setValue(
-            DescartaePreferences.PREF_LAST_LOCATION_LAT,
-            currentLocation.getLatitude());
-
-        descartaePreferences.setValue(
-            DescartaePreferences.PREF_LAST_LOCATION_LNG,
-            currentLocation.getLongitude());
-
-        Log.d(TAG_APOLLO_FACILITY_QUERY, "Nearby: " + currentLocation.getLatitude() + ", " + currentLocation.getLongitude());
-
-        requestFacilities();
+        eventBus.post(currentLocation);
     }
 
-    public void setFilterTypesID(List<String> filterTypesID) {
-        builder.hasTypesOfWaste(filterTypesID);
+    public void setFacilityId(String itemId) {
+        builder.id(itemId);
     }
 
-    public void requestFacilities() {
+    public void requestFacility() {
 
         eventBus.post(new EventShowLoading());
 
@@ -79,7 +62,7 @@ public class FacilityListPresenter extends BaseLocationPresenter implements Conn
         ConnectionClassManager.getInstance().register(this);
         DeviceBandwidthSampler.getInstance().startSampling();
 
-        Rx2Apollo.from(getFacilitiesCall()).subscribe(dataResponse -> {
+        Rx2Apollo.from(getRequestCall()).subscribe(dataResponse -> {
 
             // Stop Test Connection Quality
             DeviceBandwidthSampler.getInstance().stopSampling();
@@ -91,7 +74,7 @@ public class FacilityListPresenter extends BaseLocationPresenter implements Conn
                 for (Error error : dataResponse.errors()) apiErrorHandler.throwError(error);
 
             // If no Errors
-            else if (dataResponse.data() != null) eventBus.post(dataResponse.data().facilities());
+            else if (dataResponse.data() != null) eventBus.post(dataResponse.data().facility());
 
         }, throwable -> {
 
@@ -108,27 +91,32 @@ public class FacilityListPresenter extends BaseLocationPresenter implements Conn
         });
     }
 
-    private ApolloQueryCall<FacilitiesQuery.Data> getFacilitiesCall() {
-        ApolloClient apolloClient = ApolloClient.builder().serverUrl(NetworkingConstants.BASE_URL).build();
-        facilityQuery = builder.build();
-        return apolloClient.query(facilityQuery);
-    }
+    private ApolloQueryCall<FacilityQuery.Data> getRequestCall() {
 
-    public boolean haveCurrentLocation() {
-        return getCurrentLocation() != null;
+        CustomTypeAdapter<String> customTypeAdapter = new CustomTypeAdapter<String>() {
+            @NonNull
+            @Override
+            public String decode(@NonNull String value) {
+                return value;
+            }
+
+            @NonNull
+            @Override
+            public String encode(@NonNull String value) {
+                return value;
+            }
+        };
+
+        ApolloClient apolloClient = ApolloClient.builder()
+                .serverUrl(NetworkingConstants.BASE_URL)
+                .addCustomTypeAdapter(CustomType.TIME, customTypeAdapter)
+                .build();
+
+        return apolloClient.query(builder.build());
     }
 
     @Override
     public void onBandwidthStateChange(ConnectionQuality bandwidthState) {
         if (bandwidthState.equals(ConnectionQuality.UNKNOWN)) eventBus.post(new ConnectionError());
-    }
-
-    public boolean hasFilterType() {
-
-        if (facilityQuery.variables() != null)
-            if (facilityQuery.variables().hasTypesOfWaste() != null)
-                if (facilityQuery.variables().hasTypesOfWaste().size() > 0) return true;
-
-        return false;
     }
 }
