@@ -390,14 +390,16 @@ public class FacilitiesFragment extends Fragment implements OnMapReadyCallback {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void renderFacilities(FacilitiesQuery.Facilities facilities) {
 
-        if (facilities == null && presenter.hasFilterType()) {
+        boolean hasFacilities = facilities != null || facilities.items() != null || facilities.items().size() > 0;
+
+        if ( ! hasFacilities && presenter.hasFilterType()) {
 
             /*
              * If no facilities return with filter
              */
             mFilterEmpty.setVisibility(View.VISIBLE);
 
-        } else if (facilities != null) {
+        } else if (hasFacilities) {
 
             /*
              * If have facilities
