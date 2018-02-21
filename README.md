@@ -1,7 +1,7 @@
 # Android native application
 
 ## Description
-Descartaê is the easiest way to correctly discard your wastes. A project powered by the community and, Caravan Studios through Feito Na Biblioteca project.
+Descartaê is the easiest way to correctly discard your wastes. 
 
 ## Apollo & Graphql
 This project uses Graphql query language. So, you will need to constantly check for updates in your schema. 
