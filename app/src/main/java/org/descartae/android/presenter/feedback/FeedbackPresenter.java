@@ -11,6 +11,7 @@ import com.facebook.network.connectionclass.DeviceBandwidthSampler;
 import org.descartae.android.AddFeedbackMutation;
 import org.descartae.android.networking.NetworkingConstants;
 import org.descartae.android.networking.apollo.ApolloApiErrorHandler;
+import org.descartae.android.networking.apollo.errors.ConnectionError;
 import org.greenrobot.eventbus.EventBus;
 
 import javax.inject.Inject;
@@ -51,7 +52,13 @@ public class FeedbackPresenter {
             else if (dataResponse.data() != null) eventBus.post(dataResponse.data());
 
         }, throwable -> {
-            if (throwable != null && throwable.getMessage() != null) Log.e(TAG_APOLLO_FEEDBACK_MUTATION, throwable.getMessage());
+
+            String errorMessage = throwable.getMessage();
+
+            if (throwable != null && errorMessage != null) {
+                Log.e(TAG_APOLLO_FEEDBACK_MUTATION, errorMessage);
+                if (errorMessage.equals("Failed to execute http call")) eventBus.post(new ConnectionError());
+            }
         });
     }
 

@@ -43,6 +43,8 @@ public class FacilityPresenter extends BaseLocationPresenter implements Connecti
         super(fusedLocationClient);
         this.eventBus = bus;
         this.apiErrorHandler = apiErrorHandler;
+
+        ConnectionClassManager.getInstance().register(this);
     }
 
     @Override
@@ -59,7 +61,6 @@ public class FacilityPresenter extends BaseLocationPresenter implements Connecti
         eventBus.post(new EventShowLoading());
 
         // Start Test Connection Quality
-        ConnectionClassManager.getInstance().register(this);
         DeviceBandwidthSampler.getInstance().startSampling();
 
         Rx2Apollo.from(getRequestCall()).subscribe(dataResponse -> {
@@ -80,14 +81,17 @@ public class FacilityPresenter extends BaseLocationPresenter implements Connecti
 
             // Stop Test Connection Quality
             DeviceBandwidthSampler.getInstance().stopSampling();
+            ConnectionQuality cq = ConnectionClassManager.getInstance().getCurrentBandwidthQuality();
 
             eventBus.post(new EventHideLoading());
 
-            if (throwable != null && throwable.getMessage() != null) Log.e(TAG_APOLLO_FACILITY_QUERY, throwable.getMessage());
+            String errorMessage = throwable.getMessage();
+            if (throwable != null && errorMessage != null) {
+                Log.e(TAG_APOLLO_FACILITY_QUERY, errorMessage);
 
-            // Check Connectivity
-            ConnectionQuality cq = ConnectionClassManager.getInstance().getCurrentBandwidthQuality();
-            if (cq.equals(ConnectionQuality.UNKNOWN)) eventBus.post(new ConnectionError());
+                if (errorMessage.equals("Failed to execute http call")) eventBus.post(new ConnectionError());
+                else if (cq.equals(ConnectionQuality.UNKNOWN)) eventBus.post(new ConnectionError());
+            }
         });
     }
 

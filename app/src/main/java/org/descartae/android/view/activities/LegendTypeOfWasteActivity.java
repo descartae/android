@@ -12,6 +12,8 @@ import org.descartae.android.DescartaeApp;
 import org.descartae.android.R;
 import org.descartae.android.TypeOfWasteQuery;
 import org.descartae.android.adapters.LegendWasteTypeListAdapter;
+import org.descartae.android.networking.apollo.errors.ConnectionError;
+import org.descartae.android.networking.apollo.errors.GeneralError;
 import org.descartae.android.presenter.typeofwaste.TypeOfWastePresenter;
 import org.descartae.android.view.events.EventHideLoading;
 import org.descartae.android.view.events.EventShowLoading;
@@ -105,6 +107,11 @@ public class LegendTypeOfWasteActivity extends AppCompatActivity {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void eventShowLoading(EventShowLoading event) {
         mLoading.setVisibility(View.VISIBLE);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onError(GeneralError error) {
+        finish();
     }
 
     @Override

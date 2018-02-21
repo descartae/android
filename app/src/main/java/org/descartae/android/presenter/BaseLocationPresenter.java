@@ -73,9 +73,8 @@ public abstract class BaseLocationPresenter implements OnSuccessListener<Locatio
     @Override
     public void onSuccess(Location location) {
 
-        updateCurrentLocation(location);
-
         if (location != null) {
+            updateCurrentLocation(location);
             currentLocation = location;
         }
     }

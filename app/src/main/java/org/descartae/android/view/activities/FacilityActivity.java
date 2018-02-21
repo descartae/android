@@ -41,6 +41,8 @@ import org.descartae.android.R;
 import org.descartae.android.adapters.OpenHourListAdapter;
 import org.descartae.android.adapters.WastesTypeListAdapter;
 import org.descartae.android.interfaces.RetryConnectionView;
+import org.descartae.android.networking.apollo.errors.ConnectionError;
+import org.descartae.android.networking.apollo.errors.GeneralError;
 import org.descartae.android.presenter.facility.FacilityPresenter;
 import org.descartae.android.view.events.EventHideLoading;
 import org.descartae.android.view.events.EventShowLoading;
@@ -170,6 +172,11 @@ public class FacilityActivity extends AppCompatActivity implements OnMapReadyCal
     public void onStop() {
         super.onStop();
         eventBus.unregister(this);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onError(GeneralError error) {
+        finish();
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)

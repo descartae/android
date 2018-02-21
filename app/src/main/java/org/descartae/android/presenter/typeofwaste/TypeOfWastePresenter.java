@@ -10,6 +10,7 @@ import com.apollographql.apollo.rx2.Rx2Apollo;
 import org.descartae.android.TypeOfWasteQuery;
 import org.descartae.android.networking.NetworkingConstants;
 import org.descartae.android.networking.apollo.ApolloApiErrorHandler;
+import org.descartae.android.networking.apollo.errors.ConnectionError;
 import org.descartae.android.view.events.EventHideLoading;
 import org.descartae.android.view.events.EventShowLoading;
 import org.greenrobot.eventbus.EventBus;
@@ -70,7 +71,14 @@ public class TypeOfWastePresenter {
             }
 
         }, throwable -> {
-            if (throwable != null && throwable.getMessage() != null) Log.e(TAG_APOLLO_TYPE_QUERY, throwable.getMessage());
+
+            String errorMessage = throwable.getMessage();
+            if (throwable != null && errorMessage != null) {
+                Log.e(TAG_APOLLO_TYPE_QUERY, errorMessage);
+
+                if (errorMessage.equals("Failed to execute http call"))
+                    eventBus.post(new ConnectionError());
+            }
         });
     }
 

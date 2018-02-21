@@ -14,6 +14,7 @@ import android.widget.TextView;
 import org.descartae.android.AddFeedbackMutation;
 import org.descartae.android.DescartaeApp;
 import org.descartae.android.R;
+import org.descartae.android.networking.apollo.errors.GeneralError;
 import org.descartae.android.presenter.feedback.FeedbackPresenter;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -143,6 +144,11 @@ public class FeedbackDialog extends DialogFragment {
         } else {
             Snackbar.make(mFeedback, R.string.feedback_error, Snackbar.LENGTH_SHORT).show();
         }
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onError(GeneralError error) {
+        dismiss();
     }
 
     @OnClick({R.id.action_cancel, R.id.action_ok})

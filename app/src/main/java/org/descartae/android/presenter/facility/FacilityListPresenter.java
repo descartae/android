@@ -55,16 +55,6 @@ public class FacilityListPresenter extends BaseLocationPresenter implements Conn
     }
 
     protected void updateCurrentLocation(Location currentLocation) {
-
-        if (currentLocation == null) {
-
-            // Check Connectivity
-            ConnectionQuality cq = ConnectionClassManager.getInstance().getCurrentBandwidthQuality();
-            if (cq.equals(ConnectionQuality.UNKNOWN)) eventBus.post(new ConnectionError());
-
-            return;
-        }
-
         builder.latitude(currentLocation.getLatitude());
         builder.longitude(currentLocation.getLongitude());
 
@@ -88,12 +78,12 @@ public class FacilityListPresenter extends BaseLocationPresenter implements Conn
 
     public void requestFacilities() {
 
-        eventBus.post(new EventShowLoading());
-
-        // Start Test Connection Quality
-        DeviceBandwidthSampler.getInstance().startSampling();
-
         if (disposable == null || disposable.isDisposed()) {
+
+            eventBus.post(new EventShowLoading());
+
+            // Start Test Connection Quality
+            DeviceBandwidthSampler.getInstance().startSampling();
 
             disposable = Rx2Apollo.from(getFacilitiesCall()).subscribe(dataResponse -> {
 
