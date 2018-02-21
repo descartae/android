@@ -8,6 +8,7 @@ import org.descartae.android.networking.apollo.ApolloApiErrorHandler;
 import org.descartae.android.preferences.DescartaePreferences;
 import org.descartae.android.presenter.facility.FacilityListPresenter;
 import org.descartae.android.presenter.feedback.FeedbackPresenter;
+import org.descartae.android.presenter.waitlist.WaitListPresenter;
 import org.descartae.android.presenter.typeofwaste.TypeOfWastePresenter;
 import org.greenrobot.eventbus.EventBus;
 
@@ -63,5 +64,10 @@ public class AppModule {
     @Provides
     FeedbackPresenter provideFeedbackPresenter(EventBus bus, ApolloApiErrorHandler apiErrorHandler) {
         return new FeedbackPresenter(bus, apiErrorHandler);
+    }
+
+    @Provides
+    WaitListPresenter provideRegionUnsupportedPresenter(EventBus bus, ApolloApiErrorHandler apiErrorHandler, FusedLocationProviderClient fusedLocationClient) {
+        return new WaitListPresenter(bus, apiErrorHandler, fusedLocationClient);
     }
 }

@@ -24,6 +24,7 @@ import org.descartae.android.R;
 import org.descartae.android.networking.apollo.ApolloApiErrorHandler;
 import org.descartae.android.networking.NetworkingConstants;
 import org.descartae.android.networking.apollo.errors.DuplicatedEmailError;
+import org.descartae.android.presenter.waitlist.WaitListPresenter;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
@@ -44,6 +45,8 @@ public class RegionWaitListDialog extends DialogFragment {
     private static final String ARG_LONGITUDE = "ARG_LONGITUDE";
 
     @Inject ApolloApiErrorHandler apiErrorHandler;
+
+    @Inject WaitListPresenter presenter;
 
     @BindView(R.id.linear_form)
     LinearLayout linearForm;
@@ -116,6 +119,8 @@ public class RegionWaitListDialog extends DialogFragment {
             return;
         }
 
+        presenter.addToWaitList(email);
+        
         ApolloClient apolloClient = ApolloClient.builder()
                 .serverUrl(NetworkingConstants.BASE_URL)
                 .build();
