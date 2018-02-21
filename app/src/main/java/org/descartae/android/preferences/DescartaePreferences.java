@@ -3,6 +3,7 @@ package org.descartae.android.preferences;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 
 import com.google.gson.Gson;
 
@@ -19,8 +20,8 @@ public class DescartaePreferences {
     public static final String PREF_LAST_LOCATION_LAT = "PREF_LAST_LOCATION_LAT";
     public static final String PREF_LAST_LOCATION_LNG = "PREF_LAST_LOCATION_LNG";
 
-    public DescartaePreferences(Activity context) {
-        mSharedPreferences = context.getPreferences(Context.MODE_PRIVATE);
+    public DescartaePreferences(Context context) {
+        mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         gson = new Gson();
     }
 

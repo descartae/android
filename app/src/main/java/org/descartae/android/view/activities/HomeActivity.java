@@ -36,8 +36,8 @@ import org.greenrobot.eventbus.ThreadMode;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class Home extends BaseActivity
-        implements NavigationView.OnNavigationItemSelectedListener, FacilitiesFragment.OnListFacilitiesListener, RetryConnectionView, EmptyRegionUnsupportedFragment.Listener {
+public class HomeActivity extends BaseActivity
+        implements NavigationView.OnNavigationItemSelectedListener, RetryConnectionView, EmptyRegionUnsupportedFragment.Listener {
 
     @BindView(R.id.toolbar)
     Toolbar toolbar;
@@ -87,7 +87,7 @@ public class Home extends BaseActivity
     }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
@@ -206,9 +206,6 @@ public class Home extends BaseActivity
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void showRegionNotSupported(RegionNotSupportedError error) {
-
-        DescartaePreferences preferences = DescartaePreferences.getInstance(this);
-
         getSupportFragmentManager().beginTransaction().replace(
                 R.id.content,
                 EmptyRegionUnsupportedFragment.newInstance(

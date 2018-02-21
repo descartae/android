@@ -2,32 +2,38 @@ package org.descartae.android.view.activities;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 
-import com.apollographql.apollo.ApolloCall;
-import com.apollographql.apollo.ApolloClient;
-import com.apollographql.apollo.api.Response;
-import com.apollographql.apollo.exception.ApolloException;
-
+import org.descartae.android.DescartaeApp;
 import org.descartae.android.R;
 import org.descartae.android.TypeOfWasteQuery;
 import org.descartae.android.adapters.LegendWasteTypeListAdapter;
-import org.descartae.android.networking.NetworkingConstants;
-import org.descartae.android.view.utils.SimpleDividerItemDecoration;
+import org.descartae.android.networking.apollo.errors.ConnectionError;
+import org.descartae.android.networking.apollo.errors.GeneralError;
+import org.descartae.android.presenter.typeofwaste.TypeOfWastePresenter;
+import org.descartae.android.view.events.EventHideLoading;
+import org.descartae.android.view.events.EventShowLoading;
 import org.descartae.android.view.utils.SpaceDividerItemDecoration;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
-import javax.annotation.Nonnull;
+import java.util.List;
+
+import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class LegendTypeOfWasteActivity extends AppCompatActivity {
+
+    @Inject TypeOfWastePresenter presenter;
+
+    @Inject EventBus eventBus;
 
     @BindView(R.id.toolbar)
     Toolbar toolbar;
@@ -41,6 +47,12 @@ public class LegendTypeOfWasteActivity extends AppCompatActivity {
     private LegendWasteTypeListAdapter adapter;
 
     @Override
+    public void onStart() {
+        super.onStart();
+        eventBus.register(this);
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_type_of_waste);
@@ -48,46 +60,58 @@ public class LegendTypeOfWasteActivity extends AppCompatActivity {
         ButterKnife.bind(this);
         setSupportActionBar(toolbar);
 
-        getSupportActionBar().setDisplayShowTitleEnabled(true);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setDisplayShowHomeEnabled(true);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayShowTitleEnabled(true);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+        }
+
+        /*
+         * Init Dagger
+         */
+        DescartaeApp.getInstance(this)
+                .getAppComponent()
+                .inject(this);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.addItemDecoration(new SpaceDividerItemDecoration(80));
 
         adapter = new LegendWasteTypeListAdapter(this);
         recyclerView.setAdapter(adapter);
+    }
 
-        ApolloClient apolloClient = ApolloClient.builder()
-                .serverUrl(NetworkingConstants.BASE_URL)
-                .build();
-        TypeOfWasteQuery typeOfWasteQuery = TypeOfWasteQuery.builder().build();
+    @Override
+    public void onResume() {
+        super.onResume();
+        presenter.setTriggerLoadingEvents(true);
+        presenter.requestTypeOfWastes();
+    }
 
+    @Override
+    public void onStop() {
+        super.onStop();
+        eventBus.unregister(this);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void renderTypes(List<TypeOfWasteQuery.TypesOfWaste> typesOfWasteList) {
+        adapter.setTypes(typesOfWasteList);
+        adapter.notifyDataSetChanged();
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void eventHideLoading(EventHideLoading event) {
+        mLoading.setVisibility(View.GONE);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void eventShowLoading(EventShowLoading event) {
         mLoading.setVisibility(View.VISIBLE);
+    }
 
-        apolloClient.query(typeOfWasteQuery).enqueue(new ApolloCall.Callback<TypeOfWasteQuery.Data>() {
-
-            @Override
-            public void onResponse(@Nonnull final Response<TypeOfWasteQuery.Data> dataResponse) {
-
-                if (dataResponse == null) return;
-                if (dataResponse.data() == null) return;
-
-                runOnUiThread(() -> {
-                    adapter.setTypes(dataResponse.data().typesOfWaste());
-                    adapter.notifyDataSetChanged();
-
-                    mLoading.setVisibility(View.GONE);
-                });
-            }
-
-            @Override
-            public void onFailure(@Nonnull ApolloException e) {
-
-                if (e != null && e.getMessage() != null)
-                    Log.e("ApolloFacilityQuery", e.getMessage());
-            }
-        });
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onError(GeneralError error) {
+        finish();
     }
 
     @Override

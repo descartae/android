@@ -3,6 +3,7 @@ package org.descartae.android.view.activities;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
@@ -17,7 +18,6 @@ import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -26,15 +26,6 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.apollographql.apollo.ApolloCall;
-import com.apollographql.apollo.ApolloClient;
-import com.apollographql.apollo.CustomTypeAdapter;
-import com.apollographql.apollo.api.Response;
-import com.apollographql.apollo.exception.ApolloException;
-import com.facebook.network.connectionclass.ConnectionClassManager;
-import com.facebook.network.connectionclass.ConnectionQuality;
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
@@ -42,31 +33,41 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.squareup.picasso.Picasso;
 
+import org.descartae.android.DescartaeApp;
 import org.descartae.android.FacilityQuery;
 import org.descartae.android.R;
 import org.descartae.android.adapters.OpenHourListAdapter;
 import org.descartae.android.adapters.WastesTypeListAdapter;
 import org.descartae.android.interfaces.RetryConnectionView;
-import org.descartae.android.networking.NetworkingConstants;
-import org.descartae.android.type.CustomType;
-import org.descartae.android.view.fragments.empty.EmptyOfflineFragment;
+import org.descartae.android.networking.apollo.errors.ConnectionError;
+import org.descartae.android.networking.apollo.errors.GeneralError;
+import org.descartae.android.presenter.facility.FacilityPresenter;
+import org.descartae.android.view.events.EventHideLoading;
+import org.descartae.android.view.events.EventShowLoading;
 import org.descartae.android.view.fragments.facility.FeedbackDialog;
 import org.descartae.android.view.fragments.wastes.WasteTypeDialog;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.Calendar;
 
-import javax.annotation.Nonnull;
+import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class FacilityActivity extends AppCompatActivity implements OnMapReadyCallback, OnSuccessListener<Location>,WastesTypeListAdapter.TypeOfWasteListner, RetryConnectionView {
+public class FacilityActivity extends AppCompatActivity implements OnMapReadyCallback, WastesTypeListAdapter.TypeOfWasteListner, RetryConnectionView {
 
     public static final String ARG_ID = "ITEM";
+
+    @Inject EventBus eventBus;
+
+    @Inject
+    FacilityPresenter presenter;
 
     @BindView(R.id.toolbar)
     Toolbar toolbar;
@@ -106,14 +107,15 @@ public class FacilityActivity extends AppCompatActivity implements OnMapReadyCal
 
     public MapFragment mMapFragment;
 
-    private String itemID;
-
     private FacilityQuery.Facility facility;
 
-    private FusedLocationProviderClient mFusedLocationClient;
-
     private WastesTypeListAdapter mTypesWasteAdapter;
-    private GoogleMap mMap;
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        eventBus.register(this);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -133,11 +135,18 @@ public class FacilityActivity extends AppCompatActivity implements OnMapReadyCal
 
         setSupportActionBar(toolbar);
 
-        getSupportActionBar().setDisplayShowTitleEnabled(false);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setDisplayShowHomeEnabled(true);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayShowTitleEnabled(false);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+        }
 
-        mLoading.setVisibility(View.VISIBLE);
+        /*
+         * Init Dagger
+         */
+        DescartaeApp.getInstance(this)
+                .getAppComponent()
+                .inject(this);
 
         // Type of Waste
         LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
@@ -147,108 +156,95 @@ public class FacilityActivity extends AppCompatActivity implements OnMapReadyCal
         mTypesWasteRecyclerView.setAdapter(mTypesWasteAdapter);
 
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(this, layoutManager.getOrientation());
-        dividerItemDecoration.setDrawable(ContextCompat.getDrawable(this, R.drawable.divider_spacing));
+        Drawable drawableDividerSpacing = ContextCompat.getDrawable(this, R.drawable.divider_spacing);
+        if (drawableDividerSpacing != null) dividerItemDecoration.setDrawable(drawableDividerSpacing);
         mTypesWasteRecyclerView.addItemDecoration(dividerItemDecoration);
 
         // Butterknife sucks for Fragment
         mMapFragment = MapFragment.newInstance();
         getFragmentManager().beginTransaction().replace(R.id.map, mMapFragment).commitAllowingStateLoss();
 
-        itemID = getIntent().getStringExtra(ARG_ID);
-        query(itemID);
+        presenter.setFacilityId(getIntent().getStringExtra(ARG_ID));
+        presenter.requestFacility();
     }
 
-    private void query(String id) {
+    @Override
+    public void onStop() {
+        super.onStop();
+        eventBus.unregister(this);
+    }
 
-        CustomTypeAdapter<String> customTypeAdapter = new CustomTypeAdapter<String>() {
-            @Override
-            public String decode(String value) {
-               return value;
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onError(GeneralError error) {
+        finish();
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onGetCurrentLocation(Location location) {
+        if (facility == null || location == null) return;
+
+        Location facilityLocation = new Location("Facility");
+        facilityLocation.setLatitude(facility.location().coordinates().latitude());
+        facilityLocation.setLongitude(facility.location().coordinates().longitude());
+
+        float distance = location.distanceTo(facilityLocation);
+        mDistance.setText(getString(R.string.distance, distance / 1000));
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void eventHideLoading(EventHideLoading event) {
+        mLoading.setVisibility(View.GONE);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void eventShowLoading(EventShowLoading event) {
+        mLoading.setVisibility(View.VISIBLE);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void renderFacility(FacilityQuery.Facility facility) {
+
+        this.facility = facility;
+
+        mLocationView.setText(facility.location().address());
+        mNameView.setText(facility.name());
+        mPhone.setText(facility.telephone());
+
+        LinearLayoutManager llm = new LinearLayoutManager(FacilityActivity.this);
+        llm.setOrientation(LinearLayoutManager.VERTICAL);
+        mMoreTimes.setLayoutManager(llm);
+
+        OpenHourListAdapter timeListAdapter = new OpenHourListAdapter(FacilityActivity.this);
+        timeListAdapter.setFacilityDays(facility.openHours());
+        mMoreTimes.setAdapter(timeListAdapter);
+        timeListAdapter.notifyDataSetChanged();
+
+        String time = null;
+        for (FacilityQuery.OpenHour openHour : facility.openHours()) {
+            if ((openHour.dayOfWeek().ordinal() + 1) == Calendar.getInstance().get(Calendar.DAY_OF_WEEK)) {
+                time = getString(R.string.time, "Hoje", getString(R.string.time_desc, String.valueOf(openHour.startTime()), String.valueOf(openHour.endTime())));
+                mTime.setText(time);
+                break;
             }
+        }
 
-            @Override
-            public String encode(String value) {
-                return value;
-            }
-        };
+        if (time == null) {
+            mTime.setText(R.string.no_open_hour_today);
+        }
 
-        ApolloClient apolloClient = ApolloClient.builder()
-                .serverUrl(NetworkingConstants.BASE_URL)
-                .addCustomTypeAdapter(CustomType.TIME, customTypeAdapter)
-                .build();
-        FacilityQuery facilityQuery = FacilityQuery.builder().id(id).build();
-        apolloClient.query(facilityQuery).enqueue(new ApolloCall.Callback<FacilityQuery.Data>() {
+        mMapFragment.getMapAsync(FacilityActivity.this);
 
-            @Override
-            public void onResponse(@Nonnull final Response<FacilityQuery.Data> dataResponse) {
+        mTypesWasteAdapter.setTypes(facility.typesOfWaste());
+        mTypesWasteAdapter.notifyDataSetChanged();
 
-                if (dataResponse == null) return;
-                if (dataResponse.data() == null) return;
+        mTimeExpand.setOnClickListener(view -> {
 
-                runOnUiThread(() -> {
-
-                    facility = dataResponse.data().facility();
-
-                    mLocationView.setText(facility.location().address());
-                    mNameView.setText(facility.name());
-                    mPhone.setText(facility.telephone());
-
-                    LinearLayoutManager llm = new LinearLayoutManager(FacilityActivity.this);
-                    llm.setOrientation(LinearLayoutManager.VERTICAL);
-                    mMoreTimes.setLayoutManager(llm);
-
-                    OpenHourListAdapter timeListAdapter = new OpenHourListAdapter(FacilityActivity.this);
-                    timeListAdapter.setFacilityDays(facility.openHours());
-                    mMoreTimes.setAdapter(timeListAdapter);
-                    timeListAdapter.notifyDataSetChanged();
-
-                    String time = null;
-                    for (FacilityQuery.OpenHour openHour : facility.openHours()) {
-                        if ((openHour.dayOfWeek().ordinal() + 1) == Calendar.getInstance().get(Calendar.DAY_OF_WEEK)) {
-                            time = getString(R.string.time, "Hoje", getString(R.string.time_desc, String.valueOf(openHour.startTime()), String.valueOf(openHour.endTime())));
-                            mTime.setText(time);
-                            break;
-                        }
-                    }
-
-                    if (time == null) {
-                        mTime.setText(R.string.no_open_hour_today);
-                    }
-
-                    mMapFragment.getMapAsync(FacilityActivity.this);
-
-                    mTypesWasteAdapter.setTypes(facility.typesOfWaste());
-                    mTypesWasteAdapter.notifyDataSetChanged();
-
-                    mTimeExpand.setOnClickListener(view -> {
-
-                        if (mMoreTimes.getVisibility() == View.VISIBLE) {
-                            Picasso.with(FacilityActivity.this).load(R.drawable.ic_action_expand_more).into(mTimeExpand);
-                            mMoreTimes.setVisibility(View.GONE);
-                        } else {
-                            Picasso.with(FacilityActivity.this).load(R.drawable.ic_action_expand_less).into(mTimeExpand);
-                            mMoreTimes.setVisibility(View.VISIBLE);
-                        }
-                    });
-
-                    mLoading.setVisibility(View.GONE);
-                });
-            }
-
-            @Override
-            public void onFailure(@Nonnull ApolloException e) {
-
-                if (e != null && e.getMessage() != null)
-                    Log.e("ApolloFacilityQuery", e.getMessage());
-
-                runOnUiThread(() -> {
-                    mLoading.setVisibility(View.GONE);
-
-                    ConnectionQuality cq = ConnectionClassManager.getInstance().getCurrentBandwidthQuality();
-                    if (cq.equals(ConnectionQuality.UNKNOWN)) {
-                        getSupportFragmentManager().beginTransaction().replace(R.id.no_connection, EmptyOfflineFragment.newInstance()).commitAllowingStateLoss();
-                    }
-                });
+            if (mMoreTimes.getVisibility() == View.VISIBLE) {
+                Picasso.with(FacilityActivity.this).load(R.drawable.ic_action_expand_more).into(mTimeExpand);
+                mMoreTimes.setVisibility(View.GONE);
+            } else {
+                Picasso.with(FacilityActivity.this).load(R.drawable.ic_action_expand_less).into(mTimeExpand);
+                mMoreTimes.setVisibility(View.VISIBLE);
             }
         });
     }
@@ -289,8 +285,6 @@ public class FacilityActivity extends AppCompatActivity implements OnMapReadyCal
     @Override
     public void onMapReady(GoogleMap googleMap) {
 
-        this.mMap = googleMap;
-
         if (facility == null) return;
 
         int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
@@ -298,32 +292,17 @@ public class FacilityActivity extends AppCompatActivity implements OnMapReadyCal
             return;
         }
 
-        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-        mFusedLocationClient.getLastLocation().addOnSuccessListener(this);
-
         LatLng latlng = new LatLng(
             facility.location().coordinates().latitude(),
             facility.location().coordinates().longitude()
         );
 
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latlng, 13));
-        mMap.addMarker(
+        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latlng, 13));
+        googleMap.addMarker(
                 new MarkerOptions()
                         .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_pin))
                         .position(latlng)
                         .title(facility.name()));
-    }
-
-    @Override
-    public void onSuccess(Location location) {
-        if (facility == null || location == null) return;
-
-        Location facilityLocation = new Location("Facility");
-        facilityLocation.setLatitude(facility.location().coordinates().latitude());
-        facilityLocation.setLongitude(facility.location().coordinates().longitude());
-
-        float distance = location.distanceTo(facilityLocation);
-        mDistance.setText(getString(R.string.distance, distance / 1000));
     }
 
     @Override
@@ -337,7 +316,11 @@ public class FacilityActivity extends AppCompatActivity implements OnMapReadyCal
         ft.addToBackStack(null);
 
         // Create and show the dialog.
-        DialogFragment newFragment = WasteTypeDialog.newInstance(typesOfWaste.name(), typesOfWaste.description(), typesOfWaste.icons().androidMediumURL());
+        DialogFragment newFragment = WasteTypeDialog.newInstance(
+                typesOfWaste.name(),
+                typesOfWaste.description(),
+                typesOfWaste.icons().androidMediumURL()
+        );
         newFragment.show(ft, "dialog");
     }
 
@@ -354,6 +337,6 @@ public class FacilityActivity extends AppCompatActivity implements OnMapReadyCal
 
     @Override
     public void onRetryConnection() {
-        query(itemID);
+        presenter.requestFacility();
     }
 }

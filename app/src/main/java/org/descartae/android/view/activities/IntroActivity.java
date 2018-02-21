@@ -8,7 +8,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.AppCompatActivity;
 
 import org.descartae.android.R;
 import org.descartae.android.preferences.DescartaePreferences;
@@ -18,7 +17,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import me.relex.circleindicator.CircleIndicator;
 
-public class Intro extends BaseActivity implements IntroFragment.IntroListener {
+public class IntroActivity extends BaseActivity implements IntroFragment.IntroListener {
 
     private ScreenSlidePagerAdapter mPagerAdapter;
 
@@ -31,13 +30,13 @@ public class Intro extends BaseActivity implements IntroFragment.IntroListener {
     private boolean isPermissionGranted = false;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_intro);
         ButterKnife.bind(this);
 
         if (DescartaePreferences.getInstance(this).getBooleanValue(DescartaePreferences.INTRO_OK)) {
-            startActivity(new Intent(this, Home.class));
+            startActivity(new Intent(this, HomeActivity.class));
             finish();
             return;
         }
@@ -64,7 +63,7 @@ public class Intro extends BaseActivity implements IntroFragment.IntroListener {
         DescartaePreferences.getInstance(this).setBooleanValue(DescartaePreferences.INTRO_OK, true);
 
         if (isPermissionGranted) {
-            startActivity(new Intent(this, Home.class));
+            startActivity(new Intent(this, HomeActivity.class));
             finish();
             return;
         }
@@ -80,7 +79,7 @@ public class Intro extends BaseActivity implements IntroFragment.IntroListener {
                     isPermissionGranted = true;
                 })
                 .setNegativeButton(R.string.cancel, (dialogInterface, i) -> {
-                    startActivity(new Intent(this, Home.class));
+                    startActivity(new Intent(this, HomeActivity.class));
                     finish();
                     dialogInterface.dismiss();
                 });
@@ -101,7 +100,7 @@ public class Intro extends BaseActivity implements IntroFragment.IntroListener {
         isPermissionGranted = true;
 
         if (DescartaePreferences.getInstance(this).getBooleanValue(DescartaePreferences.INTRO_OK)) {
-            startActivity(new Intent(this, Home.class));
+            startActivity(new Intent(this, HomeActivity.class));
             finish();
         }
     }
