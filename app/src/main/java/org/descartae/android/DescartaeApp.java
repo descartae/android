@@ -32,9 +32,14 @@ public class DescartaeApp extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        bus = EventBus.builder().build();
     }
 
     public static DescartaeApp getInstance(Context context) {
         return (DescartaeApp) context.getApplicationContext();
+    }
+
+    public EventBus getEventBus() {
+        return bus;
     }
 }

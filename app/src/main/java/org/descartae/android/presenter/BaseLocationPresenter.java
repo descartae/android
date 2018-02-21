@@ -47,9 +47,14 @@ public abstract class BaseLocationPresenter implements OnSuccessListener<Locatio
 
             @Override
             public void onLocationResult(LocationResult locationResult) {
-                Location lastLocation = locationResult.getLastLocation();
-                updateCurrentLocation(lastLocation);
-                currentLocation = lastLocation;
+
+                // If location already fetched, ignore and flush
+                if (currentLocation == null) {
+                    Location lastLocation = locationResult.getLastLocation();
+                    updateCurrentLocation(lastLocation);
+                    currentLocation = lastLocation;
+                }
+
                 mFusedLocationClient.flushLocations();
             }
         };
@@ -67,8 +72,10 @@ public abstract class BaseLocationPresenter implements OnSuccessListener<Locatio
 
     @Override
     public void onSuccess(Location location) {
+
+        updateCurrentLocation(location);
+
         if (location != null) {
-            updateCurrentLocation(location);
             currentLocation = location;
         }
     }

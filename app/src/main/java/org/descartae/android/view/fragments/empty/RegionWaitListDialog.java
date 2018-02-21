@@ -12,23 +12,19 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.apollographql.apollo.ApolloCall;
-import com.apollographql.apollo.ApolloClient;
-import com.apollographql.apollo.api.Error;
-import com.apollographql.apollo.api.Response;
-import com.apollographql.apollo.exception.ApolloException;
-
 import org.descartae.android.AddToWaitlistMutation;
 import org.descartae.android.DescartaeApp;
 import org.descartae.android.R;
 import org.descartae.android.networking.apollo.ApolloApiErrorHandler;
-import org.descartae.android.networking.NetworkingConstants;
 import org.descartae.android.networking.apollo.errors.DuplicatedEmailError;
+import org.descartae.android.networking.apollo.errors.GeneralError;
 import org.descartae.android.presenter.waitlist.WaitListPresenter;
+import org.descartae.android.view.events.EventHideLoading;
+import org.descartae.android.view.events.EventShowLoading;
+import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-import javax.annotation.Nonnull;
 import javax.inject.Inject;
 
 import butterknife.BindView;
@@ -38,15 +34,14 @@ import butterknife.OnClick;
 /**
  * Created by lucasmontano on 09/12/2017.
  */
-
 public class RegionWaitListDialog extends DialogFragment {
 
     private static final String ARG_LATITUDE = "ARG_LATITUDE";
     private static final String ARG_LONGITUDE = "ARG_LONGITUDE";
 
-    @Inject ApolloApiErrorHandler apiErrorHandler;
-
     @Inject WaitListPresenter presenter;
+
+    @Inject EventBus eventBus;
 
     @BindView(R.id.linear_form)
     LinearLayout linearForm;
@@ -87,6 +82,12 @@ public class RegionWaitListDialog extends DialogFragment {
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+        eventBus.register(this);
+    }
+
+    @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
 
         /**
@@ -109,6 +110,12 @@ public class RegionWaitListDialog extends DialogFragment {
         return mBuilder.create();
     }
 
+    @Override
+    public void onStop() {
+        super.onStop();
+        eventBus.unregister(this);
+    }
+
     @OnClick(R.id.action_send)
     public void onSend() {
 
@@ -119,68 +126,26 @@ public class RegionWaitListDialog extends DialogFragment {
             return;
         }
 
+        ApolloApiErrorHandler.setGenericErrorMessage(getString(R.string.wait_list_error));
+
+        presenter.setLatLng(longitude, latitude);
         presenter.addToWaitList(email);
-        
-        ApolloClient apolloClient = ApolloClient.builder()
-                .serverUrl(NetworkingConstants.BASE_URL)
-                .build();
+    }
 
-        AddToWaitlistMutation.Builder builder = AddToWaitlistMutation.builder();
-        builder.email(email);
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onError(GeneralError error) {
+        dismiss();
+    }
 
-        if (latitude != 0 && longitude != 0) {
-            builder.latitude(latitude);
-            builder.longitude(longitude);
-        }
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onDuplicatedEmailError(DuplicatedEmailError duplicatedEmailError) {
+        dismiss();
+    }
 
-        showLoad();
-
-        AddToWaitlistMutation build = builder.build();
-        apolloClient.mutate(build).enqueue(new ApolloCall.Callback<AddToWaitlistMutation.Data>() {
-
-            @Override
-            public void onResponse(@Nonnull Response<AddToWaitlistMutation.Data> response) {
-
-                if (getActivity() == null || getActivity().isDestroyed()) return;
-                if (response == null) return;
-
-                getActivity().runOnUiThread(() -> {
-                    hideLoad();
-                });
-
-                if (response.hasErrors()) {
-
-                    // Default message error
-                    ApolloApiErrorHandler.setGenericErrorMessage(getString(R.string.wait_list_error));
-
-                    for (Error error : response.errors()) apiErrorHandler.throwError(error);
-                    dismiss();
-                } else {
-
-                    getActivity().runOnUiThread(() -> {
-
-                        if (response.data().addWaitingUser().success()) {
-                            onSuccess();
-                        } else {
-                            new ApolloApiErrorHandler(getString(R.string.wait_list_error));
-                            dismiss();
-                        }
-                    });
-                }
-            }
-
-            @Override
-            public void onFailure(@Nonnull ApolloException e) {
-
-                getActivity().runOnUiThread(() -> {
-                    hideLoad();
-                });
-
-                new ApolloApiErrorHandler(getString(R.string.wait_list_error));
-
-                dismiss();
-            }
-        });
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onAddWaitList(AddToWaitlistMutation.Data data) {
+        if (data.addWaitingUser().success()) onSuccess();
+        else dismiss();
     }
 
     private void onSuccess() {
@@ -194,12 +159,14 @@ public class RegionWaitListDialog extends DialogFragment {
         mSubTitle.setText(R.string.wait_list_desc_success);
     }
 
-    private void showLoad() {
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void eventShowLoading(EventShowLoading event) {
         linearForm.setVisibility(View.GONE);
         loading.setVisibility(View.VISIBLE);
     }
 
-    private void hideLoad() {
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void eventHideLoading(EventHideLoading event) {
         loading.setVisibility(View.GONE);
         linearForm.setVisibility(View.VISIBLE);
     }

@@ -24,13 +24,13 @@ public final class ApolloApiErrorHandler {
 
     public void throwError(Error error) {
 
-        if (error == null || error.message().isEmpty()) EventBus.getDefault().post(new GeneralError(genericErrorMessage));
-        else if (error.message().equals("DUPLICATED_EMAIL")) EventBus.getDefault().post(new DuplicatedEmailError());
-        else if (error.message().equals("REGION_NOT_SUPPORTED")) EventBus.getDefault().post(new RegionNotSupportedError());
+        if (error == null || error.message().isEmpty()) bus.post(new GeneralError(genericErrorMessage));
+        else if (error.message().equals("DUPLICATED_EMAIL")) bus.post(new DuplicatedEmailError());
+        else if (error.message().equals("REGION_NOT_SUPPORTED")) bus.post(new RegionNotSupportedError());
     }
 
     public ApolloApiErrorHandler(String message) {
-        EventBus.getDefault().post(new GeneralError(message));
+        bus.post(new GeneralError(message));
     }
 
     public static void setGenericErrorMessage(String genericErrorMessage) {

@@ -33,7 +33,7 @@ public class AppModule {
     @Provides
     @Singleton
     EventBus provideEventBus() {
-        return EventBus.builder().build();
+        return app.getEventBus();
     }
 
     @Provides
@@ -67,7 +67,7 @@ public class AppModule {
     }
 
     @Provides
-    WaitListPresenter provideRegionUnsupportedPresenter(EventBus bus, ApolloApiErrorHandler apiErrorHandler, FusedLocationProviderClient fusedLocationClient) {
-        return new WaitListPresenter(bus, apiErrorHandler, fusedLocationClient);
+    WaitListPresenter provideRegionUnsupportedPresenter(EventBus bus, ApolloApiErrorHandler apiErrorHandler) {
+        return new WaitListPresenter(bus, apiErrorHandler);
     }
 }

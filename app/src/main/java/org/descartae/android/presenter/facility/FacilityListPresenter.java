@@ -26,6 +26,8 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import io.reactivex.disposables.Disposable;
+
 /**
  * Created by lucasmontano on 19/02/2018.
  */
@@ -39,6 +41,7 @@ public class FacilityListPresenter extends BaseLocationPresenter implements Conn
 
     private final FacilitiesQuery.Builder builder = FacilitiesQuery.builder();
     private FacilitiesQuery facilityQuery;
+    private Disposable disposable;
 
     @Inject public FacilityListPresenter(EventBus bus, DescartaePreferences preferences, ApolloApiErrorHandler apiErrorHandler, FusedLocationProviderClient fusedLocationClient) {
         super(fusedLocationClient);
@@ -47,9 +50,21 @@ public class FacilityListPresenter extends BaseLocationPresenter implements Conn
         this.apiErrorHandler = apiErrorHandler;
 
         eventBus.post(new EventShowLoading());
+
+        ConnectionClassManager.getInstance().register(this);
     }
 
     protected void updateCurrentLocation(Location currentLocation) {
+
+        if (currentLocation == null) {
+
+            // Check Connectivity
+            ConnectionQuality cq = ConnectionClassManager.getInstance().getCurrentBandwidthQuality();
+            if (cq.equals(ConnectionQuality.UNKNOWN)) eventBus.post(new ConnectionError());
+
+            return;
+        }
+
         builder.latitude(currentLocation.getLatitude());
         builder.longitude(currentLocation.getLongitude());
 
@@ -76,36 +91,46 @@ public class FacilityListPresenter extends BaseLocationPresenter implements Conn
         eventBus.post(new EventShowLoading());
 
         // Start Test Connection Quality
-        ConnectionClassManager.getInstance().register(this);
         DeviceBandwidthSampler.getInstance().startSampling();
 
-        Rx2Apollo.from(getFacilitiesCall()).subscribe(dataResponse -> {
+        if (disposable == null || disposable.isDisposed()) {
 
-            // Stop Test Connection Quality
-            DeviceBandwidthSampler.getInstance().stopSampling();
+            disposable = Rx2Apollo.from(getFacilitiesCall()).subscribe(dataResponse -> {
 
-            eventBus.post(new EventHideLoading());
+                // Stop Test Connection Quality
+                DeviceBandwidthSampler.getInstance().stopSampling();
 
-            // Check and throw errors
-            if (dataResponse.hasErrors())
-                for (Error error : dataResponse.errors()) apiErrorHandler.throwError(error);
+                eventBus.post(new EventHideLoading());
 
-            // If no Errors
-            else if (dataResponse.data() != null) eventBus.post(dataResponse.data().facilities());
+                // Check and throw errors
+                if (dataResponse.hasErrors())
+                    for (Error error : dataResponse.errors()) apiErrorHandler.throwError(error);
 
-        }, throwable -> {
+                    // If no Errors
+                else if (dataResponse.data() != null)
+                    eventBus.post(dataResponse.data().facilities());
 
-            // Stop Test Connection Quality
-            DeviceBandwidthSampler.getInstance().stopSampling();
+                disposable.dispose();
 
-            eventBus.post(new EventHideLoading());
+            }, throwable -> {
 
-            if (throwable != null && throwable.getMessage() != null) Log.e(TAG_APOLLO_FACILITY_QUERY, throwable.getMessage());
+                // Stop Test Connection Quality
+                DeviceBandwidthSampler.getInstance().stopSampling();
+                ConnectionQuality cq = ConnectionClassManager.getInstance().getCurrentBandwidthQuality();
 
-            // Check Connectivity
-            ConnectionQuality cq = ConnectionClassManager.getInstance().getCurrentBandwidthQuality();
-            if (cq.equals(ConnectionQuality.UNKNOWN)) eventBus.post(new ConnectionError());
-        });
+                eventBus.post(new EventHideLoading());
+
+                String errorMessage = throwable.getMessage();
+                if (throwable != null && errorMessage != null) {
+                    Log.e(TAG_APOLLO_FACILITY_QUERY, errorMessage);
+
+                    if (errorMessage.equals("Failed to execute http call")) eventBus.post(new ConnectionError());
+                    else if (cq.equals(ConnectionQuality.UNKNOWN)) eventBus.post(new ConnectionError());
+                }
+
+                disposable.dispose();
+            });
+        }
     }
 
     private ApolloQueryCall<FacilitiesQuery.Data> getFacilitiesCall() {

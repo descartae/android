@@ -14,6 +14,7 @@ import com.google.android.gms.common.GoogleApiAvailability;
 import org.descartae.android.DescartaeApp;
 import org.descartae.android.interfaces.RequestPermissionView;
 import org.descartae.android.networking.apollo.errors.GeneralError;
+import org.descartae.android.preferences.DescartaePreferences;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
@@ -28,6 +29,7 @@ public abstract class BaseActivity extends AppCompatActivity implements RequestP
     private static final int PERMISSIONS_REQUEST = 0x01;
     private static final int RQ_GPSERVICE = 0x02;
 
+    @Inject DescartaePreferences preferences;
     @Inject EventBus eventBus;
 
     abstract void permissionNotGranted();

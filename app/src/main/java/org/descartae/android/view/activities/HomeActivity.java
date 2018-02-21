@@ -206,9 +206,6 @@ public class HomeActivity extends BaseActivity
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void showRegionNotSupported(RegionNotSupportedError error) {
-
-        DescartaePreferences preferences = DescartaePreferences.getInstance(this);
-
         getSupportFragmentManager().beginTransaction().replace(
                 R.id.content,
                 EmptyRegionUnsupportedFragment.newInstance(
