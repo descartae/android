@@ -31,7 +31,8 @@ import butterknife.OnClick;
  */
 public class FeedbackDialog extends DialogFragment {
 
-    @Inject FeedbackPresenter presenter;
+    @Inject
+    FeedbackPresenter presenter;
 
     @Inject EventBus eventBus;
 
@@ -54,7 +55,6 @@ public class FeedbackDialog extends DialogFragment {
     public View mActionOk;
 
     private String facilityID;
-    private AlertDialog.Builder mBuilder;
 
     public static FeedbackDialog newInstance(String facilityID) {
         FeedbackDialog frag = new FeedbackDialog();
@@ -94,7 +94,7 @@ public class FeedbackDialog extends DialogFragment {
             mSubTitle.setText(R.string.feedback_facility_desc);
         }
 
-        mBuilder = new AlertDialog.Builder(new ContextThemeWrapper(getActivity(), R.style.Theme_AppCompat_Light));
+        AlertDialog.Builder mBuilder = new AlertDialog.Builder(new ContextThemeWrapper(getActivity(), R.style.Theme_AppCompat_Light));
         mBuilder.setView(viewInflated);
 
         return mBuilder.create();
@@ -117,7 +117,7 @@ public class FeedbackDialog extends DialogFragment {
 
         String feedback = mFeedback.getText().toString();
 
-        if (feedback == null || feedback.length() <= 0) {
+        if (feedback.length() <= 0) {
             Snackbar.make(mFeedback, R.string.feedback_no_message_error, Snackbar.LENGTH_SHORT).show();
             return;
         }
