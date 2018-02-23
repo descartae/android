@@ -17,7 +17,7 @@ class FeedbackPresenter @Inject constructor(private var eventBus: EventBus, priv
 
     private val builder = AddFeedbackMutation.builder()
 
-    fun setFacilityId(facilityID: String) {
+    fun setFacilityId(facilityID: String?) {
         builder.facilityId(facilityID)
     }
 
