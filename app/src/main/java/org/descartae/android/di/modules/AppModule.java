@@ -8,8 +8,8 @@ import org.descartae.android.networking.apollo.ApolloApiErrorHandler;
 import org.descartae.android.preferences.DescartaePreferences;
 import org.descartae.android.presenter.facility.FacilityListPresenter;
 import org.descartae.android.presenter.feedback.FeedbackPresenter;
-import org.descartae.android.presenter.waitlist.WaitListPresenter;
 import org.descartae.android.presenter.typeofwaste.TypeOfWastePresenter;
+import org.descartae.android.presenter.waitlist.WaitListPresenter;
 import org.greenrobot.eventbus.EventBus;
 
 import javax.inject.Singleton;
@@ -17,9 +17,6 @@ import javax.inject.Singleton;
 import dagger.Module;
 import dagger.Provides;
 
-/**
- * Created by lucasmontano on 19/02/2018.
- */
 @Module
 public class AppModule {
 
