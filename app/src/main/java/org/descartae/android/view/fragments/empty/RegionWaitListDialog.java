@@ -31,15 +31,13 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-/**
- * Created by lucasmontano on 09/12/2017.
- */
 public class RegionWaitListDialog extends DialogFragment {
 
     private static final String ARG_LATITUDE = "ARG_LATITUDE";
     private static final String ARG_LONGITUDE = "ARG_LONGITUDE";
 
-    @Inject WaitListPresenter presenter;
+    @Inject
+    WaitListPresenter presenter;
 
     @Inject EventBus eventBus;
 
