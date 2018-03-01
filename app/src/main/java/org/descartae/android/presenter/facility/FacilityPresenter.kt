@@ -82,7 +82,7 @@ class FacilityPresenter @Inject constructor(
                 apiErrorHandler.throwError(it)
             }
 
-            // Check data and send facility to be render in FacilityQuery
+            // Check data and send facility to be render in FacilityActivity
             dataResponse.data().let {
                 if (it != null) eventBus.post(it.facility())
             }
