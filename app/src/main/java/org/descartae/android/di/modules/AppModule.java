@@ -44,7 +44,7 @@ public class AppModule {
 
     @Provides
     ApolloApiErrorHandler provideApolloApiErrorHandler() {
-        return new ApolloApiErrorHandler(provideEventBus());
+        return new ApolloApiErrorHandler(provideEventBus(), null);
     }
 
     @Provides

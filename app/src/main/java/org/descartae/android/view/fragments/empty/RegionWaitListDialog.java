@@ -120,11 +120,11 @@ public class RegionWaitListDialog extends DialogFragment {
         String email = mEmail.getText().toString();
 
         if (email == null || email.length() <= 0 || ! email.contains("@")) {
-            new ApolloApiErrorHandler(getString(R.string.wait_list_no_email_error));
+            new ApolloApiErrorHandler(eventBus).throwError(getString(R.string.wait_list_no_email_error));
             return;
         }
 
-        ApolloApiErrorHandler.setGenericErrorMessage(getString(R.string.wait_list_error));
+        ApolloApiErrorHandler.Companion.setGenericErrorMessage(getString(R.string.wait_list_error));
 
         presenter.setLatLng(longitude, latitude);
         presenter.addToWaitList(email);

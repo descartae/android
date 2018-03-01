@@ -4,5 +4,5 @@ import org.descartae.android.BuildConfig
 
 object NetworkingConstants {
 
-    val BASE_URL = BuildConfig.MOBILE_API_URL
+    const val BASE_URL = BuildConfig.MOBILE_API_URL
 }
