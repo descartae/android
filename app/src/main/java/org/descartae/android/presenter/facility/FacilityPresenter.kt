@@ -83,8 +83,8 @@ class FacilityPresenter @Inject constructor(
             }
 
             // Check data and send facility to be render in FacilityActivity
-            dataResponse.data().let {
-                if (it != null) eventBus.post(it.facility())
+            dataResponse.data()?.let {
+                eventBus.post(it.facility())
             }
 
         }) { throwable ->

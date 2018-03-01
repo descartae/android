@@ -84,8 +84,8 @@ class FacilityListPresenter @Inject constructor(private val eventBus: EventBus, 
                 }
 
                 // Check data and send facilities to be render
-                dataResponse.data().let {
-                    if (it != null) eventBus.post(it.facilities())
+                dataResponse.data()?.let {
+                    eventBus.post(it.facilities())
                 }
 
                 disposable!!.dispose()
