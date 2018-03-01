@@ -7,6 +7,7 @@ import org.descartae.android.DescartaeApp;
 import org.descartae.android.networking.apollo.ApolloApiErrorHandler;
 import org.descartae.android.preferences.DescartaePreferences;
 import org.descartae.android.presenter.facility.FacilityListPresenter;
+import org.descartae.android.presenter.facility.FacilityPresenter;
 import org.descartae.android.presenter.feedback.FeedbackPresenter;
 import org.descartae.android.presenter.typeofwaste.TypeOfWastePresenter;
 import org.descartae.android.presenter.waitlist.WaitListPresenter;

@@ -41,7 +41,6 @@ import org.descartae.android.R;
 import org.descartae.android.adapters.OpenHourListAdapter;
 import org.descartae.android.adapters.WastesTypeListAdapter;
 import org.descartae.android.interfaces.RetryConnectionView;
-import org.descartae.android.networking.apollo.errors.ConnectionError;
 import org.descartae.android.networking.apollo.errors.GeneralError;
 import org.descartae.android.presenter.facility.FacilityPresenter;
 import org.descartae.android.view.events.EventHideLoading;
@@ -66,8 +65,7 @@ public class FacilityActivity extends AppCompatActivity implements OnMapReadyCal
 
     @Inject EventBus eventBus;
 
-    @Inject
-    FacilityPresenter presenter;
+    @Inject FacilityPresenter presenter;
 
     @BindView(R.id.toolbar)
     Toolbar toolbar;

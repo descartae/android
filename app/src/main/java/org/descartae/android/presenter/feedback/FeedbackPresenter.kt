@@ -32,7 +32,7 @@ class FeedbackPresenter @Inject constructor(private var eventBus: EventBus, priv
             }
 
             // Check data and forward to event subscribers
-            dataResponse.data()?.let {
+            dataResponse.data().let {
                 eventBus.post(it)
             }
 
