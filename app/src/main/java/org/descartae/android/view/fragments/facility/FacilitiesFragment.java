@@ -177,7 +177,7 @@ public class FacilitiesFragment extends Fragment implements OnMapReadyCallback {
         Context context = view.getContext();
         recyclerView.addItemDecoration(new SimpleDividerItemDecoration(getActivity()));
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
-        facilityListAdapter = new FacilityListAdapter(getActivity(), (FacilitiesQuery.Item center) -> {
+        facilityListAdapter = new FacilityListAdapter((FacilitiesQuery.Item center) -> {
 
             // On Facility Item Clicked
             mItemSelected = center;
