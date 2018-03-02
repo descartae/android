@@ -7,7 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import org.descartae.android.R;
-import org.descartae.android.interfaces.RequestPermissionView;
+
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
