@@ -9,9 +9,10 @@ class DescartaePreferences(context: Context) {
     private var mSharedPreferences: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
 
     fun setBooleanValue(key: String, value: Boolean) {
-        val editor = mSharedPreferences.edit()
-        editor.putBoolean(key, value)
-        editor.apply()
+        mSharedPreferences.edit().apply {
+            putBoolean(key, value)
+            apply()
+        }
     }
 
     fun getBooleanValue(key: String): Boolean {
@@ -19,9 +20,10 @@ class DescartaePreferences(context: Context) {
     }
 
     fun setValue(key: String, value: Double) {
-        val editor = mSharedPreferences.edit()
-        editor.putFloat(key, value.toFloat())
-        editor.apply()
+        mSharedPreferences.edit().apply {
+            putFloat(key, value.toFloat())
+            apply()
+        }
     }
 
     fun getDoubleValue(key: String): Double? {

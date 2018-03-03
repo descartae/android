@@ -3,9 +3,7 @@ package org.descartae.android;
 import android.app.Application;
 import android.content.Context;
 
-import org.descartae.android.di.components.AppComponent;
 import org.descartae.android.di.components.DaggerAppComponent;
-import org.descartae.android.di.modules.AppModule;
 import org.greenrobot.eventbus.EventBus;
 
 /**
