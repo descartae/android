@@ -32,7 +32,6 @@ import org.descartae.android.FacilitiesQuery;
 import org.descartae.android.R;
 
 import org.descartae.android.adapters.FacilityListAdapter;
-import org.descartae.android.networking.apollo.errors.RegionNotSupportedError;
 import org.descartae.android.presenter.facility.FacilityListPresenter;
 import org.descartae.android.presenter.typeofwaste.TypeOfWastePresenter;
 import org.descartae.android.view.activities.FacilityActivity;

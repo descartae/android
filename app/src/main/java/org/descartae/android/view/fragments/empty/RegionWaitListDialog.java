@@ -16,8 +16,6 @@ import org.descartae.android.AddToWaitlistMutation;
 import org.descartae.android.DescartaeApp;
 import org.descartae.android.R;
 import org.descartae.android.networking.apollo.ApolloApiErrorHandler;
-import org.descartae.android.networking.apollo.errors.DuplicatedEmailError;
-import org.descartae.android.networking.apollo.errors.GeneralError;
 import org.descartae.android.presenter.waitlist.WaitListPresenter;
 import org.descartae.android.view.events.EventHideLoading;
 import org.descartae.android.view.events.EventShowLoading;

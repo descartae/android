@@ -1,7 +1,5 @@
 package org.descartae.android.view.fragments.wastes;
 
-import android.app.AlertDialog;
-import android.app.Dialog;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
@@ -17,10 +15,6 @@ import org.descartae.android.R;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-
-/**
- * Created by lucasmontano on 09/12/2017.
- */
 
 public class WasteTypeDialog extends DialogFragment {
 

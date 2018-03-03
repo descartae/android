@@ -21,9 +21,6 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import javax.inject.Inject;
 
-/**
- * Created by lucasmontano on 05/12/2017.
- */
 public abstract class BaseActivity extends AppCompatActivity implements RequestPermissionView {
 
     private static final int PERMISSIONS_REQUEST = 0x01;

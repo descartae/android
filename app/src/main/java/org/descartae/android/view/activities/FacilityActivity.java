@@ -41,7 +41,6 @@ import org.descartae.android.R;
 import org.descartae.android.adapters.OpenHourListAdapter;
 import org.descartae.android.adapters.WastesTypeListAdapter;
 import org.descartae.android.interfaces.RetryConnectionView;
-import org.descartae.android.networking.apollo.errors.GeneralError;
 import org.descartae.android.presenter.facility.FacilityPresenter;
 import org.descartae.android.view.events.EventHideLoading;
 import org.descartae.android.view.events.EventShowLoading;
