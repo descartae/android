@@ -41,6 +41,7 @@ import org.descartae.android.R;
 import org.descartae.android.adapters.OpenHourListAdapter;
 import org.descartae.android.adapters.WastesTypeListAdapter;
 import org.descartae.android.interfaces.RetryConnectionView;
+import org.descartae.android.networking.apollo.errors.GeneralError;
 import org.descartae.android.presenter.facility.FacilityPresenter;
 import org.descartae.android.view.events.EventHideLoading;
 import org.descartae.android.view.events.EventShowLoading;
@@ -141,9 +142,7 @@ public class FacilityActivity extends AppCompatActivity implements OnMapReadyCal
         /*
          * Init Dagger
          */
-        DescartaeApp.getInstance(this)
-                .getAppComponent()
-                .inject(this);
+        ((DescartaeApp) getApplicationContext()).getComponent().inject(this);
 
         // Type of Waste
         LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);

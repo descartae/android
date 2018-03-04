@@ -9,12 +9,9 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 
-import org.descartae.android.DescartaeApp;
 import org.descartae.android.R;
 import org.descartae.android.preferences.DescartaePreferences;
 import org.descartae.android.view.fragments.intro.IntroFragment;
-
-import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -23,8 +20,6 @@ import me.relex.circleindicator.CircleIndicator;
 public class IntroActivity extends BaseActivity implements IntroFragment.IntroListener {
 
     private ScreenSlidePagerAdapter mPagerAdapter;
-
-    @Inject DescartaePreferences preferences;
 
     @BindView(R.id.pager)
     ViewPager mPager;
@@ -39,10 +34,6 @@ public class IntroActivity extends BaseActivity implements IntroFragment.IntroLi
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_intro);
         ButterKnife.bind(this);
-
-        DescartaeApp.getInstance(this)
-                .getAppComponent()
-                .inject(this);
 
         if (preferences.getBooleanValue(DescartaePreferences.INTRO_OK)) {
             startActivity(new Intent(this, HomeActivity.class));
@@ -115,7 +106,7 @@ public class IntroActivity extends BaseActivity implements IntroFragment.IntroLi
     }
 
     private class ScreenSlidePagerAdapter extends FragmentStatePagerAdapter {
-        public ScreenSlidePagerAdapter(FragmentManager fm) {
+        ScreenSlidePagerAdapter(FragmentManager fm) {
             super(fm);
         }
 

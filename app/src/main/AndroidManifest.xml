@@ -13,7 +13,6 @@
         android:name=".DescartaeApp"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-
         <activity
             android:name=".view.activities.HomeActivity"
             android:label="@string/title_activity_home"

@@ -16,6 +16,8 @@ import org.descartae.android.AddToWaitlistMutation;
 import org.descartae.android.DescartaeApp;
 import org.descartae.android.R;
 import org.descartae.android.networking.apollo.ApolloApiErrorHandler;
+import org.descartae.android.networking.apollo.errors.DuplicatedEmailError;
+import org.descartae.android.networking.apollo.errors.GeneralError;
 import org.descartae.android.presenter.waitlist.WaitListPresenter;
 import org.descartae.android.view.events.EventHideLoading;
 import org.descartae.android.view.events.EventShowLoading;
@@ -89,9 +91,7 @@ public class RegionWaitListDialog extends DialogFragment {
         /**
          * Init Dagger
          */
-        DescartaeApp.getInstance(getActivity())
-                .getAppComponent()
-                .inject(this);
+        ((DescartaeApp) getActivity().getApplicationContext()).getComponent().inject(this);
 
         RelativeLayout viewInflated = (RelativeLayout) getActivity().getLayoutInflater().inflate(R.layout.dialog_wait_list, null);
 

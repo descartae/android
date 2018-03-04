@@ -12,6 +12,7 @@ import org.descartae.android.DescartaeApp;
 import org.descartae.android.R;
 import org.descartae.android.TypeOfWasteQuery;
 import org.descartae.android.adapters.LegendWasteTypeListAdapter;
+import org.descartae.android.networking.apollo.errors.GeneralError;
 import org.descartae.android.presenter.typeofwaste.TypeOfWastePresenter;
 import org.descartae.android.view.events.EventHideLoading;
 import org.descartae.android.view.events.EventShowLoading;
@@ -67,9 +68,7 @@ public class LegendTypeOfWasteActivity extends AppCompatActivity {
         /*
          * Init Dagger
          */
-        DescartaeApp.getInstance(this)
-                .getAppComponent()
-                .inject(this);
+        ((DescartaeApp) getApplicationContext()).getComponent().inject(this);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.addItemDecoration(new SpaceDividerItemDecoration(80));

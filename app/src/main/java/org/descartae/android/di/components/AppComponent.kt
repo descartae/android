@@ -1,6 +1,7 @@
 package org.descartae.android.di.components
 
 import dagger.Component
+import org.descartae.android.DescartaeApp
 import org.descartae.android.di.modules.AppModule
 import org.descartae.android.view.activities.BaseActivity
 import org.descartae.android.view.activities.FacilityActivity
@@ -20,4 +21,5 @@ interface AppComponent {
     fun inject(legendTypeOfWasteActivity: LegendTypeOfWasteActivity)
     fun inject(facilityActivity: FacilityActivity)
     fun inject(feedbackDialog: FeedbackDialog)
+    fun inject(descartaeApp: DescartaeApp)
 }

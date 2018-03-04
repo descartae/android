@@ -17,45 +17,47 @@ import javax.inject.Singleton
 @Module
 class AppModule(private val app: DescartaeApp) {
 
-    @Provides
-    @Singleton
-    internal fun provideEventBus(): EventBus {
-        return app.eventBus
+    @Provides @Singleton
+    fun provideApplication() = app
+
+    @Provides @Singleton
+    fun provideEventBus(): EventBus {
+        return app.eventBus!!
     }
 
     @Provides
-    internal fun provideFusedLocationProviderClient(): FusedLocationProviderClient {
+    fun provideFusedLocationProviderClient(): FusedLocationProviderClient {
         return LocationServices.getFusedLocationProviderClient(app.applicationContext)
     }
 
     @Provides
     @Singleton
-    internal fun provideDescartaePreferences(): DescartaePreferences {
+    fun provideDescartaePreferences(): DescartaePreferences {
         return DescartaePreferences(app.applicationContext)
     }
 
     @Provides
-    internal fun provideApolloApiErrorHandler(): ApolloApiErrorHandler {
+    fun provideApolloApiErrorHandler(): ApolloApiErrorHandler {
         return ApolloApiErrorHandler(provideEventBus())
     }
 
     @Provides
-    internal fun provideFacilityListPresenter(bus: EventBus, preferences: DescartaePreferences, apiErrorHandler: ApolloApiErrorHandler, fusedLocationClient: FusedLocationProviderClient): FacilityListPresenter {
+    fun provideFacilityListPresenter(bus: EventBus, preferences: DescartaePreferences, apiErrorHandler: ApolloApiErrorHandler, fusedLocationClient: FusedLocationProviderClient): FacilityListPresenter {
         return FacilityListPresenter(bus, preferences, apiErrorHandler, fusedLocationClient)
     }
 
     @Provides
-    internal fun provideTypeOfWastePresenter(bus: EventBus, apiErrorHandler: ApolloApiErrorHandler): TypeOfWastePresenter {
+    fun provideTypeOfWastePresenter(bus: EventBus, apiErrorHandler: ApolloApiErrorHandler): TypeOfWastePresenter {
         return TypeOfWastePresenter(bus, apiErrorHandler)
     }
 
     @Provides
-    internal fun provideFeedbackPresenter(bus: EventBus, apiErrorHandler: ApolloApiErrorHandler): FeedbackPresenter {
+    fun provideFeedbackPresenter(bus: EventBus, apiErrorHandler: ApolloApiErrorHandler): FeedbackPresenter {
         return FeedbackPresenter(bus, apiErrorHandler)
     }
 
     @Provides
-    internal fun provideRegionUnsupportedPresenter(bus: EventBus, apiErrorHandler: ApolloApiErrorHandler): WaitListPresenter {
+    fun provideRegionUnsupportedPresenter(bus: EventBus, apiErrorHandler: ApolloApiErrorHandler): WaitListPresenter {
         return WaitListPresenter(bus, apiErrorHandler)
     }
 }

@@ -38,9 +38,7 @@ public abstract class BaseActivity extends AppCompatActivity implements RequestP
         /**
          * Init Dagger
          */
-        DescartaeApp.getInstance(this)
-                .getAppComponent()
-                .inject(this);
+        ((DescartaeApp) getApplicationContext()).getComponent().inject(this);
     }
 
     @Override
