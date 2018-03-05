@@ -22,23 +22,19 @@ class WastesTypeListAdapter(private val mContext: Context, private val mListener
     override fun onBindViewHolder(holder: TypeWasteViewHolder, position: Int) {
         holder.mItem = types!![position]
 
-        Picasso.with(mContext).load(holder.mItem.icons().androidMediumURL())
+        Picasso.with(mContext).load(holder.mItem!!.icons().androidMediumURL())
             .resize(100, 100)
             .placeholder(R.drawable.ic_placeholder)
             .centerInside().into(holder.itemView.waste_image)
 
-        holder.itemView.waste_name.text = holder.mItem.name()
+        holder.itemView.waste_name.text = holder.mItem!!.name()
 
-        holder.mView.setOnClickListener {
-            mListener.invoke(holder.mItem)
+        holder.itemView.setOnClickListener {
+            mListener.invoke(holder.mItem!!)
         }
     }
 
     override fun getItemCount(): Int {
         return if (types == null) 0 else types!!.size
-    }
-
-    interface TypeOfWasteListner {
-        fun onTypeClick(typesOfWaste: FacilityQuery.TypesOfWaste)
     }
 }

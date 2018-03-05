@@ -89,7 +89,7 @@ class FacilityActivity : AppCompatActivity(), OnMapReadyCallback, RetryConnectio
         val layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
         type_waste.layoutManager = layoutManager
 
-        mTypesWasteAdapter = WastesTypeListAdapter(this, mListener = {
+        mTypesWasteAdapter = WastesTypeListAdapter(this, {
 
             val ft = supportFragmentManager.beginTransaction()
             val prev = supportFragmentManager.findFragmentByTag("dialog")
