@@ -5,11 +5,12 @@ import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import com.squareup.picasso.Picasso
+import kotlinx.android.synthetic.main.waste_type_item.view.*
 import org.descartae.android.FacilityQuery
 import org.descartae.android.R
 import org.descartae.android.view.viewholder.TypeWasteViewHolder
 
-class WastesTypeListAdapter(private val mContext: Context, internal var mListener: TypeOfWasteListner?) : RecyclerView.Adapter<TypeWasteViewHolder>() {
+class WastesTypeListAdapter(private val mContext: Context, private val mListener: (FacilityQuery.TypesOfWaste) -> Unit) : RecyclerView.Adapter<TypeWasteViewHolder>() {
 
     var types: List<FacilityQuery.TypesOfWaste>? = null
 
@@ -24,11 +25,13 @@ class WastesTypeListAdapter(private val mContext: Context, internal var mListene
         Picasso.with(mContext).load(holder.mItem.icons().androidMediumURL())
             .resize(100, 100)
             .placeholder(R.drawable.ic_placeholder)
-            .centerInside().into(holder.mWasteImage)
+            .centerInside().into(holder.itemView.waste_image)
 
-        holder.mName.text = holder.mItem.name()
+        holder.itemView.waste_name.text = holder.mItem.name()
 
-        holder.mView.setOnClickListener { mListener.let { it?.onTypeClick(holder.mItem) } }
+        holder.mView.setOnClickListener {
+            mListener.invoke(holder.mItem)
+        }
     }
 
     override fun getItemCount(): Int {

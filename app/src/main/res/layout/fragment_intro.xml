@@ -13,13 +13,13 @@
         android:paddingRight="@dimen/activity_horizontal_margin">
 
         <ImageView
-            android:id="@+id/intro_image"
+            android:id="@+id/imageView_intro"
             android:layout_width="@dimen/intro_image"
             android:layout_height="@dimen/intro_image"
             android:layout_gravity="center_horizontal"/>
 
         <TextView
-            android:id="@+id/intro_title"
+            android:id="@+id/textView_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/margin_top"
@@ -29,7 +29,7 @@
             android:textStyle="bold" />
 
         <TextView
-            android:id="@+id/intro_subtitle"
+            android:id="@+id/textView_subtitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"
@@ -39,7 +39,7 @@
             android:textSize="@dimen/text_regular" />
 
         <Button
-            android:id="@+id/action_start"
+            android:id="@+id/button_start"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"

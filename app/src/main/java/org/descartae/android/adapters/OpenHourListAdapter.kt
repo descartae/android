@@ -4,6 +4,7 @@ import android.content.Context
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import kotlinx.android.synthetic.main.time_item.view.*
 import org.descartae.android.FacilityQuery
 import org.descartae.android.R
 import org.descartae.android.view.viewholder.ListTimeViewHolder
@@ -24,8 +25,8 @@ class OpenHourListAdapter(private val mContext: Context) : RecyclerView.Adapter<
 
             openHour.let {
                 val daysWeek = mContext.resources.getStringArray(R.array.day_of_week)
-                holder.mDay.text = daysWeek[openHour!!.dayOfWeek().ordinal]
-                holder.mTime.text = mContext.getString(R.string.time_desc, it?.startTime(), it?.endTime())
+                holder.itemView.day.text = daysWeek[openHour!!.dayOfWeek().ordinal]
+                holder.itemView.time.text = mContext.getString(R.string.time_desc, it?.startTime(), it?.endTime())
             }
         }
     }

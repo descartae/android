@@ -6,6 +6,7 @@ import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import com.squareup.picasso.Picasso
+import kotlinx.android.synthetic.main.legend_wate_item.view.*
 import org.descartae.android.R
 import org.descartae.android.TypeOfWasteQuery
 import org.descartae.android.view.viewholder.LegendTypeWasteViewHolder
@@ -22,11 +23,11 @@ class LegendWasteTypeListAdapter(private val mContext: Context) : RecyclerView.A
     override fun onBindViewHolder(holder: LegendTypeWasteViewHolder, position: Int) {
         holder.mItem = types!![position]
 
-        Picasso.with(mContext).load(holder.mItem.icons().androidMediumURL()).resize(100, 100).placeholder(R.drawable.ic_placeholder).centerInside().into(holder.mWasteImage)
+        Picasso.with(mContext).load(holder.mItem.icons().androidMediumURL()).resize(100, 100).placeholder(R.drawable.ic_placeholder).centerInside().into(holder.itemView.icon)
 
-        holder.mName.text = holder.mItem.name()
-        holder.mName.setTextColor(Color.parseColor("#" + holder.mItem.color()))
-        holder.mDesc.text = holder.mItem.description()
+        holder.itemView.name.text = holder.mItem.name()
+        holder.itemView.name.setTextColor(Color.parseColor("#" + holder.mItem.color()))
+        holder.itemView.desc.text = holder.mItem.description()
     }
 
     override fun getItemCount(): Int {

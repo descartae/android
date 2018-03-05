@@ -2,13 +2,14 @@ package org.descartae.android.adapters
 
 import android.location.Location
 import android.support.v7.widget.RecyclerView
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import org.descartae.android.FacilitiesQuery
 import org.descartae.android.R
 import org.descartae.android.view.viewholder.FacilityViewHolder
 
-class FacilityListAdapter(private val mListener: OnFacilityListener?) : RecyclerView.Adapter<FacilityViewHolder>() {
+class FacilityListAdapter(private val mListener: (FacilitiesQuery.Item) -> Unit) : RecyclerView.Adapter<FacilityViewHolder>() {
 
     var centers: List<FacilitiesQuery.Item>? = null
     var currentLocation: Location? = null
@@ -23,14 +24,12 @@ class FacilityListAdapter(private val mListener: OnFacilityListener?) : Recycler
         holder.setCurrentLocation(currentLocation)
         holder.fill()
 
-        holder.mView.setOnClickListener { mListener?.onListFacilityInteraction(holder.mItem) }
+        holder.itemView.setOnClickListener {
+            mListener.invoke(holder.mItem!!)
+        }
     }
 
     override fun getItemCount(): Int {
         return if (centers == null) 0 else centers!!.size
-    }
-
-    interface OnFacilityListener {
-        fun onListFacilityInteraction(facility: FacilitiesQuery.Item)
     }
 }

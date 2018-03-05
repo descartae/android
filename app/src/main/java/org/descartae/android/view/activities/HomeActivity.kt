@@ -34,11 +34,11 @@ class HomeActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
 
     private var facilitiesFragment: FacilitiesFragment? = null
 
-    internal override fun permissionNotGranted() {
+    @Override override fun permissionNotGranted() {
         supportFragmentManager.beginTransaction().replace(R.id.content, EmptyLocationPermissionFragment.newInstance()).commitAllowingStateLoss()
     }
 
-    internal override fun permissionGranted() {
+    @Override override fun permissionGranted() {
 
         /**
          * Ok, the permission is granted but we need to check if the location is enabled :)
