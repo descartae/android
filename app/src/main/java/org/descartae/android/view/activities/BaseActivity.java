@@ -26,7 +26,8 @@ public abstract class BaseActivity extends AppCompatActivity implements RequestP
     private static final int PERMISSIONS_REQUEST = 0x01;
     private static final int RQ_GPSERVICE = 0x02;
 
-    @Inject DescartaePreferences preferences;
+    @Inject
+    DescartaePreferences preferences;
     @Inject EventBus eventBus;
 
     abstract void permissionNotGranted();

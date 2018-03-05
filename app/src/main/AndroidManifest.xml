@@ -14,10 +14,6 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".view.activities.HomeActivity"
-            android:label="@string/title_activity_home"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity
             android:name=".view.activities.LegendTypeOfWasteActivity"
             android:label="@string/title_activity_type_of_waste"
             android:theme="@style/AppTheme.NoActionBar"></activity>
