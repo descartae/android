@@ -1,13 +1,11 @@
 package org.descartae.android.view.fragments.empty
 
-import android.annotation.SuppressLint
-import android.app.AlertDialog
-import android.app.Dialog
 import android.os.Bundle
 import android.support.v4.app.DialogFragment
-import android.view.ContextThemeWrapper
+import android.view.LayoutInflater
 import android.view.View
-import android.widget.*
+import android.view.ViewGroup
+import android.view.WindowManager
 import kotlinx.android.synthetic.main.dialog_wait_list.*
 import org.descartae.android.AddToWaitlistMutation
 import org.descartae.android.DescartaeApp
@@ -29,8 +27,6 @@ class RegionWaitListDialog : DialogFragment() {
 
     @Inject lateinit var eventBus: EventBus
 
-    private var mBuilder: AlertDialog.Builder? = null
-
     private var latitude: Double = 0.toDouble()
     private var longitude: Double = 0.toDouble()
 
@@ -41,6 +37,9 @@ class RegionWaitListDialog : DialogFragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
+
+        (activity!!.applicationContext as DescartaeApp).component.inject(this)
+
         action_cancel.setOnClickListener { dismiss() }
         action_ok.setOnClickListener { dismiss() }
         action_send.setOnClickListener {
@@ -52,28 +51,28 @@ class RegionWaitListDialog : DialogFragment() {
             } else {
                 ApolloApiErrorHandler.genericErrorMessage = getString(R.string.wait_list_error)
 
+                arguments?.let {
+                    latitude = it.getDouble(ARG_LATITUDE)
+                    longitude = it.getDouble(ARG_LONGITUDE)
+                }
+
                 presenter.setLatLng(longitude, latitude)
                 presenter.addToWaitList(email)
             }
         }
     }
 
-    @SuppressLint("InflateParams")
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        return inflater.inflate(R.layout.dialog_wait_list, container, false)
+    }
 
-        (activity!!.applicationContext as DescartaeApp).component.inject(this)
+    override fun onResume() {
+        super.onResume()
 
-        val viewInflated = activity!!.layoutInflater.inflate(R.layout.dialog_wait_list, null) as RelativeLayout
-
-        mBuilder = AlertDialog.Builder(ContextThemeWrapper(activity, R.style.Theme_AppCompat_Light))
-        mBuilder!!.setView(viewInflated)
-
-        arguments?.let {
-            latitude = it.getDouble(ARG_LATITUDE)
-            longitude = it.getDouble(ARG_LONGITUDE)
-        }
-
-        return mBuilder!!.create()
+        val params = dialog.window!!.attributes
+        params.width = WindowManager.LayoutParams.MATCH_PARENT
+        params.height = WindowManager.LayoutParams.WRAP_CONTENT
+        dialog.window!!.attributes = params as android.view.WindowManager.LayoutParams
     }
 
     override fun onStop() {
@@ -113,12 +112,12 @@ class RegionWaitListDialog : DialogFragment() {
     @Subscribe(threadMode = ThreadMode.MAIN)
     fun eventShowLoading(event: EventShowLoading) {
         linear_form.visibility = View.GONE
-        loading!!.visibility = View.VISIBLE
+        loading.visibility = View.VISIBLE
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     fun eventHideLoading(event: EventHideLoading) {
-        loading!!.visibility = View.GONE
+        loading.visibility = View.GONE
         linear_form.visibility = View.VISIBLE
     }
 

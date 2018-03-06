@@ -57,7 +57,7 @@ class FacilityListPresenter @Inject constructor(private val eventBus: EventBus, 
         requestFacilities()
     }
 
-    fun setFilterTypesID(filterTypesID: List<String>) {
+    fun setFilterTypesID(filterTypesID: List<String>?) {
         builder.hasTypesOfWaste(filterTypesID)
     }
 
@@ -83,8 +83,8 @@ class FacilityListPresenter @Inject constructor(private val eventBus: EventBus, 
                 }
 
                 // Check data and send facilities to be render
-                dataResponse.data()?.let {
-                    eventBus.post(it.facilities())
+                dataResponse.data()?.facilities()?.let {
+                    eventBus.post(it)
                 }
 
                 disposable!!.dispose()

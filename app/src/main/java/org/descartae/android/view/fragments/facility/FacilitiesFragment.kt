@@ -161,7 +161,7 @@ class FacilitiesFragment : Fragment(), OnMapReadyCallback {
             // Refresh MapMarkers
             fillMapMarkers()
 
-            presenter.setFilterTypesID(null!!)
+            presenter.setFilterTypesID(null)
             presenter.requestFacilities()
         }
 
