@@ -21,13 +21,20 @@ class LegendWasteTypeListAdapter(private val mContext: Context) : RecyclerView.A
     }
 
     override fun onBindViewHolder(holder: LegendTypeWasteViewHolder, position: Int) {
-        holder.mItem = types!![position]
 
-        Picasso.with(mContext).load(holder.mItem.icons().androidMediumURL()).resize(100, 100).placeholder(R.drawable.ic_placeholder).centerInside().into(holder.itemView.icon)
+        types!![position].let {
+            Picasso.with(mContext)
+                .load(it.icons()
+                .androidMediumURL())
+                .resize(100, 100)
+                .placeholder(R.drawable.ic_placeholder)
+                .centerInside()
+                .into(holder.itemView.icon)
 
-        holder.itemView.name.text = holder.mItem.name()
-        holder.itemView.name.setTextColor(Color.parseColor("#" + holder.mItem.color()))
-        holder.itemView.desc.text = holder.mItem.description()
+            holder.itemView.name.text = it.name()
+            holder.itemView.name.setTextColor(Color.parseColor("#" + it.color()))
+            holder.itemView.desc.text = it.description()
+        }
     }
 
     override fun getItemCount(): Int {

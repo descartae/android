@@ -36,7 +36,6 @@ class FacilityListPresenter @Inject constructor(private val eventBus: EventBus, 
     }
 
     init {
-        eventBus.post(EventShowLoading())
         ConnectionClassManager.getInstance().register(this)
     }
 

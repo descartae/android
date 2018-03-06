@@ -5,7 +5,6 @@ import android.support.v4.app.DialogFragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import butterknife.ButterKnife
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.fragment_waste_type_dialog.*
 import org.descartae.android.R
@@ -13,25 +12,18 @@ import org.descartae.android.R
 class WasteTypeDialog : DialogFragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-
-        val stringName = arguments!!.getString("name")
-        val stringDesc = arguments!!.getString("desc")
-        val stringIcon = arguments!!.getString("icon")
-
-        val v = inflater.inflate(R.layout.fragment_waste_type_dialog, container, false)
-
-        ButterKnife.bind(this, v)
-
-        name.text = stringName
-        desc.text = stringDesc
-        Picasso.with(activity).load(stringIcon).placeholder(R.drawable.ic_placeholder).into(icon)
-
-        return v
+        return inflater.inflate(R.layout.fragment_waste_type_dialog, container, false)
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         close.setOnClickListener { dismiss() }
+
+        arguments?.let {
+            name.text = it.getString("name")
+            desc.text = it.getString("desc")
+            Picasso.with(activity).load(it.getString("icon")).placeholder(R.drawable.ic_placeholder).into(icon)
+        }
     }
 
     companion object {

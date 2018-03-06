@@ -1,13 +1,11 @@
 package org.descartae.android.view.fragments.facility
 
-import android.app.AlertDialog
-import android.app.Dialog
 import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.v4.app.DialogFragment
-import android.view.ContextThemeWrapper
+import android.view.LayoutInflater
 import android.view.View
-import android.widget.LinearLayout
+import android.view.ViewGroup
 import kotlinx.android.synthetic.main.dialog_feedback.*
 import org.descartae.android.AddFeedbackMutation
 import org.descartae.android.DescartaeApp
@@ -29,10 +27,19 @@ class FeedbackDialog : DialogFragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-
         (activity!!.applicationContext as DescartaeApp).component.inject(this)
 
+        facilityID = arguments?.getString("facilityID")
+
         presenter.setFacilityId(facilityID)
+
+        if (facilityID == null) {
+            textView_title.text = getString(R.string.feedback_title)
+            textView_subtitle.text = getString(R.string.feedback_desc)
+        } else {
+            textView_title.text = getString(R.string.feedback_facility_title)
+            textView_subtitle.text = getString(R.string.feedback_facility_desc)
+        }
 
         button_cancel.setOnClickListener { dismiss() }
         button_ok.setOnClickListener { dismiss() }
@@ -46,24 +53,8 @@ class FeedbackDialog : DialogFragment() {
         }
     }
 
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-
-        val viewInflated = activity!!.layoutInflater.inflate(R.layout.dialog_feedback, null) as LinearLayout
-
-        facilityID = arguments?.getString("facilityID")
-
-        if (facilityID == null) {
-            textView_title.setText(R.string.feedback_title)
-            textView_subtitle.setText(R.string.feedback_desc)
-        } else {
-            textView_title.setText(R.string.feedback_facility_title)
-            textView_subtitle.setText(R.string.feedback_facility_desc)
-        }
-
-        val mBuilder = AlertDialog.Builder(ContextThemeWrapper(activity, R.style.Theme_AppCompat_Light))
-        mBuilder.setView(viewInflated)
-
-        return mBuilder.create()
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        return inflater.inflate(R.layout.dialog_feedback, container, false)
     }
 
     override fun onStart() {

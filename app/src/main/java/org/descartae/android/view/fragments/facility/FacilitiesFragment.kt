@@ -174,7 +174,7 @@ class FacilitiesFragment : Fragment(), OnMapReadyCallback {
             }
         }
 
-        list.addItemDecoration(SimpleDividerItemDecoration(activity))
+        list.addItemDecoration(SimpleDividerItemDecoration(context!!))
         list.layoutManager = LinearLayoutManager(context)
         facilityListAdapter = FacilityListAdapter({ center: FacilitiesQuery.Item ->
 
@@ -193,13 +193,13 @@ class FacilitiesFragment : Fragment(), OnMapReadyCallback {
         behaviorDetail!!.isHideable = true
     }
 
-    override fun onStart() {
-        super.onStart()
+    override fun onResume() {
+        super.onResume()
         eventBus.register(this)
     }
 
-    override fun onStop() {
-        super.onStop()
+    override fun onPause() {
+        super.onPause()
         eventBus.unregister(this)
     }
 
