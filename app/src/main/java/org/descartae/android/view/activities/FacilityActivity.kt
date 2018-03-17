@@ -223,7 +223,7 @@ class FacilityActivity : AppCompatActivity(), OnMapReadyCallback, RetryConnectio
             ShareCompat.IntentBuilder.from(this)
                     .setType("text/plain")
                     .setChooserTitle(R.string.menu_share)
-                    .setText(getString(R.string.website_url, facility!!._id()))
+                    .setText(getString(R.string.share_url, facility!!._id()))
                     .startChooser()
 
             return true
