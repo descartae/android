@@ -7,7 +7,7 @@
     android:paddingTop="@dimen/activity_horizontal_margin">
 
     <TextView
-        android:id="@+id/title"
+        android:id="@+id/textView_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="@dimen/activity_horizontal_margin"
@@ -19,7 +19,7 @@
         android:textSize="@dimen/text_regular" />
 
     <TextView
-        android:id="@+id/subtitle"
+        android:id="@+id/textView_subtitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/padding"
@@ -35,7 +35,7 @@
         android:layout_height="wrap_content">
 
         <EditText
-            android:id="@+id/message"
+            android:id="@+id/editText_message"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/activity_horizontal_margin"
@@ -68,7 +68,7 @@
         android:orientation="horizontal">
 
         <Button
-            android:id="@+id/action_cancel"
+            android:id="@+id/button_cancel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@android:color/transparent"
@@ -77,7 +77,7 @@
             android:textAllCaps="false" />
 
         <Button
-            android:id="@+id/action_send"
+            android:id="@+id/button_send"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@android:color/transparent"
@@ -86,7 +86,7 @@
             android:textAllCaps="false" />
 
         <Button
-            android:id="@+id/action_ok"
+            android:id="@+id/button_ok"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@android:color/transparent"

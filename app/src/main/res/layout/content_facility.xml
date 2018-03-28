@@ -45,7 +45,7 @@
                 android:textStyle="normal" />
 
             <TextView
-                android:id="@+id/distance"
+                android:id="@+id/textView_distance"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="sans-serif-medium"
@@ -97,7 +97,7 @@
                     android:src="@drawable/ic_action_access_time" />
 
                 <TextView
-                    android:id="@+id/time"
+                    android:id="@+id/text_time"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="@dimen/activity_horizontal_margin"
@@ -117,7 +117,7 @@
             </LinearLayout>
 
             <android.support.v7.widget.RecyclerView
-                android:id="@+id/more_times"
+                android:id="@+id/recyclerView_more_times"
                 android:visibility="gone"
                 android:layout_width="match_parent"
                 android:overScrollMode="never"
