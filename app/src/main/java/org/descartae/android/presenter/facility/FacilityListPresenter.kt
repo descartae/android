@@ -32,6 +32,9 @@ class FacilityListPresenter @Inject constructor(private val eventBus: EventBus, 
     private val facilitiesCall: ApolloQueryCall<FacilitiesQuery.Data> get() {
         val apolloClient = ApolloClient.builder().serverUrl(NetworkingConstants.BASE_URL).build()
         facilityQuery = builder.build()
+
+        facilityQuery?.let { Log.d(TAG_APOLLO_FACILITY_QUERY, it.variables().valueMap().toString()) }
+
         return apolloClient.query(facilityQuery!!)
     }
 
@@ -51,8 +54,6 @@ class FacilityListPresenter @Inject constructor(private val eventBus: EventBus, 
         descartaePreferences.setValue(
                 DescartaePreferences.PREF_LAST_LOCATION_LNG,
                 currentLocation.longitude)
-
-        Log.d(TAG_APOLLO_FACILITY_QUERY, "Nearby: " + currentLocation.latitude + ", " + currentLocation.longitude)
 
         requestFacilities()
     }
