@@ -13,6 +13,8 @@ import org.descartae.android.preferences.DescartaePreferences
 import org.descartae.android.view.fragments.intro.IntroFragment
 import com.crashlytics.android.answers.Answers
 import io.fabric.sdk.android.Fabric
+import com.crashlytics.android.Crashlytics
+import org.descartae.android.BuildConfig
 
 class IntroActivity : BaseActivity(), IntroFragment.IntroListener {
 
@@ -21,7 +23,11 @@ class IntroActivity : BaseActivity(), IntroFragment.IntroListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Fabric.with(this, Answers())
+        val fabric = Fabric.Builder(this)
+            .kits(Crashlytics(), Answers())
+            .debuggable(BuildConfig.DEBUG)
+            .build()
+        Fabric.with(fabric)
         setContentView(R.layout.activity_intro)
 
         if (preferences.getBooleanValue(DescartaePreferences.INTRO_OK)) {
