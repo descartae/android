@@ -33,7 +33,10 @@
         <activity
             android:name=".view.activities.FacilityActivity"
             android:theme="@style/AppTheme.NoActionBar.Dark" />
-
+        <meta-data
+          android:name="io.fabric.ApiKey"
+          android:value="44c23122677dc43f3fe86d8f4ed4ac25f7d4ba55"
+          />
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyB2nTXmhrzVHggaAwrMcJOz0QsQwvv55fY" />

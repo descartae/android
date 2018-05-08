@@ -11,6 +11,8 @@ import kotlinx.android.synthetic.main.activity_intro.*
 import org.descartae.android.R
 import org.descartae.android.preferences.DescartaePreferences
 import org.descartae.android.view.fragments.intro.IntroFragment
+import com.crashlytics.android.answers.Answers
+import io.fabric.sdk.android.Fabric
 
 class IntroActivity : BaseActivity(), IntroFragment.IntroListener {
 
@@ -19,6 +21,7 @@ class IntroActivity : BaseActivity(), IntroFragment.IntroListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Fabric.with(this, Answers())
         setContentView(R.layout.activity_intro)
 
         if (preferences.getBooleanValue(DescartaePreferences.INTRO_OK)) {
