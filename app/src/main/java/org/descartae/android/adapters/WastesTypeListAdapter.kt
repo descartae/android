@@ -1,6 +1,5 @@
 package org.descartae.android.adapters
 
-import android.content.Context
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -10,7 +9,7 @@ import org.descartae.android.FacilityQuery
 import org.descartae.android.R
 import org.descartae.android.view.viewholder.TypeWasteViewHolder
 
-class WastesTypeListAdapter(private val mContext: Context, private val mListener: (FacilityQuery.TypesOfWaste) -> Unit) : RecyclerView.Adapter<TypeWasteViewHolder>() {
+class WastesTypeListAdapter(private val mListener: (FacilityQuery.TypesOfWaste) -> Unit) : RecyclerView.Adapter<TypeWasteViewHolder>() {
 
     var types: List<FacilityQuery.TypesOfWaste>? = null
 
@@ -22,7 +21,7 @@ class WastesTypeListAdapter(private val mContext: Context, private val mListener
     override fun onBindViewHolder(holder: TypeWasteViewHolder, position: Int) {
         holder.mItem = types!![position]
 
-        Picasso.with(mContext).load(holder.mItem!!.icons().androidMediumURL())
+        Picasso.get().load(holder.mItem!!.icons().androidMediumURL())
             .resize(100, 100)
             .placeholder(R.drawable.ic_placeholder)
             .centerInside().into(holder.itemView.waste_image)

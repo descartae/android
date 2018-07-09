@@ -14,8 +14,8 @@ import android.support.v7.widget.LinearLayoutManager
 import android.view.*
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.MapFragment
 import com.google.android.gms.maps.OnMapReadyCallback
+import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
@@ -52,7 +52,7 @@ class FacilityActivity : AppCompatActivity(), OnMapReadyCallback, RetryConnectio
 
     private var mTypesWasteAdapter: WastesTypeListAdapter? = null
 
-    private var mMapFragment: MapFragment? = null
+    private var mMapFragment: SupportMapFragment? = null
 
     public override fun onStart() {
         super.onStart()
@@ -89,7 +89,7 @@ class FacilityActivity : AppCompatActivity(), OnMapReadyCallback, RetryConnectio
         val layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
         type_waste.layoutManager = layoutManager
 
-        mTypesWasteAdapter = WastesTypeListAdapter(this, {
+        mTypesWasteAdapter = WastesTypeListAdapter {
 
             val ft = supportFragmentManager.beginTransaction()
             val prev = supportFragmentManager.findFragmentByTag("dialog")
@@ -105,7 +105,7 @@ class FacilityActivity : AppCompatActivity(), OnMapReadyCallback, RetryConnectio
                 it.icons().androidMediumURL()
             )
             newFragment.show(ft, "dialog")
-        })
+        }
         type_waste.adapter = mTypesWasteAdapter
 
         val dividerItemDecoration = DividerItemDecoration(this, layoutManager.orientation)
@@ -114,8 +114,10 @@ class FacilityActivity : AppCompatActivity(), OnMapReadyCallback, RetryConnectio
         type_waste.addItemDecoration(dividerItemDecoration)
 
         // Butterknife sucks for Fragment
-        mMapFragment = MapFragment.newInstance()
-        fragmentManager.beginTransaction().replace(R.id.map, mMapFragment).commitAllowingStateLoss()
+        val map = SupportMapFragment.newInstance()
+        supportFragmentManager.beginTransaction().replace(R.id.map, map).commitAllowingStateLoss()
+
+        mMapFragment = map
 
         presenter.setFacilityId(intent.getStringExtra(ARG_ID))
         presenter.requestFacility()
@@ -200,10 +202,10 @@ class FacilityActivity : AppCompatActivity(), OnMapReadyCallback, RetryConnectio
         time_expand.setOnClickListener {
 
             if (recyclerView_more_times.visibility == View.VISIBLE) {
-                Picasso.with(this@FacilityActivity).load(R.drawable.ic_action_expand_more).into(time_expand)
+                Picasso.get().load(R.drawable.ic_action_expand_more).into(time_expand)
                 recyclerView_more_times.visibility = View.GONE
             } else {
-                Picasso.with(this@FacilityActivity).load(R.drawable.ic_action_expand_less).into(time_expand)
+                Picasso.get().load(R.drawable.ic_action_expand_less).into(time_expand)
                 recyclerView_more_times.visibility = View.VISIBLE
             }
         }

@@ -22,7 +22,7 @@ class WasteTypeDialog : DialogFragment() {
         arguments?.let {
             name.text = it.getString("name")
             desc.text = it.getString("desc")
-            Picasso.with(activity).load(it.getString("icon")).placeholder(R.drawable.ic_placeholder).into(icon)
+            Picasso.get().load(it.getString("icon")).placeholder(R.drawable.ic_placeholder).into(icon)
         }
     }
 

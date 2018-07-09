@@ -28,9 +28,6 @@ import org.descartae.android.view.fragments.facility.FacilitiesFragment
 import org.descartae.android.view.fragments.facility.FeedbackDialog
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
-import com.crashlytics.android.Crashlytics
-
-
 
 class HomeActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedListener, RetryConnectionView, EmptyRegionUnsupportedFragment.Listener {
 
@@ -53,9 +50,10 @@ class HomeActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
             /**
              * Do not override the current facilities fragment
              */
-            if (facilitiesFragment == null || !facilitiesFragment!!.isAdded) {
-                facilitiesFragment = FacilitiesFragment.newInstance()
+            if (facilitiesFragment == null) {
+                val facilitiesFragment = FacilitiesFragment.newInstance()
                 supportFragmentManager.beginTransaction().replace(R.id.content, facilitiesFragment).commitAllowingStateLoss()
+                this.facilitiesFragment = facilitiesFragment
             }
         } else {
             supportFragmentManager.beginTransaction().replace(R.id.content, EmptyGPSOfflineFragment.newInstance()).commitAllowingStateLoss()
