@@ -95,4 +95,5 @@
   <string name="done">Pronto!</string>
   <string name="gps_off_empty_desc">Por favor, habilite sua localização para podermos encontrar os pontos de coleta mais próximos de você.</string>
   <string name="wait_list_double_error">Você já se encontra cadastrado, obrigado!</string>
+  <string name="deeplink_uri">http://descartae.com/facility/?id=%1$s</string>
 </resources>
