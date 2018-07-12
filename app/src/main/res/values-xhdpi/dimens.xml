@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="dialog_margin">24dp</dimen>
-    <dimen name="text_large">24sp</dimen>
-    <dimen name="text_margin">16dp</dimen>
-    <dimen name="text_small">14sp</dimen>
-    <dimen name="text_regular">18sp</dimen>
-    <dimen name="text_medium">16sp</dimen>
-    <dimen name="intro_image">180dp</dimen>
-    <dimen name="type_waste_height">38dp</dimen>
+  <dimen name="dialog_margin">24dp</dimen>
+  <dimen name="text_large">24sp</dimen>
+  <dimen name="text_margin">16dp</dimen>
+  <dimen name="text_small">14sp</dimen>
+  <dimen name="text_regular">18sp</dimen>
+  <dimen name="text_medium">16sp</dimen>
+  <dimen name="intro_image">180dp</dimen>
+  <dimen name="type_waste_height">38dp</dimen>
 </resources>

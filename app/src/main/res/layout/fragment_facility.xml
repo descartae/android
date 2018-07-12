@@ -1,61 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:background="@android:color/white"
+              android:foreground="?selectableItemBackground"
+              android:orientation="vertical">
+
+  <TextView
+    android:id="@+id/name"
+    android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:background="@android:color/white"
-    android:foreground="?selectableItemBackground"
-    android:orientation="vertical">
+    android:layout_margin="@dimen/text_margin"
+    android:fontFamily="sans-serif-medium"
+    android:textStyle="normal"
+    android:textSize="@dimen/text_regular"
+    android:textColor="@color/title_gray"/>
+
+  <LinearLayout
+    android:id="@+id/type_waste"
+    android:layout_width="match_parent"
+    android:orientation="horizontal"
+    android:paddingLeft="@dimen/text_margin"
+    android:layout_height="@dimen/type_waste_height">
+
+  </LinearLayout>
+
+  <LinearLayout
+    android:layout_width="match_parent"
+    android:orientation="horizontal"
+    android:layout_height="wrap_content">
 
     <TextView
-        android:id="@+id/name"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="@dimen/text_margin"
-        android:fontFamily="sans-serif-medium"
-        android:textStyle="normal"
-        android:textSize="@dimen/text_regular"
-        android:textColor="@color/title_gray" />
+      android:id="@+id/location"
+      android:layout_width="0dp"
+      android:layout_weight="1"
+      android:layout_height="wrap_content"
+      android:text="Local"
+      android:textStyle="normal"
+      android:fontFamily="sans-serif"
+      android:lineSpacingExtra="2sp"
+      android:layout_margin="@dimen/text_margin"
+      android:textColor="@color/title_light_gray"
+      android:textSize="@dimen/text_small"/>
 
-    <LinearLayout
-        android:id="@+id/type_waste"
-        android:layout_width="match_parent"
-        android:orientation="horizontal"
-        android:paddingLeft="@dimen/text_margin"
-        android:layout_height="@dimen/type_waste_height">
+    <TextView
+      android:id="@+id/distance"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text="0 Km"
+      android:lineSpacingExtra="2sp"
+      android:gravity="end"
+      android:fontFamily="sans-serif-medium"
+      android:textStyle="normal"
+      android:layout_margin="@dimen/text_margin"
+      android:textColor="@color/colorPrimary"
+      android:textSize="@dimen/text_small"/>
 
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:orientation="horizontal"
-        android:layout_height="wrap_content">
-
-        <TextView
-            android:id="@+id/location"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="wrap_content"
-            android:text="Local"
-            android:textStyle="normal"
-            android:fontFamily="sans-serif"
-            android:lineSpacingExtra="2sp"
-            android:layout_margin="@dimen/text_margin"
-            android:textColor="@color/title_light_gray"
-            android:textSize="@dimen/text_small" />
-
-        <TextView
-            android:id="@+id/distance"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="0 Km"
-            android:lineSpacingExtra="2sp"
-            android:gravity="end"
-            android:fontFamily="sans-serif-medium"
-            android:textStyle="normal"
-            android:layout_margin="@dimen/text_margin"
-            android:textColor="@color/colorPrimary"
-            android:textSize="@dimen/text_small" />
-
-    </LinearLayout>
+  </LinearLayout>
 
 </LinearLayout>

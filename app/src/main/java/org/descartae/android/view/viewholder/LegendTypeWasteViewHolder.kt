@@ -5,5 +5,5 @@ import android.view.View
 import org.descartae.android.TypeOfWasteQuery
 
 class LegendTypeWasteViewHolder(mView: View) : RecyclerView.ViewHolder(mView) {
-    var mItem: TypeOfWasteQuery.TypesOfWaste? = null
+  var mItem: TypeOfWasteQuery.TypesOfWaste? = null
 }

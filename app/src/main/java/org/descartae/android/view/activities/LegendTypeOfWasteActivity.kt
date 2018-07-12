@@ -5,7 +5,9 @@ import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.view.MenuItem
 import android.view.View
-import kotlinx.android.synthetic.main.activity_type_of_waste.*
+import kotlinx.android.synthetic.main.activity_type_of_waste.list
+import kotlinx.android.synthetic.main.activity_type_of_waste.loading
+import kotlinx.android.synthetic.main.activity_type_of_waste.toolbar
 import org.descartae.android.DescartaeApp
 import org.descartae.android.R
 import org.descartae.android.TypeOfWasteQuery
@@ -22,80 +24,82 @@ import javax.inject.Inject
 
 class LegendTypeOfWasteActivity : AppCompatActivity() {
 
-    @Inject lateinit var presenter: TypeOfWastePresenter
-    @Inject lateinit var eventBus: EventBus
+  @Inject
+  lateinit var presenter: TypeOfWastePresenter
+  @Inject
+  lateinit var eventBus: EventBus
 
-    private var adapter: LegendWasteTypeListAdapter? = null
+  private var adapter: LegendWasteTypeListAdapter? = null
 
-    public override fun onStart() {
-        super.onStart()
-        eventBus.register(this)
+  public override fun onStart() {
+    super.onStart()
+    eventBus.register(this)
+  }
+
+  override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
+    setContentView(R.layout.activity_type_of_waste)
+
+    setSupportActionBar(toolbar)
+
+    supportActionBar?.let {
+      it.setDisplayShowTitleEnabled(true)
+      it.setDisplayHomeAsUpEnabled(true)
+      it.setDisplayShowHomeEnabled(true)
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_type_of_waste)
+    /*
+     * Init Dagger
+     */
+    (applicationContext as DescartaeApp).component.inject(this)
 
-        setSupportActionBar(toolbar)
+    list.layoutManager = LinearLayoutManager(this)
+    list.addItemDecoration(SpaceDividerItemDecoration(80))
 
-        supportActionBar?.let {
-            it.setDisplayShowTitleEnabled(true)
-            it.setDisplayHomeAsUpEnabled(true)
-            it.setDisplayShowHomeEnabled(true)
-        }
+    adapter = LegendWasteTypeListAdapter(this)
+    list.adapter = adapter
+  }
 
-        /*
-         * Init Dagger
-         */
-        (applicationContext as DescartaeApp).component.inject(this)
+  public override fun onResume() {
+    super.onResume()
+    presenter.setTriggerLoadingEvents(true)
+    presenter.requestTypeOfWastes()
+  }
 
-        list.layoutManager = LinearLayoutManager(this)
-        list.addItemDecoration(SpaceDividerItemDecoration(80))
+  public override fun onStop() {
+    super.onStop()
+    eventBus.unregister(this)
+  }
 
-        adapter = LegendWasteTypeListAdapter(this)
-        list.adapter = adapter
+  @Subscribe(threadMode = ThreadMode.MAIN)
+  fun renderTypes(typesOfWasteList: List<TypeOfWasteQuery.TypesOfWaste>) {
+    adapter?.types = typesOfWasteList
+    adapter?.notifyDataSetChanged()
+  }
+
+  @Subscribe(threadMode = ThreadMode.MAIN)
+  fun eventHideLoading(event: EventHideLoading) {
+    loading.visibility = View.GONE
+  }
+
+  @Subscribe(threadMode = ThreadMode.MAIN)
+  fun eventShowLoading(event: EventShowLoading) {
+    loading.visibility = View.VISIBLE
+  }
+
+  @Subscribe(threadMode = ThreadMode.MAIN)
+  fun onError(error: GeneralError) {
+    finish()
+  }
+
+  override fun onOptionsItemSelected(item: MenuItem): Boolean {
+    val id = item.itemId
+
+    if (id == android.R.id.home) {
+      finish()
+      return true
     }
 
-    public override fun onResume() {
-        super.onResume()
-        presenter.setTriggerLoadingEvents(true)
-        presenter.requestTypeOfWastes()
-    }
-
-    public override fun onStop() {
-        super.onStop()
-        eventBus.unregister(this)
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    fun renderTypes(typesOfWasteList: List<TypeOfWasteQuery.TypesOfWaste>) {
-        adapter?.types = typesOfWasteList
-        adapter?.notifyDataSetChanged()
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    fun eventHideLoading(event: EventHideLoading) {
-        loading.visibility = View.GONE
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    fun eventShowLoading(event: EventShowLoading) {
-        loading.visibility = View.VISIBLE
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    fun onError(error: GeneralError) {
-        finish()
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        val id = item.itemId
-
-        if (id == android.R.id.home) {
-            finish()
-            return true
-        }
-
-        return super.onOptionsItemSelected(item)
-    }
+    return super.onOptionsItemSelected(item)
+  }
 }

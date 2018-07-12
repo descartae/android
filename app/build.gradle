@@ -7,82 +7,82 @@ apply plugin: 'com.apollographql.android'
 apply plugin: 'io.fabric'
 
 apollo {
-    customTypeMapping['Time'] = "java.lang.String"
+  customTypeMapping['Time'] = "java.lang.String"
 }
 
 android {
-    signingConfigs {
-        release {
-            keyAlias 'descartae'
-            keyPassword 'pass'
-            storeFile file('/dir')
-            storePassword 'pass'
-        }
+  signingConfigs {
+    release {
+      keyAlias 'descartae'
+      keyPassword 'pass'
+      storeFile file('/dir')
+      storePassword 'pass'
     }
-    compileSdkVersion 27
-    defaultConfig {
-        applicationId "com.descartae"
-        minSdkVersion 22
-        targetSdkVersion 27
-        versionCode 4
-        versionName "1.0"
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-        vectorDrawables.useSupportLibrary = true
-        buildConfigField "String", "MOBILE_API_URL", project.MOBILE_API_DEBUG
+  }
+  compileSdkVersion 27
+  defaultConfig {
+    applicationId "com.descartae"
+    minSdkVersion 22
+    targetSdkVersion 27
+    versionCode 4
+    versionName "1.0"
+    testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    vectorDrawables.useSupportLibrary = true
+    buildConfigField "String", "MOBILE_API_URL", project.MOBILE_API_DEBUG
+  }
+  buildTypes {
+    release {
+      minifyEnabled false
+      proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+      buildConfigField "String", "MOBILE_API_URL", project.MOBILE_API_RELEASE
+      signingConfig signingConfigs.release
     }
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            buildConfigField "String", "MOBILE_API_URL", project.MOBILE_API_RELEASE
-            signingConfig signingConfigs.release
-        }
-    }
-    compileOptions {
-        targetCompatibility 1.8
-        sourceCompatibility 1.8
-    }
+  }
+  compileOptions {
+    targetCompatibility 1.8
+    sourceCompatibility 1.8
+  }
 }
 
 dependencies {
-    implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation "com.android.support:appcompat-v7:$support_version"
-    implementation "com.android.support:design:$support_version"
-    implementation "com.android.support:support-v4:$support_version"
-    implementation "com.android.support:recyclerview-v7:$support_version"
-    implementation "com.android.support:support-vector-drawable:$support_version"
-    implementation 'com.google.android.gms:play-services-location:12.0.0'
-    implementation 'com.google.android.gms:play-services-maps:12.0.0'
-    implementation 'com.android.support.constraint:constraint-layout:1.0.2'
-    compile 'com.google.firebase:firebase-core:12.0.0'
-    compile 'com.google.firebase:firebase-perf:12.0.0'
-    implementation 'com.google.code.gson:gson:2.8.2'
-    implementation 'com.squareup.picasso:picasso:2.5.2'
-    compile 'me.relex:circleindicator:1.2.2@aar'
-    compile 'com.facebook.network.connectionclass:connectionclass:1.0.1'
-    compile 'org.greenrobot:eventbus:3.1.1'
-    implementation 'io.reactivex.rxjava2:rxandroid:2.0.2'
-    implementation 'io.reactivex.rxjava2:rxjava:2.1.10'
-    implementation 'com.google.dagger:dagger:2.15'
-    kapt 'com.google.dagger:dagger-compiler:2.15'
-    annotationProcessor 'com.google.dagger:dagger-compiler:2.15'
-    implementation 'com.afollestad.material-dialogs:core:0.9.6.0'
-    implementation 'com.apollographql.apollo:apollo-runtime:0.4.2'
-    compile 'com.apollographql.apollo:apollo-rx2-support:0.4.2'
-    compile('com.crashlytics.sdk.android:crashlytics:2.9.0@aar') {
-        transitive = true
-    }
-    compile('com.crashlytics.sdk.android:answers:1.4.1@aar') {
-        transitive = true;
-    }
-    testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'com.android.support.test:runner:1.0.1'
-    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+  implementation fileTree(include: ['*.jar'], dir: 'libs')
+  implementation "com.android.support:appcompat-v7:$support_version"
+  implementation "com.android.support:design:$support_version"
+  implementation "com.android.support:support-v4:$support_version"
+  implementation "com.android.support:recyclerview-v7:$support_version"
+  implementation "com.android.support:support-vector-drawable:$support_version"
+  implementation 'com.google.android.gms:play-services-location:12.0.0'
+  implementation 'com.google.android.gms:play-services-maps:12.0.0'
+  implementation 'com.android.support.constraint:constraint-layout:1.0.2'
+  implementation 'com.google.firebase:firebase-core:12.0.0'
+  implementation 'com.google.firebase:firebase-perf:12.0.0'
+  implementation 'com.google.code.gson:gson:2.8.2'
+  implementation 'com.squareup.picasso:picasso:2.5.2'
+  implementation 'me.relex:circleindicator:1.2.2@aar'
+  implementation 'com.facebook.network.connectionclass:connectionclass:1.0.1'
+  implementation 'org.greenrobot:eventbus:3.1.1'
+  implementation 'io.reactivex.rxjava2:rxandroid:2.0.2'
+  implementation 'io.reactivex.rxjava2:rxjava:2.1.10'
+  implementation 'com.google.dagger:dagger:2.15'
+  kapt 'com.google.dagger:dagger-compiler:2.15'
+  annotationProcessor 'com.google.dagger:dagger-compiler:2.15'
+  implementation 'com.afollestad.material-dialogs:core:0.9.6.0'
+  implementation 'com.apollographql.apollo:apollo-runtime:0.4.2'
+  implementation 'com.apollographql.apollo:apollo-rx2-support:0.4.2'
+  implementation('com.crashlytics.sdk.android:crashlytics:2.9.0@aar') {
+    transitive = true
+  }
+  implementation('com.crashlytics.sdk.android:answers:1.4.1@aar') {
+    transitive = true;
+  }
+  testImplementation 'junit:junit:4.12'
+  androidTestImplementation 'com.android.support.test:runner:1.0.1'
+  androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
+  implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 }
 
 apply plugin: 'com.google.gms.google-services'
 repositories {
-    mavenCentral()
-    maven { url 'https://maven.fabric.io/public' }
+  mavenCentral()
+  maven { url 'https://maven.fabric.io/public' }
 }
