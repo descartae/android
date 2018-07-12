@@ -1,17 +1,17 @@
 <resources>
-    <dimen name="activity_horizontal_margin">16dp</dimen>
-    <dimen name="activity_vertical_margin">16dp</dimen>
-    <dimen name="padding">4dp</dimen>
-    <dimen name="facilities_peek_height">250dp</dimen>
-    <dimen name="nav_header_vertical_spacing">10dp</dimen>
-    <dimen name="nav_header_height">176dp</dimen>
-    <dimen name="fab_margin">16dp</dimen>
-    <dimen name="margin_top">38dp</dimen>
-    <dimen name="margin_btn_top">28dp</dimen>
-    <dimen name="indicator_size">10dp</dimen>
-    <dimen name="facility_peek_height">100dp</dimen>
-    <dimen name="app_bar_height">220dp</dimen>
-    <dimen name="margin_left_big">58dp</dimen>
-    <dimen name="height_open_hour_list">300dp</dimen>
-    <dimen name="type_waste_height">32dp</dimen>
+  <dimen name="activity_horizontal_margin">16dp</dimen>
+  <dimen name="activity_vertical_margin">16dp</dimen>
+  <dimen name="padding">4dp</dimen>
+  <dimen name="facilities_peek_height">250dp</dimen>
+  <dimen name="nav_header_vertical_spacing">10dp</dimen>
+  <dimen name="nav_header_height">176dp</dimen>
+  <dimen name="fab_margin">16dp</dimen>
+  <dimen name="margin_top">38dp</dimen>
+  <dimen name="margin_btn_top">28dp</dimen>
+  <dimen name="indicator_size">10dp</dimen>
+  <dimen name="facility_peek_height">100dp</dimen>
+  <dimen name="app_bar_height">220dp</dimen>
+  <dimen name="margin_left_big">58dp</dimen>
+  <dimen name="height_open_hour_list">300dp</dimen>
+  <dimen name="type_waste_height">32dp</dimen>
 </resources>

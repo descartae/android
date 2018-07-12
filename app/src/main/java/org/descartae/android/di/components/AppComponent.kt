@@ -15,11 +15,11 @@ import javax.inject.Singleton
 @Component(modules = [(AppModule::class)])
 interface AppComponent {
 
-    fun inject(baseActivity: BaseActivity)
-    fun inject(fragment: FacilitiesFragment)
-    fun inject(regionWaitListDialog: RegionWaitListDialog)
-    fun inject(legendTypeOfWasteActivity: LegendTypeOfWasteActivity)
-    fun inject(facilityActivity: FacilityActivity)
-    fun inject(feedbackDialog: FeedbackDialog)
-    fun inject(descartaeApp: DescartaeApp)
+  fun inject(baseActivity: BaseActivity)
+  fun inject(fragment: FacilitiesFragment)
+  fun inject(regionWaitListDialog: RegionWaitListDialog)
+  fun inject(legendTypeOfWasteActivity: LegendTypeOfWasteActivity)
+  fun inject(facilityActivity: FacilityActivity)
+  fun inject(feedbackDialog: FeedbackDialog)
+  fun inject(descartaeApp: DescartaeApp)
 }
