@@ -25,6 +25,7 @@ import com.google.firebase.appindexing.FirebaseAppIndex
 import com.google.firebase.appindexing.FirebaseUserActions
 import com.google.firebase.appindexing.Indexable
 import com.google.firebase.appindexing.builders.Actions
+import com.google.firebase.appindexing.builders.Indexables
 import kotlinx.android.synthetic.main.filter_empty_view.action_clear_filter
 import kotlinx.android.synthetic.main.filter_empty_view.filter_empty
 import kotlinx.android.synthetic.main.fragment_facility_list.action_detail
@@ -370,7 +371,7 @@ class FacilitiesFragment : Fragment(), OnMapReadyCallback {
   }
 
   private fun indexingFacility(facility: FacilitiesQuery.Item) {
-    val facilityToUpdate = Indexable.Builder()
+    val facilityToUpdate = Indexables.placeBuilder()
         .setName(facility.name())
         .setUrl(getString(R.string.deeplink_uri, facility._id()))
         .setDescription(facility.location().address())
