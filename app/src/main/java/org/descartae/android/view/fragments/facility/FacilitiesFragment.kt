@@ -371,10 +371,19 @@ class FacilitiesFragment : Fragment(), OnMapReadyCallback {
   }
 
   private fun indexingFacility(facility: FacilitiesQuery.Item) {
+
+    val types = StringBuilder()
+    for (type in facility.typesOfWaste()) {
+      if (types.isNotEmpty()) {
+        types.append(" / ")
+      }
+      types.append(type)
+    }
+
     val facilityToUpdate = Indexables.placeBuilder()
         .setName(facility.name())
         .setUrl(getString(R.string.deeplink_uri, facility._id()))
-        .setDescription(facility.location().address())
+        .setDescription(getString(R.string.indexing_description, types))
         .build()
 
     val task = FirebaseAppIndex.getInstance().update(facilityToUpdate)
