@@ -58,9 +58,18 @@ class AppIndexingUpdateService : JobIntentService() {
 
       dataResponse.data()?.facilities()?.items()?.let {
         for (facility in it) {
+
+          val types = StringBuilder()
+          for (type in facility.typesOfWaste()) {
+            if (types.isNotEmpty()) {
+              types.append(" / ")
+            }
+            types.append(type)
+          }
+
           val facilityToIndex = Indexables.placeBuilder()
               .setName(facility.name())
-              .setDescription(facility.location().address())
+              .setDescription(getString(R.string.indexing_description, types))
               .setUrl(getString(R.string.deeplink_uri, facility._id()))
               .build()
 
