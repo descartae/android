@@ -5,6 +5,7 @@
   <uses-permission android:name="android.permission.INTERNET"/>
   <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
   <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+  <uses-permission android:name="android.permission.WAKE_LOCK" />
 
   <application
     android:name=".DescartaeApp"
@@ -33,7 +34,8 @@
     <activity
       android:name=".view.activities.FacilityActivity"
       android:theme="@style/AppTheme.NoActionBar.Dark"
-      android:launchMode="singleTop">
+      android:launchMode="singleTop"
+      android:autoVerify="true">
       <intent-filter android:label="@string/filter_view_http_facility">
         <action android:name="android.intent.action.VIEW"/>
 
@@ -47,6 +49,19 @@
       </intent-filter>
     </activity>
 
+    <meta-data android:name="search-engine" android:resource="@xml/noindex"/>
+
+    <receiver android:name=".indexing.AppIndexingUpdateReceiver"
+              android:exported="true"
+              android:permission="com.google.android.gms.permission.APPINDEXING">
+      <intent-filter>
+        <action android:name="com.google.firebase.appindexing.UPDATE_INDEX" />
+      </intent-filter>
+    </receiver>
+
+    <service android:name=".indexing.AppIndexingUpdateService"
+             android:permission="android.permission.BIND_JOB_SERVICE" />
+
     <meta-data
       android:name="io.fabric.ApiKey"
       android:value="44c23122677dc43f3fe86d8f4ed4ac25f7d4ba55"
@@ -56,5 +71,4 @@
       android:value="AIzaSyB2nTXmhrzVHggaAwrMcJOz0QsQwvv55fY"/>
 
   </application>
-
 </manifest>

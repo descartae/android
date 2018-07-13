@@ -20,6 +20,12 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.firebase.appindexing.Action
+import com.google.firebase.appindexing.FirebaseAppIndex
+import com.google.firebase.appindexing.FirebaseUserActions
+import com.google.firebase.appindexing.Indexable
+import com.google.firebase.appindexing.builders.Actions
+import com.google.firebase.appindexing.builders.Indexables
 import kotlinx.android.synthetic.main.filter_empty_view.action_clear_filter
 import kotlinx.android.synthetic.main.filter_empty_view.filter_empty
 import kotlinx.android.synthetic.main.fragment_facility_list.action_detail
@@ -76,6 +82,11 @@ class FacilitiesFragment : Fragment(), OnMapReadyCallback {
           bottom_sheet.visibility = View.VISIBLE
           behaviorList!!.state = BottomSheetBehavior.STATE_EXPANDED
 
+
+          mItemSelected?.let {
+            FirebaseUserActions.getInstance().end(getFacilityViewAction(it))
+          }
+
           mItemSelected = null
           fillMapMarkers()
         }
@@ -111,7 +122,8 @@ class FacilitiesFragment : Fragment(), OnMapReadyCallback {
         MaterialDialog.Builder(activity!!)
             .title(R.string.title_filter)
             .items(*presenterTypeWaste.typesOfWasteTitle!!)
-            .itemsCallbackMultiChoice(selectedTypesIndices, { _, which, _ ->
+            .itemsCallbackMultiChoice(selectedTypesIndices
+            ) { _, which, _ ->
               selectedTypesIndices = which
 
               val selected = ArrayList<String>()
@@ -127,7 +139,6 @@ class FacilitiesFragment : Fragment(), OnMapReadyCallback {
 
               true
             }
-            )
             .positiveText(R.string.action_filter)
             .show()
 
@@ -184,12 +195,12 @@ class FacilitiesFragment : Fragment(), OnMapReadyCallback {
 
     list.addItemDecoration(SimpleDividerItemDecoration(context!!))
     list.layoutManager = LinearLayoutManager(context)
-    facilityListAdapter = FacilityListAdapter({ center: FacilitiesQuery.Item ->
+    facilityListAdapter = FacilityListAdapter { center: FacilitiesQuery.Item ->
 
       // On Facility Item Clicked
       mItemSelected = center
       selectFacility(center)
-    })
+    }
     list.adapter = facilityListAdapter
 
     behaviorList = BottomSheetBehavior.from(bottom_sheet)
@@ -229,6 +240,9 @@ class FacilitiesFragment : Fragment(), OnMapReadyCallback {
     facilityViewHolder.fill()
 
     // Show BottomSheetDetail
+    indexingFacility(center)
+    FirebaseUserActions.getInstance().start(getFacilityViewAction(center))
+
     bottom_sheet_detail.visibility = View.VISIBLE
     behaviorDetail!!.state = BottomSheetBehavior.STATE_EXPANDED
 
@@ -356,6 +370,32 @@ class FacilitiesFragment : Fragment(), OnMapReadyCallback {
     behaviorDetail!!.state = BottomSheetBehavior.STATE_HIDDEN
   }
 
+  private fun indexingFacility(facility: FacilitiesQuery.Item) {
+    val facilityToUpdate = Indexables.placeBuilder()
+        .setName(facility.name())
+        .setUrl(getString(R.string.deeplink_uri, facility._id()))
+        .setDescription(facility.location().address())
+        .build()
+
+    val task = FirebaseAppIndex.getInstance().update(facilityToUpdate)
+    task.addOnSuccessListener {
+      Log.d(
+          "App Indexing",
+          "App Indexing API: Successfully added ${facility.name()} to index"
+      )
+    }
+    task.addOnFailureListener {
+      Log.e(
+          "App Indexing",
+          "App Indexing API: Failed to add ${facility.name()} to index. ${it.message}"
+      )
+    }
+  }
+
+  private fun getFacilityViewAction(facility: FacilitiesQuery.Item): Action? {
+    return Actions.newView(facility.name(), getString(R.string.deeplink_uri, facility._id()))
+  }
+
   companion object {
 
     fun newInstance(): FacilitiesFragment {
@@ -365,5 +405,4 @@ class FacilitiesFragment : Fragment(), OnMapReadyCallback {
       return fragment
     }
   }
-
 }
