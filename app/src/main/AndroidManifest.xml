@@ -34,7 +34,8 @@
     <activity
       android:name=".view.activities.FacilityActivity"
       android:theme="@style/AppTheme.NoActionBar.Dark"
-      android:launchMode="singleTop">
+      android:launchMode="singleTop"
+      android:autoVerify="true">
       <intent-filter android:label="@string/filter_view_http_facility">
         <action android:name="android.intent.action.VIEW"/>
 
@@ -47,6 +48,8 @@
           android:scheme="https"/>
       </intent-filter>
     </activity>
+
+    <meta-data android:name="search-engine" android:resource="@xml/noindex"/>
 
     <receiver android:name=".indexing.AppIndexingUpdateReceiver"
               android:exported="true"

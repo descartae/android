@@ -71,7 +71,19 @@ class AppIndexingUpdateService : JobIntentService() {
       if (indexableFacility.size > 0) {
         var facilityArr = arrayOfNulls<Indexable>(indexableFacility.size)
         facilityArr = indexableFacility.toArray(facilityArr)
-        FirebaseAppIndex.getInstance().update(*facilityArr)
+        val task = FirebaseAppIndex.getInstance().update(*facilityArr)
+        task.addOnSuccessListener {
+          Log.d(
+              "App Indexing",
+              "App Indexing API: Successfully added facilities to index."
+          )
+        }
+        task.addOnFailureListener {
+          Log.e(
+              "App Indexing",
+              "App Indexing API: Failed to add facilities to index. ${it.message}"
+          )
+        }
       }
     }
   }

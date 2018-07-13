@@ -21,7 +21,9 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.firebase.appindexing.Action
+import com.google.firebase.appindexing.FirebaseAppIndex
 import com.google.firebase.appindexing.FirebaseUserActions
+import com.google.firebase.appindexing.Indexable
 import com.google.firebase.appindexing.builders.Actions
 import kotlinx.android.synthetic.main.filter_empty_view.action_clear_filter
 import kotlinx.android.synthetic.main.filter_empty_view.filter_empty
@@ -237,9 +239,9 @@ class FacilitiesFragment : Fragment(), OnMapReadyCallback {
     facilityViewHolder.fill()
 
     // Show BottomSheetDetail
-    mItemSelected?.let {
-      FirebaseUserActions.getInstance().start(getFacilityViewAction(it))
-    }
+    indexingFacility(center)
+    FirebaseUserActions.getInstance().start(getFacilityViewAction(center))
+
     bottom_sheet_detail.visibility = View.VISIBLE
     behaviorDetail!!.state = BottomSheetBehavior.STATE_EXPANDED
 
@@ -365,6 +367,28 @@ class FacilitiesFragment : Fragment(), OnMapReadyCallback {
 
   fun closeBottomSheet() {
     behaviorDetail!!.state = BottomSheetBehavior.STATE_HIDDEN
+  }
+
+  private fun indexingFacility(facility: FacilitiesQuery.Item) {
+    val facilityToUpdate = Indexable.Builder()
+        .setName(facility.name())
+        .setUrl(getString(R.string.deeplink_uri, facility._id()))
+        .setDescription(facility.location().address())
+        .build()
+
+    val task = FirebaseAppIndex.getInstance().update(facilityToUpdate)
+    task.addOnSuccessListener {
+      Log.d(
+          "App Indexing",
+          "App Indexing API: Successfully added ${facility.name()} to index"
+      )
+    }
+    task.addOnFailureListener {
+      Log.e(
+          "App Indexing",
+          "App Indexing API: Failed to add ${facility.name()} to index. ${it.message}"
+      )
+    }
   }
 
   private fun getFacilityViewAction(facility: FacilitiesQuery.Item): Action? {
