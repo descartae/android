@@ -40,12 +40,14 @@ class FacilityViewHolder(private val mView: View) : RecyclerView.ViewHolder(mVie
 
         // More Icons
         if (itemView.type_waste.childCount == 4) {
-          Picasso.with(mView.context).load(R.drawable.ic_waste_more).resizeDimen(
-              R.dimen.type_waste_height, R.dimen.type_waste_height).into(ii)
+          Picasso.get()
+              .load(R.drawable.ic_waste_more)
+              .resizeDimen(R.dimen.type_waste_height, R.dimen.type_waste_height)
+              .into(ii)
           itemView.type_waste.addView(ii)
           break
         } else {
-          Picasso.with(mView.context)
+          Picasso.get()
               .load(typesOfWaste.icons().androidMediumURL())
               .resizeDimen(R.dimen.type_waste_height, R.dimen.type_waste_height)
               .placeholder(R.drawable.ic_placeholder)

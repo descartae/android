@@ -23,7 +23,6 @@ import com.google.android.gms.maps.model.MarkerOptions
 import com.google.firebase.appindexing.Action
 import com.google.firebase.appindexing.FirebaseAppIndex
 import com.google.firebase.appindexing.FirebaseUserActions
-import com.google.firebase.appindexing.Indexable
 import com.google.firebase.appindexing.builders.Actions
 import com.google.firebase.appindexing.builders.Indexables
 import kotlinx.android.synthetic.main.filter_empty_view.action_clear_filter
