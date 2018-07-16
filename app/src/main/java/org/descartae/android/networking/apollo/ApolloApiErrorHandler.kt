@@ -9,23 +9,23 @@ import javax.inject.Inject
 
 class ApolloApiErrorHandler @Inject constructor(private val bus: EventBus) {
 
-    companion object {
-        var genericErrorMessage: String? = null
+  companion object {
+    var genericErrorMessage: String? = null
+  }
+
+  fun throwError(error: Error?) {
+
+    if (error == null || error.message()!!.isEmpty()) bus.post(GeneralError(genericErrorMessage))
+
+    error?.let {
+      when (it.message()) {
+        "DUPLICATED_EMAIL" -> bus.post(DuplicatedEmailError())
+        "REGION_NOT_SUPPORTED" -> bus.post(RegionNotSupportedError())
+      }
     }
+  }
 
-    fun throwError(error: Error?) {
-
-        if (error == null || error.message()!!.isEmpty())  bus.post(GeneralError(genericErrorMessage))
-
-        error?.let {
-            when (it.message()) {
-                "DUPLICATED_EMAIL" -> bus.post(DuplicatedEmailError())
-                "REGION_NOT_SUPPORTED" -> bus.post(RegionNotSupportedError())
-            }
-        }
-    }
-
-    fun throwError(error: String?) {
-        bus.post(GeneralError(error))
-    }
+  fun throwError(error: String?) {
+    bus.post(GeneralError(error))
+  }
 }

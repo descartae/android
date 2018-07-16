@@ -15,61 +15,63 @@ import javax.inject.Inject
 
 private const val TAG_APOLLO_TYPE_QUERY = "TypeOfWasteQuery"
 
-class TypeOfWastePresenter @Inject constructor(private val eventBus: EventBus, private val apiErrorHandler: ApolloApiErrorHandler) {
+class TypeOfWastePresenter @Inject constructor(private val eventBus: EventBus,
+  private val apiErrorHandler: ApolloApiErrorHandler) {
 
-    private val builder = TypeOfWasteQuery.builder()
-    private var typesOfWasteData: List<TypeOfWasteQuery.TypesOfWaste>? = null
-    var typesOfWasteTitle: Array<String>? = null
-    private var triggerLoadingEvents: Boolean = false
+  private val builder = TypeOfWasteQuery.builder()
+  private var typesOfWasteData: List<TypeOfWasteQuery.TypesOfWaste>? = null
+  var typesOfWasteTitle: Array<String>? = null
+  private var triggerLoadingEvents: Boolean = false
 
-    private val requestCall: ApolloQueryCall<TypeOfWasteQuery.Data> get() {
-        val apolloClient = ApolloClient.builder().serverUrl(NetworkingConstants.BASE_URL).build()
-        return apolloClient.query(builder.build())
+  private val requestCall: ApolloQueryCall<TypeOfWasteQuery.Data>
+    get() {
+      val apolloClient = ApolloClient.builder().serverUrl(NetworkingConstants.BASE_URL).build()
+      return apolloClient.query(builder.build())
     }
 
-    fun isTypesLoaded(): Boolean {
-        return typesOfWasteData != null && typesOfWasteData!!.isNotEmpty()
-    }
+  fun isTypesLoaded(): Boolean {
+    return typesOfWasteData != null && typesOfWasteData!!.isNotEmpty()
+  }
 
-    fun setTriggerLoadingEvents(triggerLoadingEvents: Boolean) {
-        this.triggerLoadingEvents = triggerLoadingEvents
-    }
+  fun setTriggerLoadingEvents(triggerLoadingEvents: Boolean) {
+    this.triggerLoadingEvents = triggerLoadingEvents
+  }
 
-    fun requestTypeOfWastes() {
+  fun requestTypeOfWastes() {
 
-        if (triggerLoadingEvents) eventBus.post(EventShowLoading())
+    if (triggerLoadingEvents) eventBus.post(EventShowLoading())
 
-        Rx2Apollo.from<TypeOfWasteQuery.Data>(requestCall).subscribe({ dataResponse ->
+    Rx2Apollo.from<TypeOfWasteQuery.Data>(requestCall).subscribe({ dataResponse ->
 
-            // Check and throw errors
-            dataResponse.errors().forEach {
-                apiErrorHandler.throwError(it)
-            }
+      // Check and throw errors
+      dataResponse.errors().forEach {
+        apiErrorHandler.throwError(it)
+      }
 
-            // Check data and forward to event subscribers
-            dataResponse.data()?.let {
+      // Check data and forward to event subscribers
+      dataResponse.data()?.let {
 
-                typesOfWasteData = it.typesOfWaste()
+        typesOfWasteData = it.typesOfWaste()
 
-                typesOfWasteData.let {
-                    typesOfWasteTitle = Array(it!!.size, { i -> it[i].name() })
-                }
-
-                eventBus.post(typesOfWasteData)
-            }
-
-            if (triggerLoadingEvents) eventBus.post(EventHideLoading())
-
-        }) { throwable ->
-
-            throwable.message?.let { it ->
-                Log.e(TAG_APOLLO_TYPE_QUERY, it)
-                if (it == "Failed to execute http call") eventBus.post(ConnectionError())
-            }
+        typesOfWasteData.let {
+          typesOfWasteTitle = Array(it!!.size, { i -> it[i].name() })
         }
-    }
 
-    fun getTypeId(index: Int): String? {
-        return typesOfWasteData?.get(index)?._id()
+        eventBus.post(typesOfWasteData)
+      }
+
+      if (triggerLoadingEvents) eventBus.post(EventHideLoading())
+
+    }) { throwable ->
+
+      throwable.message?.let { it ->
+        Log.e(TAG_APOLLO_TYPE_QUERY, it)
+        if (it == "Failed to execute http call") eventBus.post(ConnectionError())
+      }
     }
+  }
+
+  fun getTypeId(index: Int): String? {
+    return typesOfWasteData?.get(index)?._id()
+  }
 }

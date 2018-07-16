@@ -16,50 +16,52 @@ import javax.inject.Inject
 
 private const val TAG_ADD_TO_WAITLIST_MUTATION = "AddToWaitlistMutation"
 
-class WaitListPresenter @Inject constructor(private val eventBus: EventBus, private val apiErrorHandler: ApolloApiErrorHandler) {
+class WaitListPresenter @Inject constructor(private val eventBus: EventBus,
+  private val apiErrorHandler: ApolloApiErrorHandler) {
 
-    private val builder = AddToWaitlistMutation.builder()
+  private val builder = AddToWaitlistMutation.builder()
 
-    private val mutationCall: ApolloMutationCall<AddToWaitlistMutation.Data> get() {
-        val apolloClient = ApolloClient.builder().serverUrl(NetworkingConstants.BASE_URL).build()
-        return apolloClient.mutate(builder.build())
+  private val mutationCall: ApolloMutationCall<AddToWaitlistMutation.Data>
+    get() {
+      val apolloClient = ApolloClient.builder().serverUrl(NetworkingConstants.BASE_URL).build()
+      return apolloClient.mutate(builder.build())
     }
 
-    fun setLatLng(longitude: Double, latitude: Double) {
-        builder.longitude(longitude)
-        builder.latitude(latitude)
+  fun setLatLng(longitude: Double, latitude: Double) {
+    builder.longitude(longitude)
+    builder.latitude(latitude)
+  }
+
+  fun addToWaitList(email: String) {
+    builder.email(email)
+
+    eventBus.post(EventShowLoading())
+
+    Rx2Apollo.from<AddToWaitlistMutation.Data>(mutationCall).subscribe({ dataResponse ->
+
+      eventBus.post(EventHideLoading())
+
+      // Stop Test Connection Quality
+      DeviceBandwidthSampler.getInstance().stopSampling()
+
+      // Check and throw errors
+      dataResponse.errors().forEach {
+        apiErrorHandler.throwError(it)
+      }
+
+      // Check data and forward to event subscribers
+      dataResponse.data()?.let {
+        eventBus.post(it)
+      }
+
+    }) { throwable ->
+
+      eventBus.post(EventHideLoading())
+
+      throwable.message?.let { it ->
+        Log.e(TAG_ADD_TO_WAITLIST_MUTATION, it)
+        if (it == "Failed to execute http call") eventBus.post(ConnectionError())
+      }
     }
-
-    fun addToWaitList(email: String) {
-        builder.email(email)
-
-        eventBus.post(EventShowLoading())
-
-        Rx2Apollo.from<AddToWaitlistMutation.Data>(mutationCall).subscribe({ dataResponse ->
-
-            eventBus.post(EventHideLoading())
-
-            // Stop Test Connection Quality
-            DeviceBandwidthSampler.getInstance().stopSampling()
-
-            // Check and throw errors
-            dataResponse.errors().forEach {
-                apiErrorHandler.throwError(it)
-            }
-
-            // Check data and forward to event subscribers
-            dataResponse.data()?.let {
-                eventBus.post(it)
-            }
-
-        }) { throwable ->
-
-            eventBus.post(EventHideLoading())
-
-            throwable.message?.let { it ->
-                Log.e(TAG_ADD_TO_WAITLIST_MUTATION, it)
-                if (it == "Failed to execute http call") eventBus.post(ConnectionError())
-            }
-        }
-    }
+  }
 }

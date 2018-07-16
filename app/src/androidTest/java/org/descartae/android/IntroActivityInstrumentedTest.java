@@ -24,29 +24,31 @@ import static org.junit.Assert.assertEquals;
 @LargeTest
 public class IntroActivityInstrumentedTest {
 
-    @Rule
-    public ActivityTestRule<IntroActivity> menuActivityTestRule = new ActivityTestRule<>(IntroActivity.class, true, true);
+  @Rule
+  public ActivityTestRule<IntroActivity> menuActivityTestRule =
+      new ActivityTestRule<>(IntroActivity.class, true, true);
 
-    @Test
-    public void useAppContext() throws Exception {
-        Context appContext = InstrumentationRegistry.getTargetContext();
-        assertEquals("com.descartae", appContext.getPackageName());
-    }
+  @Test
+  public void useAppContext() throws Exception {
+    Context appContext = InstrumentationRegistry.getTargetContext();
+    assertEquals("com.descartae", appContext.getPackageName());
+  }
 
-    @Test
-    public void testStartButton() throws Exception {
+  @Test
+  public void testStartButton() throws Exception {
 
-        Context appContext = InstrumentationRegistry.getTargetContext();
+    Context appContext = InstrumentationRegistry.getTargetContext();
 
-        onView(withId(R.id.pager)).perform(swipeRight()).perform(swipeRight()).perform(swipeRight());
-        onView(withId(R.id.button_start)).perform(click());
-        onView(withText(appContext.getString(R.string.permission_gps_title))).check(matches(isDisplayed()));
-    }
+    onView(withId(R.id.pager)).perform(swipeRight()).perform(swipeRight()).perform(swipeRight());
+    onView(withId(R.id.button_start)).perform(click());
+    onView(withText(appContext.getString(R.string.permission_gps_title)))
+        .check(matches(isDisplayed()));
+  }
 
-    @Test
-    public void testItemsVisibility() throws Exception {
-        onView(withId(R.id.textView_title)).check(matches(isDisplayed()));
-        onView(withId(R.id.textView_subtitle)).check(matches(isDisplayed()));
-        onView(withId(R.id.imageView_intro)).check(matches(isDisplayed()));
-    }
+  @Test
+  public void testItemsVisibility() throws Exception {
+    onView(withId(R.id.textView_title)).check(matches(isDisplayed()));
+    onView(withId(R.id.textView_subtitle)).check(matches(isDisplayed()));
+    onView(withId(R.id.imageView_intro)).check(matches(isDisplayed()));
+  }
 }
