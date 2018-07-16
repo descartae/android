@@ -56,7 +56,7 @@ class LegendTypeOfWasteActivity : AppCompatActivity() {
     list.layoutManager = LinearLayoutManager(this)
     list.addItemDecoration(SpaceDividerItemDecoration(80))
 
-    adapter = LegendWasteTypeListAdapter(this)
+    adapter = LegendWasteTypeListAdapter()
     list.adapter = adapter
   }
 

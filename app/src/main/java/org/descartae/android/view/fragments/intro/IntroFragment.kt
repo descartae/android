@@ -43,7 +43,7 @@ class IntroFragment : Fragment() {
 
         view.textView_title.setText(R.string.onboard_title_1)
         view.textView_subtitle.setText(R.string.onboard_subtitle_1)
-        Picasso.with(activity).load(R.drawable.onboarding_1).into(view.imageView_intro)
+        Picasso.get().load(R.drawable.onboarding_1).into(view.imageView_intro)
         view.button_start.visibility = View.GONE
 
         return view
@@ -52,7 +52,7 @@ class IntroFragment : Fragment() {
 
         view.textView_title.setText(R.string.onboard_title_2)
         view.textView_subtitle.setText(R.string.onboard_subtitle_2)
-        Picasso.with(activity).load(R.drawable.onboarding_2).into(view.imageView_intro)
+        Picasso.get().load(R.drawable.onboarding_2).into(view.imageView_intro)
         view.button_start.visibility = View.GONE
 
         return view
@@ -61,7 +61,7 @@ class IntroFragment : Fragment() {
 
         view.textView_title.setText(R.string.onboard_title_3)
         view.textView_subtitle.setText(R.string.onboard_subtitle_3)
-        Picasso.with(activity).load(R.drawable.onboarding_3).into(view.imageView_intro)
+        Picasso.get().load(R.drawable.onboarding_3).into(view.imageView_intro)
         view.button_start.visibility = View.GONE
 
         return view
@@ -70,7 +70,7 @@ class IntroFragment : Fragment() {
 
         view.textView_title.setText(R.string.onboard_title_4)
         view.textView_subtitle.setText(R.string.onboard_subtitle_4)
-        Picasso.with(activity).load(R.drawable.onboarding_4).into(view.imageView_intro)
+        Picasso.get().load(R.drawable.onboarding_4).into(view.imageView_intro)
         view.button_start.visibility = View.VISIBLE
 
         return view

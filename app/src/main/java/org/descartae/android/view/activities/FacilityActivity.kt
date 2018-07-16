@@ -101,7 +101,7 @@ class FacilityActivity : AppCompatActivity(), OnMapReadyCallback, RetryConnectio
     val layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
     type_waste.layoutManager = layoutManager
 
-    mTypesWasteAdapter = WastesTypeListAdapter(this) {
+    mTypesWasteAdapter = WastesTypeListAdapter {
 
       val ft = supportFragmentManager.beginTransaction()
       val prev = supportFragmentManager.findFragmentByTag("dialog")
@@ -223,10 +223,10 @@ class FacilityActivity : AppCompatActivity(), OnMapReadyCallback, RetryConnectio
     time_expand.setOnClickListener {
 
       if (recyclerView_more_times.visibility == View.VISIBLE) {
-        Picasso.with(this@FacilityActivity).load(R.drawable.ic_action_expand_more).into(time_expand)
+        Picasso.get().load(R.drawable.ic_action_expand_more).into(time_expand)
         recyclerView_more_times.visibility = View.GONE
       } else {
-        Picasso.with(this@FacilityActivity).load(R.drawable.ic_action_expand_less).into(time_expand)
+        Picasso.get().load(R.drawable.ic_action_expand_less).into(time_expand)
         recyclerView_more_times.visibility = View.VISIBLE
       }
     }

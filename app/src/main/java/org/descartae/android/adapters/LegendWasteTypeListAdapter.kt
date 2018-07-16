@@ -1,6 +1,5 @@
 package org.descartae.android.adapters
 
-import android.content.Context
 import android.graphics.Color
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
@@ -13,8 +12,7 @@ import org.descartae.android.R
 import org.descartae.android.TypeOfWasteQuery
 import org.descartae.android.view.viewholder.LegendTypeWasteViewHolder
 
-class LegendWasteTypeListAdapter(
-  private val mContext: Context) : RecyclerView.Adapter<LegendTypeWasteViewHolder>() {
+class LegendWasteTypeListAdapter : RecyclerView.Adapter<LegendTypeWasteViewHolder>() {
 
   var types: List<TypeOfWasteQuery.TypesOfWaste>? = null
 
@@ -26,9 +24,9 @@ class LegendWasteTypeListAdapter(
   override fun onBindViewHolder(holder: LegendTypeWasteViewHolder, position: Int) {
 
     types!![position].let {
-      Picasso.with(mContext)
+      Picasso.get()
           .load(it.icons()
-              .androidMediumURL())
+          .androidMediumURL())
           .resize(100, 100)
           .placeholder(R.drawable.ic_placeholder)
           .centerInside()

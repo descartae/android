@@ -24,8 +24,8 @@ android {
     applicationId "com.descartae"
     minSdkVersion 23
     targetSdkVersion 27
-    versionCode 4
-    versionName "1.0"
+    versionCode 6
+    versionName "1.0.1"
     testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     vectorDrawables.useSupportLibrary = true
     buildConfigField "String", "MOBILE_API_URL", project.MOBILE_API_DEBUG
@@ -58,7 +58,7 @@ dependencies {
   implementation 'com.google.firebase:firebase-perf:16.0.0'
   implementation 'com.google.firebase:firebase-appindexing:16.0.1'
   implementation 'com.google.code.gson:gson:2.8.2'
-  implementation 'com.squareup.picasso:picasso:2.5.2'
+  implementation 'com.squareup.picasso:picasso:2.71828'
   implementation 'me.relex:circleindicator:1.2.2@aar'
   implementation 'com.facebook.network.connectionclass:connectionclass:1.0.1'
   implementation 'org.greenrobot:eventbus:3.1.1'
@@ -74,11 +74,11 @@ dependencies {
     transitive = true
   }
   implementation('com.crashlytics.sdk.android:answers:1.4.1@aar') {
-    transitive = true;
+    transitive = true
   }
   testImplementation 'junit:junit:4.12'
-  androidTestImplementation 'com.android.support.test:runner:1.0.1'
-  androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
+  androidTestImplementation 'com.android.support.test:runner:1.0.2'
+  androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
   implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 }
 
