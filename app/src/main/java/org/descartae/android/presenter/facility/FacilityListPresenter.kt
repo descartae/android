@@ -23,106 +23,111 @@ import javax.inject.Inject
 
 private const val TAG_APOLLO_FACILITY_QUERY = "ApolloFacilityQuery"
 
-class FacilityListPresenter @Inject constructor(private val eventBus: EventBus, private val descartaePreferences: DescartaePreferences, private val apiErrorHandler: ApolloApiErrorHandler, fusedLocationClient: FusedLocationProviderClient) : BaseLocationPresenter(fusedLocationClient), ConnectionClassManager.ConnectionClassStateChangeListener {
+class FacilityListPresenter @Inject constructor(private val eventBus: EventBus,
+  private val descartaePreferences: DescartaePreferences,
+  private val apiErrorHandler: ApolloApiErrorHandler,
+  fusedLocationClient: FusedLocationProviderClient) : BaseLocationPresenter(
+    fusedLocationClient), ConnectionClassManager.ConnectionClassStateChangeListener {
 
-    private val builder = FacilitiesQuery.builder()
-    private var facilityQuery: FacilitiesQuery? = null
-    private var disposable: Disposable? = null
+  private val builder = FacilitiesQuery.builder()
+  private var facilityQuery: FacilitiesQuery? = null
+  private var disposable: Disposable? = null
 
-    private val facilitiesCall: ApolloQueryCall<FacilitiesQuery.Data> get() {
-        val apolloClient = ApolloClient.builder().serverUrl(NetworkingConstants.BASE_URL).build()
-        facilityQuery = builder.build()
+  private val facilitiesCall: ApolloQueryCall<FacilitiesQuery.Data>
+    get() {
+      val apolloClient = ApolloClient.builder().serverUrl(NetworkingConstants.BASE_URL).build()
+      facilityQuery = builder.build()
 
-        facilityQuery?.let { Log.d(TAG_APOLLO_FACILITY_QUERY, it.variables().valueMap().toString()) }
+      facilityQuery?.let { Log.d(TAG_APOLLO_FACILITY_QUERY, it.variables().valueMap().toString()) }
 
-        return apolloClient.query(facilityQuery!!)
+      return apolloClient.query(facilityQuery!!)
     }
 
-    init {
-        ConnectionClassManager.getInstance().register(this)
-    }
+  init {
+    ConnectionClassManager.getInstance().register(this)
+  }
 
-    override fun updateCurrentLocation(currentLocation: Location) {
-        builder.latitude(currentLocation.latitude)
-        builder.longitude(currentLocation.longitude)
+  override fun updateCurrentLocation(currentLocation: Location) {
+    builder.latitude(currentLocation.latitude)
+    builder.longitude(currentLocation.longitude)
 
-        // Save Last Location Queried
-        descartaePreferences.setValue(
-                DescartaePreferences.PREF_LAST_LOCATION_LAT,
-                currentLocation.latitude)
+    // Save Last Location Queried
+    descartaePreferences.setValue(
+        DescartaePreferences.PREF_LAST_LOCATION_LAT,
+        currentLocation.latitude)
 
-        descartaePreferences.setValue(
-                DescartaePreferences.PREF_LAST_LOCATION_LNG,
-                currentLocation.longitude)
+    descartaePreferences.setValue(
+        DescartaePreferences.PREF_LAST_LOCATION_LNG,
+        currentLocation.longitude)
 
-        requestFacilities()
-    }
+    requestFacilities()
+  }
 
-    fun setFilterTypesID(filterTypesID: List<String>?) {
-        builder.hasTypesOfWaste(filterTypesID)
-    }
+  fun setFilterTypesID(filterTypesID: List<String>?) {
+    builder.hasTypesOfWaste(filterTypesID)
+  }
 
-    fun requestFacilities() {
+  fun requestFacilities() {
 
-        if (disposable == null || disposable!!.isDisposed) {
+    if (disposable == null || disposable!!.isDisposed) {
 
-            eventBus.post(EventShowLoading())
+      eventBus.post(EventShowLoading())
 
-            // Start Test Connection Quality
-            DeviceBandwidthSampler.getInstance().startSampling()
+      // Start Test Connection Quality
+      DeviceBandwidthSampler.getInstance().startSampling()
 
-            disposable = Rx2Apollo.from<FacilitiesQuery.Data>(facilitiesCall).subscribe({ dataResponse ->
+      disposable = Rx2Apollo.from<FacilitiesQuery.Data>(facilitiesCall).subscribe({ dataResponse ->
 
-                // Stop Test Connection Quality
-                DeviceBandwidthSampler.getInstance().stopSampling()
+        // Stop Test Connection Quality
+        DeviceBandwidthSampler.getInstance().stopSampling()
 
-                eventBus.post(EventHideLoading())
+        eventBus.post(EventHideLoading())
 
-                // Check and throw errors
-                dataResponse.errors().forEach {
-                    apiErrorHandler.throwError(it)
-                }
-
-                // Check data and send facilities to be render
-                dataResponse.data()?.facilities()?.let {
-                    eventBus.post(it)
-                }
-
-                disposable!!.dispose()
-
-            }) { throwable ->
-
-                // Stop Test Connection Quality
-                DeviceBandwidthSampler.getInstance().stopSampling()
-                val cq = ConnectionClassManager.getInstance().currentBandwidthQuality
-
-                eventBus.post(EventHideLoading())
-
-                throwable.message?.let { it ->
-                    Log.e(TAG_APOLLO_FACILITY_QUERY, it)
-                    if (it == "Failed to execute http call") eventBus.post(ConnectionError())
-                    else if (cq == ConnectionQuality.UNKNOWN) eventBus.post(ConnectionError())
-                }
-
-                disposable!!.dispose()
-            }
+        // Check and throw errors
+        dataResponse.errors().forEach {
+          apiErrorHandler.throwError(it)
         }
+
+        // Check data and send facilities to be render
+        dataResponse.data()?.facilities()?.let {
+          eventBus.post(it)
+        }
+
+        disposable!!.dispose()
+
+      }) { throwable ->
+
+        // Stop Test Connection Quality
+        DeviceBandwidthSampler.getInstance().stopSampling()
+        val cq = ConnectionClassManager.getInstance().currentBandwidthQuality
+
+        eventBus.post(EventHideLoading())
+
+        throwable.message?.let { it ->
+          Log.e(TAG_APOLLO_FACILITY_QUERY, it)
+          if (it == "Failed to execute http call") eventBus.post(ConnectionError())
+          else if (cq == ConnectionQuality.UNKNOWN) eventBus.post(ConnectionError())
+        }
+
+        disposable!!.dispose()
+      }
     }
+  }
 
-    fun haveCurrentLocation(): Boolean {
-        return currentLocation != null
-    }
+  fun haveCurrentLocation(): Boolean {
+    return currentLocation != null
+  }
 
-    override fun onBandwidthStateChange(bandwidthState: ConnectionQuality) {
-        if (bandwidthState == ConnectionQuality.UNKNOWN) eventBus.post(ConnectionError())
-    }
+  override fun onBandwidthStateChange(bandwidthState: ConnectionQuality) {
+    if (bandwidthState == ConnectionQuality.UNKNOWN) eventBus.post(ConnectionError())
+  }
 
-    fun hasFilterType(): Boolean {
+  fun hasFilterType(): Boolean {
 
-        if (facilityQuery!!.variables() != null)
-            if (facilityQuery!!.variables().hasTypesOfWaste() != null)
-                if (facilityQuery!!.variables().hasTypesOfWaste()!!.size > 0) return true
+    if (facilityQuery!!.variables() != null)
+      if (facilityQuery!!.variables().hasTypesOfWaste() != null)
+        if (facilityQuery!!.variables().hasTypesOfWaste()!!.size > 0) return true
 
-        return false
-    }
+    return false
+  }
 }

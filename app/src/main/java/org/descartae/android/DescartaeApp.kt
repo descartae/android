@@ -8,18 +8,18 @@ import org.greenrobot.eventbus.EventBus
 
 class DescartaeApp : Application() {
 
-    var eventBus: EventBus? = null
+  var eventBus: EventBus? = null
 
-    val component: AppComponent by lazy {
-        DaggerAppComponent
-            .builder()
-            .appModule(AppModule(this))
-            .build()
-    }
+  val component: AppComponent by lazy {
+    DaggerAppComponent
+        .builder()
+        .appModule(AppModule(this))
+        .build()
+  }
 
-    override fun onCreate() {
-        super.onCreate()
-        component.inject(this)
-        eventBus = EventBus.builder().build()
-    }
+  override fun onCreate() {
+    super.onCreate()
+    component.inject(this)
+    eventBus = EventBus.builder().build()
+  }
 }
