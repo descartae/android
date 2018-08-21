@@ -22,7 +22,7 @@ android {
   compileSdkVersion 27
   defaultConfig {
     applicationId "com.descartae"
-    minSdkVersion 23
+    minSdkVersion 19
     targetSdkVersion 27
     versionCode 6
     versionName "1.0.1"
@@ -55,7 +55,7 @@ dependencies {
   implementation 'com.google.android.gms:play-services-maps:15.0.1'
   implementation 'com.android.support.constraint:constraint-layout:1.1.2'
   implementation 'com.google.firebase:firebase-core:16.0.1'
-  implementation 'com.google.firebase:firebase-perf:16.0.0'
+  implementation 'com.google.firebase:firebase-perf:16.1.0'
   implementation 'com.google.firebase:firebase-appindexing:16.0.1'
   implementation 'com.google.code.gson:gson:2.8.2'
   implementation 'com.squareup.picasso:picasso:2.71828'
